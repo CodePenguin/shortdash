@@ -1,0 +1,16 @@
+﻿@namespace ShortDash.Server.Components
+@using Data
+
+<button class="btn btn-primary" @onclick="Click">
+	@Action.Label
+</button>
+
+@code {
+	[Parameter]
+	public ShortAction Action { get; set; }
+
+	private void Click() 
+	{
+		Console.WriteLine($"Clicked button {Action.Label}");
+	}
+}

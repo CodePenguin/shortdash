@@ -1,0 +1,23 @@
+﻿@page "/dashboard"
+@using Data
+
+@inject ShortActionService ActionButtonService
+
+<h3>Dashboard!</h3>
+
+<div class="dashboard">
+	@foreach (var action in actions)
+	{
+		<DashboardButton Action="action" />
+	}
+</div>
+
+@code {
+
+	private IList<ShortAction> actions = new List<ShortAction>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		actions = await ActionButtonService.GetActionButtonsAsync();
+	}
+}
