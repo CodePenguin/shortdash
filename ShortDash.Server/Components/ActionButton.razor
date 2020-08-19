@@ -1,7 +1,7 @@
 ﻿@namespace ShortDash.Server.Components
 @using Data
 
-<button class="btn btn-primary" @onclick="Click">
+<button class="btn btn-primary" @onclick="Click" @attributes=_buttonAttributes>
     @Cell.Title
 </button>
 
@@ -9,8 +9,18 @@
     [Parameter]
     public GridCell Cell { get; set; }
 
+    private Dictionary<string, object> _buttonAttributes;
+
+
     private void Click()
     {
         Console.WriteLine($"Clicked button {Cell.Title}");
+    }
+
+    protected override void OnInitialized()
+    {
+        _buttonAttributes = new Dictionary<string, object>();
+        if (!string.IsNullOrEmpty(Cell.BackgroundColor))
+            _buttonAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
     }
 }

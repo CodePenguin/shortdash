@@ -12,6 +12,7 @@ namespace ShortDash.Server.Data
     {
         public string Title { get; set; }
         public GridCellType CellType { get; set; } = GridCellType.None;
+        public string BackgroundColor { get; set; } = "";
     }
 
     public class GridRow
