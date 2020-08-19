@@ -1,23 +1,23 @@
 ﻿@page "/dashboard"
 @using Data
 
-@inject ShortActionService ActionButtonService
+@inject DashModelService DashModelService
 
 <h3>Dashboard!</h3>
 
 <div class="dashboard">
-	@foreach (var action in actions)
-	{
-		<DashboardButton Action="action" />
-	}
+    <DashGrid DashModel="dash"/>
 </div>
 
 @code {
+    [Parameter]
+    public int id { get; set; } = 1;
 
-	private IList<ShortAction> actions = new List<ShortAction>();
+    private DashModel dash;
 
-	protected override async Task OnInitializedAsync()
-	{
-		actions = await ActionButtonService.GetActionButtonsAsync();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        dash = await DashModelService.GetDashModelAsync(id);
+    }
+
 }

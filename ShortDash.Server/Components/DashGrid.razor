@@ -1,0 +1,21 @@
+﻿@using Data
+<h3>Action Grid</h3>
+
+<div class="grid container">
+    @foreach (var row in DashModel.Rows)
+    {
+    <div class="row">
+        @foreach (var cell in row.Cells)
+        {
+        <div class="col">
+            <DashGridCell Cell="cell" />
+        </div>
+        }
+    </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public DashModel DashModel { get; set; }
+}
