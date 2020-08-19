@@ -2,9 +2,16 @@
 
 namespace ShortDash.Server.Data
 {
+    public enum GridCellType
+    {
+        None,
+        Action
+    }
+
     public class GridCell 
     {
         public string Title { get; set; }
+        public GridCellType CellType { get; set; } = GridCellType.None;
     }
 
     public class GridRow

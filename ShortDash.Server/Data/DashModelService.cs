@@ -14,26 +14,26 @@ namespace ShortDash.Server.Data
 
             // Row 1
             var row = new GridRow();
-            row.Cells.Add(new GridCell() { Title = "Twitter" });
-            row.Cells.Add(new GridCell() { Title = "Discord" });
-            row.Cells.Add(new GridCell() { Title = "Slack" });
-            row.Cells.Add(new GridCell() { Title = "Chrome" });
+            row.Cells.Add(new GridCell() { Title = "Twitter", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Discord", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Slack", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Chrome", CellType = GridCellType.Action });
             result.Rows.Add(row);
 
             // Row 2
             row = new GridRow();
-            row.Cells.Add(new GridCell() { Title = "Mute" });
-            row.Cells.Add(new GridCell() { Title = "Prev" });
-            row.Cells.Add(new GridCell() { Title = "Play" });
-            row.Cells.Add(new GridCell() { Title = "Next" });
+            row.Cells.Add(new GridCell() { Title = "Mute", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Prev", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Play", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell() { Title = "Next", CellType = GridCellType.Action });
             result.Rows.Add(row);
 
             // Row 3
             row = new GridRow();
-            row.Cells.Add(new GridCell() { Title = "GMail" });
-            row.Cells.Add(new GridCell() { Title = "Seperator" });
-            row.Cells.Add(new GridCell() { Title = "Seperator" });
-            row.Cells.Add(new GridCell() { Title = "Batch" });
+            row.Cells.Add(new GridCell() { Title = "GMail", CellType = GridCellType.Action });
+            row.Cells.Add(new GridCell());
+            row.Cells.Add(new GridCell());
+            row.Cells.Add(new GridCell() { Title = "Batch", CellType = GridCellType.Action });
             result.Rows.Add(row);
 
             return Task.FromResult(result);

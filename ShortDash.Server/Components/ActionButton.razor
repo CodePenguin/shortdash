@@ -1,0 +1,16 @@
+﻿@namespace ShortDash.Server.Components
+@using Data
+
+<button class="btn btn-primary" @onclick="Click">
+    @Cell.Title
+</button>
+
+@code {
+    [Parameter]
+    public GridCell Cell { get; set; }
+
+    private void Click()
+    {
+        Console.WriteLine($"Clicked button {Cell.Title}");
+    }
+}
