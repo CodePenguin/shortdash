@@ -7,20 +7,20 @@
 <h3>Dashboard!</h3>
 
 <div class="dashboard">
-    <DashboardGrid DashboardModel="dash" />
+    <DashboardGrid DashboardModel="DashboardModel" />
 </div>
 
 @code {
     [Parameter]
     public int? DashboardId { get; set; }
 
-    private DashboardModel dash;
+    private DashboardModel DashboardModel;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         await base.SetParametersAsync(parameters);
         DashboardId = DashboardId ?? 1;
-        dash = await DashboardModelService.GetDashModelAsync(DashboardId.Value);
+        DashboardModel = await DashboardModelService.GetDashModelAsync(DashboardId.Value);
     }
 
 }

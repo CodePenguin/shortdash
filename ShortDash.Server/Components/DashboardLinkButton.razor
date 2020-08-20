@@ -1,7 +1,5 @@
 ﻿@namespace ShortDash.Server.Components
-@using Data
-@using System.Text.Json;
-
+@inherits DashboardButtonBase
 @inject NavigationManager NavigationManagerService;
 
 <button class="btn btn-primary" @onclick="Click" @attributes=ButtonAttributes>
@@ -15,14 +13,11 @@
         public int DashboardId { get; set; } = 0;
     }
 
-    [Parameter]
-    public GridCell Cell { get; set; }
 
-    private Dictionary<string, object> ButtonAttributes;
     private DashLinkButtonParameters Parameters;
 
 
-    private void Click()
+    protected override void Click()
     {
         Console.WriteLine($"Clicked dash link button {Cell.Title} - ID {Parameters.DashboardId}");
         NavigationManagerService.NavigateTo($"/dashboard/{Parameters.DashboardId}");
@@ -30,9 +25,6 @@
 
     protected override void OnInitialized()
     {
-        Parameters = JsonSerializer.Deserialize<DashLinkButtonParameters>(Cell.Parameters);
-        ButtonAttributes = new Dictionary<string, object>();
-        if (!string.IsNullOrEmpty(Cell.BackgroundColor))
-            ButtonAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
+        Parameters = GetParameters<DashLinkButtonParameters>();
     }
 }

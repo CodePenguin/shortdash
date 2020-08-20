@@ -1,26 +1,14 @@
 ﻿@namespace ShortDash.Server.Components
-@using Data
+@inherits DashboardButtonBase
 
-<button class="btn btn-primary" @onclick="Click" @attributes=_buttonAttributes>
+<button class="btn btn-primary" @onclick="Click" @attributes=ButtonAttributes>
     @Cell.Title
 </button>
 
 @code {
-    [Parameter]
-    public GridCell Cell { get; set; }
-
-    private Dictionary<string, object> _buttonAttributes;
-
-
-    private void Click()
+    protected override void Click()
     {
         Console.WriteLine($"Clicked button {Cell.Title}");
     }
 
-    protected override void OnInitialized()
-    {
-        _buttonAttributes = new Dictionary<string, object>();
-        if (!string.IsNullOrEmpty(Cell.BackgroundColor))
-            _buttonAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
-    }
 }
