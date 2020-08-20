@@ -5,6 +5,10 @@
 {
     <ActionButton Cell="Cell" />
 }
+else if (Cell.CellType == GridCellType.DashLink)
+{
+    <DashboardLinkButton Cell="Cell" />
+}
 
 @code {
     [Parameter]

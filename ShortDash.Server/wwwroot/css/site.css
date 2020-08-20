@@ -186,11 +186,7 @@ app {
 
 /* Dashboard stuff*/
 
-.dashboard span {
-    background-color: red;
-}
-
-.dashboard button {
+.dashboard .btn {
     width:5em;
     height:5em;
 }

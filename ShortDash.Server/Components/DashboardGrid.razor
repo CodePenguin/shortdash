@@ -1,14 +1,13 @@
 ﻿@using Data
-<h3>Action Grid</h3>
 
 <div class="grid container">
-    @foreach (var row in DashModel.Rows)
+    @foreach (var row in DashboardModel.Rows)
     {
-    <div class="row">
+    <div class="row justify-content-md-center">
         @foreach (var cell in row.Cells)
         {
         <div class="col">
-            <DashGridCell Cell="cell" />
+            <DashboardGridCell Cell="cell" />
         </div>
         }
     </div>
@@ -17,5 +16,5 @@
 
 @code {
     [Parameter]
-    public DashModel DashModel { get; set; }
+    public DashboardModel DashboardModel { get; set; }
 }
