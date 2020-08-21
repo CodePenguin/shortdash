@@ -1,5 +1,5 @@
 ﻿@namespace ShortDash.Server.Components
-@inherits DashboardButtonBase
+@inherits DashboardGridButtonBase<DashLinkButtonParameters>
 @inject NavigationManager NavigationManagerService;
 
 <button class="btn btn-primary" @onclick="Click" @attributes=ButtonAttributes>
@@ -7,24 +7,9 @@
 </button>
 
 @code {
-
-    private class DashLinkButtonParameters
-    {
-        public int DashboardId { get; set; } = 0;
-    }
-
-
-    private DashLinkButtonParameters Parameters;
-
-
     protected override void Click()
     {
         Console.WriteLine($"Clicked dash link button {Cell.Title} - ID {Parameters.DashboardId}");
         NavigationManagerService.NavigateTo($"/dashboard/{Parameters.DashboardId}");
-    }
-
-    protected override void OnInitialized()
-    {
-        Parameters = GetParameters<DashLinkButtonParameters>();
     }
 }

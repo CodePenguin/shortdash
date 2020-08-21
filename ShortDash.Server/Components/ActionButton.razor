@@ -1,14 +1,33 @@
 ﻿@namespace ShortDash.Server.Components
-@inherits DashboardButtonBase
+@inherits DashboardGridButtonBase<ActionButtonParameters>
 
-<button class="btn btn-primary" @onclick="Click" @attributes=ButtonAttributes>
+<button class=@($"btn btn-primary {GetActiveStateClass()}") @onclick="Click" @attributes=ButtonAttributes>
     @Cell.Title
 </button>
 
 @code {
+
+    private bool _pressed = false;
+
     protected override void Click()
     {
         Console.WriteLine($"Clicked button {Cell.Title}");
+        _pressed = !_pressed;
+    }
+
+    private string GetActiveStateClass()
+    {
+
+        return (Parameters.IsToggle && _pressed) ? "active" : "";
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (Parameters.IsToggle)
+        {
+            ButtonAttributes.Add("data-toggle", "button");
+        }
     }
 
 }

@@ -5,24 +5,25 @@ using System.Text.Json;
 
 namespace ShortDash.Server.Components
 {
-    public abstract class DashboardButtonBase : ComponentBase
+    public abstract class DashboardGridButtonBase<TParameterType> : ComponentBase where TParameterType : DashboardGridButtonParameters
     {
+
         [Parameter]
         public GridCell Cell { get; set; }
+
+        protected TParameterType Parameters { get; private set; }
 
         protected Dictionary<string, object> ButtonAttributes;
         protected abstract void Click();
 
-        protected T GetParameters<T>() 
-        {
-            return JsonSerializer.Deserialize<T>(Cell.Parameters);
-        }
 
-        protected override void OnInitialized()
+        protected override void OnParametersSet()
         {
+            base.OnParametersSet();
+            Parameters = JsonSerializer.Deserialize<TParameterType>(Cell.Parameters);
             ButtonAttributes = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(Cell.BackgroundColor))
-                ButtonAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
+                ButtonAttributes.Add("style", "background-colorX: " + Cell.BackgroundColor);
         }
     }
 }

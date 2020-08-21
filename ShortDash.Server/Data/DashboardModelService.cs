@@ -26,7 +26,7 @@ namespace ShortDash.Server.Data
 
                 // Row 2
                 row = new GridRow();
-                row.Cells.Add(new GridCell() { Title = "Mute", CellType = GridCellType.Action });
+                row.Cells.Add(new GridCell() { Title = "Mute", CellType = GridCellType.Action, Parameters = "{\"IsToggle\":true}" });
                 row.Cells.Add(new GridCell() { Title = "Prev", CellType = GridCellType.Action, BackgroundColor = Gray });
                 row.Cells.Add(new GridCell() { Title = "Play", CellType = GridCellType.Action });
                 row.Cells.Add(new GridCell() { Title = "Next", CellType = GridCellType.Action });
