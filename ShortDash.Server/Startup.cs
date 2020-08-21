@@ -41,6 +41,7 @@ namespace ShortDash.Server
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<DashboardModelService>();
+            services.AddSingleton<ActionProcessorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
