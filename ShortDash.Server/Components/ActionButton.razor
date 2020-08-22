@@ -2,9 +2,9 @@
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 @inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
 
-<button class=@($"btn btn-primary {GetActiveStateClass()}") @onclick="Click" @attributes=ButtonAttributes>
-    @Cell.Title
-</button>
+<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault @attributes=ButtonAttributes >
+    <img src="/assets/@Cell.Icon" alt="@Cell.Title"/>
+</a>
 
 @code {
 

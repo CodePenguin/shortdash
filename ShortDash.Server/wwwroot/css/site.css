@@ -186,7 +186,11 @@ app {
 
 /* Dashboard stuff*/
 
-.dashboard .btn {
-    width:5em;
-    height:5em;
+.dashboard {
+    background-color: #000000;
+}
+
+.dashboard .grid-icon {
+    width: 74px;
+    height: 74px;
 }

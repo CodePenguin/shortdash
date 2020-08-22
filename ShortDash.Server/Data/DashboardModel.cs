@@ -14,27 +14,19 @@ namespace ShortDash.Server.Data
         public string Title { get; set; }
         public GridCellType CellType { get; set; } = GridCellType.None;
         public string BackgroundColor { get; set; } = "";
+        public string Icon { get; set; } = "";
         public string Parameters { get; set; } = "{}";
     }
 
-    public class GridRow
-    {
-        public readonly List<GridCell> Cells;
-
-        public GridRow()
-        {
-            Cells = new List<GridCell>();
-        }
-    }
     public class DashboardModel
     {
         public string Title { get; set; }
 
-        public readonly List<GridRow> Rows;
+        public readonly List<GridCell> Cells;
 
         public DashboardModel()
         {
-            Rows = new List<GridRow>();
+            Cells = new List<GridCell>();
         }
     }
 }
