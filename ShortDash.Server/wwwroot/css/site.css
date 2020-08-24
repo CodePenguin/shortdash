@@ -210,6 +210,12 @@ app {
     width: 74px;
 }
 
+.grid-icon-content img[src$=".svg"] {
+    height: 3em;
+    width: 3em;
+    border-radius: 0 !important;
+}
+
 .grid-icon-caption {
     font-size: 0.8em;
 }

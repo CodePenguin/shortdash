@@ -21,9 +21,9 @@ namespace ShortDash.Server.Data
                 result.Cells.Add(new GridCell() { Title = "Twitter", CellType = GridCellType.Action, Icon = "Twitter.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://twitter.com\"}" });
                 result.Cells.Add(new GridCell() { Title = "Discord", CellType = GridCellType.Action, Icon = "Phone.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://discord.com\"}" });
                 result.Cells.Add(new GridCell() { Title = "Slack", CellType = GridCellType.Action, BackgroundColor = Gray, Icon = "Mail.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://slack.com\"}" });
-                result.Cells.Add(new GridCell() { Title = "Dash 2", CellType = GridCellType.DashLink, BackgroundColor = GreenSheen, Parameters = "{\"DashboardId\":2}" });
+                result.Cells.Add(new GridCell() { Title = "Dash 2", CellType = GridCellType.DashLink, BackgroundColor = GreenSheen, Icon = "open-iconic/svg/grid-three-up.svg", Parameters = "{\"DashboardId\":2}" });
 
-                result.Cells.Add(new GridCell() { Title = "Mute", CellType = GridCellType.Action, Icon = "Photos.png", Parameters = "{\"IsToggle\":true}" });
+                result.Cells.Add(new GridCell() { Title = "Mute", CellType = GridCellType.Action, BackgroundColor = EtonBlue, Icon = "open-iconic/svg/ban.svg", Parameters = "{\"IsToggle\":true}" });
                 result.Cells.Add(new GridCell() { Title = "Prev", CellType = GridCellType.Action, BackgroundColor = Gray });
                 result.Cells.Add(new GridCell() { Title = "Play", CellType = GridCellType.Action, BackgroundColor = DarkBlue });
                 result.Cells.Add(new GridCell() { Title = "Next", CellType = GridCellType.Action, BackgroundColor = WildBlue });
@@ -38,7 +38,7 @@ namespace ShortDash.Server.Data
                 // Row 1
                 result.Cells.Add(new GridCell() { Title = "Twitter", CellType = GridCellType.Action, Icon = "Twitter.png" });
                 result.Cells.Add(new GridCell() { Title = "Discord", CellType = GridCellType.Action, Icon = "Phone.png" });
-                result.Cells.Add(new GridCell() { Title = "Dash 1", CellType = GridCellType.DashLink, BackgroundColor = GreenSheen, Parameters = "{\"DashboardId\":1}" });
+                result.Cells.Add(new GridCell() { Title = "Dash 1", CellType = GridCellType.DashLink, BackgroundColor = GreenSheen, Icon = "open-iconic/svg/grid-three-up.svg", Parameters = "{\"DashboardId\":1}" });
 
                 result.Cells.Add(new GridCell() { Title = "GMail", CellType = GridCellType.Action, Icon = "Mail.png" });
                 result.Cells.Add(new GridCell());
