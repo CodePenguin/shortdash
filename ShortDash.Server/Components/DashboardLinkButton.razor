@@ -2,14 +2,19 @@
 @inherits DashboardGridButtonBase<DashLinkButtonParameters>
 @inject NavigationManager NavigationManagerService;
 
-<button class="btn btn-primary" @onclick="Click" @attributes=ButtonAttributes>
-    @Cell.Title
-</button>
+<a href="#" @onclick=Click @onclick:preventDefault @attributes=ButtonAttributes>
+    @ChildContent
+</a>
 
 @code {
-    protected override void Click()
+    
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private void Click()
     {
         Console.WriteLine($"Clicked dash link button {Cell.Title} - ID {Parameters.DashboardId}");
         NavigationManagerService.NavigateTo($"/dashboard/{Parameters.DashboardId}");
     }
+
 }

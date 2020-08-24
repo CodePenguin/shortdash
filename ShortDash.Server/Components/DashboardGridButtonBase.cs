@@ -14,8 +14,6 @@ namespace ShortDash.Server.Components
         protected TParameterType Parameters { get; private set; }
 
         protected Dictionary<string, object> ButtonAttributes;
-        protected abstract void Click();
-
 
         protected override void OnParametersSet()
         {

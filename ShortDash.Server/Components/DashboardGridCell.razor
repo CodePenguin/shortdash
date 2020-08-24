@@ -3,15 +3,21 @@
 
 @if (Cell.CellType == GridCellType.Action)
 {
-    <ActionButton Cell="Cell" />
+    <ActionButton Cell="Cell">
+        <DashboardGridButton Cell="Cell" />
+    </ActionButton>
 }
 else if (Cell.CellType == GridCellType.DashLink)
 {
-    <DashboardLinkButton Cell="Cell" />
+    <DashboardLinkButton Cell="Cell">
+        <DashboardGridButton Cell="Cell" />
+    </DashboardLinkButton>
 }
 else
 {
-    <div class="grid-icon"></div>
+    <div class="grid-icon">
+        &nbsp;
+    </div>
 }
 
 @code {

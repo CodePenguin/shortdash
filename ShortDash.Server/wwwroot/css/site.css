@@ -193,4 +193,31 @@ app {
 .dashboard .grid-icon {
     width: 74px;
     height: 74px;
+    display: inline-block;
+}
+
+.grid {
+    background-color: #000000;
+}
+
+.grid .col {
+    color: #FFFFFF;
+}
+
+.grid .col, .grid .col a, .grid .col a:hover, .grid .col a:active, .grid .col a:visited {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.grid-icon .rounded, .grid-icon.rounded {
+    border-radius: 1rem !important;
+}
+
+.grid-icon-text {
+    height: 74px;
+    width: 74px;
+}
+
+.grid-icon-caption {
+    font-size: 0.8em;
 }

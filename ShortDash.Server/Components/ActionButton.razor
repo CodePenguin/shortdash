@@ -2,15 +2,18 @@
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 @inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
 
-<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault @attributes=ButtonAttributes >
-    <img src="/assets/@Cell.Icon" alt="@Cell.Title"/>
+<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault @attributes=ButtonAttributes>
+    @ChildContent
 </a>
 
 @code {
 
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
     private bool _toggleState = false;
 
-    protected override void Click()
+    private void Click()
     {
         _toggleState = !Parameters.IsToggle || !_toggleState;
 

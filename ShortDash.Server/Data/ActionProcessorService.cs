@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Media;
 using System.Text.Json;
 
 namespace ShortDash.Server.Data
@@ -39,7 +40,8 @@ namespace ShortDash.Server.Data
             } 
             else
             {
-                throw new NotImplementedException($"Invalid Action Type: {actionParameters.ActionType}");
+                Console.WriteLine($"Invalid Action Type: {actionParameters.ActionType}");
+                SystemSounds.Exclamation.Play();
             }
 
         }
