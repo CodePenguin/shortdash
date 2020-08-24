@@ -190,18 +190,10 @@ app {
     background-color: #000000;
 }
 
-.dashboard .grid-icon {
+.grid-icon {
     width: 74px;
     height: 74px;
     display: inline-block;
-}
-
-.grid {
-    background-color: #000000;
-}
-
-.grid .col {
-    color: #FFFFFF;
 }
 
 .grid .col, .grid .col a, .grid .col a:hover, .grid .col a:active, .grid .col a:visited {
@@ -213,7 +205,7 @@ app {
     border-radius: 1rem !important;
 }
 
-.grid-icon-text {
+.grid-icon-content {
     height: 74px;
     width: 74px;
 }

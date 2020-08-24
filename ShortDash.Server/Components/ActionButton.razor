@@ -2,7 +2,7 @@
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 @inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
 
-<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault @attributes=ButtonAttributes>
+<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
     @ChildContent
 </a>
 
@@ -31,7 +31,7 @@
         base.OnParametersSet();
         if (Parameters.IsToggle)
         {
-            ButtonAttributes.Add("data-toggle", "button");
+            // Do something for toggle-able buttons
         }
     }
 

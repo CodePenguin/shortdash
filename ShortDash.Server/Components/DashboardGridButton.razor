@@ -1,9 +1,9 @@
 ﻿@namespace ShortDash.Server.Components
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 
-<div class="grid-icon rounded" style="background-color: green">
-    <div class="grid-icon-text d-table-cell align-middle">
-        @if (!string.IsNullOrWhiteSpace(Cell.Icon))
+<div class="grid-icon rounded" @attributes=CellAttributes>
+    <div class="grid-icon-content d-table-cell align-middle">
+        @if (HasIcon())
         {
             <img src="/assets/@Cell.Icon" alt="@Cell.Title" class="rounded"/>
         }
@@ -19,9 +19,19 @@
 
 @code {
 
+    protected Dictionary<string, object> CellAttributes;
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        CellAttributes = new Dictionary<string, object>();
+        if (!string.IsNullOrEmpty(Cell.BackgroundColor))
+            CellAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
+    }
+
+    private bool HasIcon()
+    {
+        return !string.IsNullOrWhiteSpace(Cell.Icon);
     }
 
 }
