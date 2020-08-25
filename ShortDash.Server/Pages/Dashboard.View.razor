@@ -2,25 +2,25 @@
 @page "/dashboard/{DashboardId:int}"
 @using Data
 
-@inject DashboardModelService DashboardModelService
+@inject DashboardService DashboardService
 
 <h3>Dashboard!</h3>
 
 <div class="dashboard">
-    <DashboardGrid DashboardModel="DashboardModel" />
+    <DashboardGrid Dashboard="Dashboard" />
 </div>
 
 @code {
     [Parameter]
     public int? DashboardId { get; set; }
 
-    private DashboardModel DashboardModel;
+    private Dashboard Dashboard;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         await base.SetParametersAsync(parameters);
         DashboardId = DashboardId ?? 1;
-        DashboardModel = await DashboardModelService.GetDashModelAsync(DashboardId.Value);
+        Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
     }
 
 }

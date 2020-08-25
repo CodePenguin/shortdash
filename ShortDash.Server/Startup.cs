@@ -26,7 +26,7 @@ namespace ShortDash.Server
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<DashboardModelService>();
+            services.AddSingleton<DashboardService>();
             services.AddSingleton<ActionProcessorService>();
         }
 

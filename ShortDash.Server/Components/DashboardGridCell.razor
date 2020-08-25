@@ -1,13 +1,13 @@
 ﻿@namespace ShortDash.Server.Components
 @using Data
 
-@if (Cell.CellType == GridCellType.Action)
+@if (Cell.CellType == DashboardCellType.Action)
 {
     <ActionButton Cell="Cell">
         <DashboardGridButton Cell="Cell" />
     </ActionButton>
 }
-else if (Cell.CellType == GridCellType.DashLink)
+else if (Cell.CellType == DashboardCellType.DashLink)
 {
     <DashboardLinkButton Cell="Cell">
         <DashboardGridButton Cell="Cell" />
@@ -22,5 +22,5 @@ else
 
 @code {
     [Parameter]
-    public GridCell Cell { get; set; }
+    public DashboardCell Cell { get; set; }
 }

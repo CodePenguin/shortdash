@@ -9,7 +9,7 @@ namespace ShortDash.Server.Components
     {
 
         [Parameter]
-        public GridCell Cell { get; set; }
+        public DashboardCell Cell { get; set; }
 
         protected TParameterType Parameters { get; private set; }
 

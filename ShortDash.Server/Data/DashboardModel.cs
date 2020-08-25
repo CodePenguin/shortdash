@@ -2,31 +2,27 @@
 
 namespace ShortDash.Server.Data
 {
-    public enum GridCellType
+    public enum DashboardCellType
     {
-        None,
-        Action,
-        DashLink
+        None = 0,
+        Action = 1,
+        DashLink = 2
     }
 
-    public class GridCell 
+    public class DashboardCell 
     {
         public string Title { get; set; }
-        public GridCellType CellType { get; set; } = GridCellType.None;
+        public DashboardCellType CellType { get; set; } = DashboardCellType.None;
         public string BackgroundColor { get; set; } = "";
         public string Icon { get; set; } = "";
         public string Parameters { get; set; } = "{}";
     }
 
-    public class DashboardModel
+    public class Dashboard
     {
+        public int DashboardId { get; set; }
         public string Title { get; set; }
 
-        public readonly List<GridCell> Cells;
-
-        public DashboardModel()
-        {
-            Cells = new List<GridCell>();
-        }
+        public List<DashboardCell> Cells { get; } = new List<DashboardCell>();
     }
 }

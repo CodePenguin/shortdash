@@ -2,7 +2,7 @@
 
 <div class="grid container px-lg-2">
     <div class="row text-center mx-lg-n2">
-        @foreach (var cell in DashboardModel.Cells)
+        @foreach (var cell in Dashboard.Cells)
         {
         <div class="col py-3 px-lg-2 flex-grow-0">
             <DashboardGridCell Cell="cell" />
@@ -13,5 +13,5 @@
 
 @code {
     [Parameter]
-    public DashboardModel DashboardModel { get; set; }
+    public Dashboard Dashboard { get; set; }
 }
