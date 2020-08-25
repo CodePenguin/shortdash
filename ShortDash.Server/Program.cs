@@ -23,6 +23,10 @@ namespace ShortDash.Server
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureHostConfiguration(hostBuilder =>
+                {
+                    hostBuilder.AddJsonFile("hostsettings.json", optional: true);
                 });
     }
 }
