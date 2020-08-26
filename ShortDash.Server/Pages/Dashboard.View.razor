@@ -4,23 +4,29 @@
 
 @inject DashboardService DashboardService
 
-<h3>Dashboard!</h3>
-
+@if (dashboard == null)
+{
+    <h3>Opps, the dashboard doesn't seem to exist anymore.</h3>
+}
+else
+{
+<h3>@dashboard.Title</h3>
 <div class="dashboard">
-    <DashboardGrid Dashboard="Dashboard" />
+    <DashboardGrid Dashboard="dashboard" />
 </div>
+}
 
 @code {
     [Parameter]
     public int? DashboardId { get; set; }
 
-    private Dashboard Dashboard;
+    private Dashboard dashboard;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         await base.SetParametersAsync(parameters);
         DashboardId = DashboardId ?? 1;
-        Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
+        dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);        
     }
 
 }

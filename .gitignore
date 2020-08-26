@@ -353,3 +353,7 @@ MigrationBackup/
 # Project specific
 hostsettings.json
 **/wwwroot/assets/*
+Migrations/
+*.db
+*.db-shm
+*.db-wal

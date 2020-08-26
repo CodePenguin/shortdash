@@ -2,15 +2,20 @@
 
 namespace ShortDash.Server.Data
 {
-    public enum DashboardCellType
+    public class Dashboard
     {
-        None = 0,
-        Action = 1,
-        DashLink = 2
+        public int DashboardId { get; set; }
+        public string Title { get; set; }
+
+        public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
     }
 
     public class DashboardCell 
     {
+        public int DashboardCellId { get; set; }
+        public int DashboardId { get; set; }
+        public virtual Dashboard Dashboard { get; set; }
+
         public string Title { get; set; }
         public DashboardCellType CellType { get; set; } = DashboardCellType.None;
         public string BackgroundColor { get; set; } = "";
@@ -18,11 +23,10 @@ namespace ShortDash.Server.Data
         public string Parameters { get; set; } = "{}";
     }
 
-    public class Dashboard
+    public enum DashboardCellType
     {
-        public int DashboardId { get; set; }
-        public string Title { get; set; }
-
-        public List<DashboardCell> Cells { get; } = new List<DashboardCell>();
+        None = 0,
+        Action = 1,
+        DashLink = 2
     }
 }

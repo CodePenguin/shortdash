@@ -21,18 +21,19 @@ namespace ShortDash.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => {
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+            });
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<DashboardService>();
+            services.AddScoped<DashboardService>();
             services.AddSingleton<ActionProcessorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
+            dbContext.Database.Migrate();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
