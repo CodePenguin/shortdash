@@ -29,5 +29,10 @@ namespace ShortDash.Server.Data
         {
             return await dbContext.Dashboards.ToListAsync();
         }
+
+        public async Task<List<DashboardAction>> GetDashboardActionsAsync()
+        {
+            return await dbContext.DashboardActions.ToListAsync();
+        }
     }
 }

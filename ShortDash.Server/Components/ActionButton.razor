@@ -2,7 +2,7 @@
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 @inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
 
-<a href="" class=@($"grid-icon {GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
+<a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
     @ChildContent
 </a>
 
@@ -17,7 +17,7 @@
     {
         _toggleState = !Parameters.IsToggle || !_toggleState;
 
-        ActionProcessorService.Execute(Cell.Title, Cell.Parameters, _toggleState);
+        ActionProcessorService.Execute(Cell.Title, Cell.DashboardAction.Parameters, _toggleState);
     }
 
     private string GetActiveStateClass()
