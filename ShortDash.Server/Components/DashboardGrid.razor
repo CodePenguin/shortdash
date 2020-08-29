@@ -3,9 +3,7 @@
         @foreach (var cell in DashboardCells)
         {
         <div class="col py-3 px-lg-2 flex-grow-0">
-            <ActionButton Cell="cell">
-                <DashboardGridButton Cell="cell" />
-            </ActionButton>
+            <DashboardActionButton Cell="cell" />
         </div>
         }
     </div>

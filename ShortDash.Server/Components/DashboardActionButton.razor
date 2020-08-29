@@ -1,0 +1,67 @@
+﻿@namespace ShortDash.Server.Components
+@inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
+
+@if (string.IsNullOrWhiteSpace(Cell.DashboardAction?.ActionClass))
+{
+    <div class="grid-icon">
+        &nbsp;
+    </div>
+}
+else
+{
+<a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
+    <div class="grid-icon rounded" @attributes=CellAttributes>
+        <div class="grid-icon-content d-table-cell align-middle">
+            @if (HasIcon())
+            {
+                <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded" />
+            }
+            else
+            {
+                @Cell.DashboardAction.Title
+            }
+        </div>
+    </div>
+    <div class="grid-icon-caption">
+        @Cell.DashboardAction.Title
+    </div>
+</a>
+}
+
+@code {
+
+    [Parameter]
+    public DashboardCell Cell { get; set; }
+
+    private Dictionary<string, object> CellAttributes;
+    private bool _toggleState = false;
+    private bool IsToggle => false; // TODO: Implement toggle functionality
+
+    private void Click()
+    {
+        _toggleState = !IsToggle || !_toggleState;
+
+        ActionProcessorService.Execute(Cell.DashboardAction, _toggleState);
+    }
+
+    private string GetActiveStateClass()
+    {
+
+        return (IsToggle && _toggleState) ? "active" : "";
+    }
+
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        CellAttributes = new Dictionary<string, object>();
+        if (Cell.DashboardAction.BackgroundColor != null)
+            CellAttributes.Add("style", "background-color: " + Cell.DashboardAction.BackgroundColor?.ToHtmlString());
+    }
+
+    private bool HasIcon()
+    {
+        return !string.IsNullOrWhiteSpace(Cell.DashboardAction.Icon);
+    }
+
+}

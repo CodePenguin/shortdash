@@ -36,7 +36,6 @@ namespace ShortDash.Server.Data
         public void Execute(DashboardAction action, bool toggleState)
         {
             Console.WriteLine($"Clicked {action.DashboardActionId} - {toggleState} - {action.Parameters}");
-            var actionParameters = JsonSerializer.Deserialize<ActionParameters>(action.Parameters);
             if (action.ActionClass == "DashLink")
             {
                 var dashLinkParameters = JsonSerializer.Deserialize<DashLinkProcessParameters>(action.Parameters);
@@ -55,6 +54,7 @@ namespace ShortDash.Server.Data
                 process.StartInfo.WorkingDirectory = executeProcessParameters.WorkingDirectory;
                 process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                 process.Start();
+                // TODO: Handle ExecuteProcess error scenarios
             } 
             else
             {
