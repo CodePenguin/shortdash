@@ -6,7 +6,7 @@ namespace ShortDash.Core.Actions
 {
     public class ExecuteProcessAction : IShortDashAction
     {
-        bool IShortDashAction.Execute(string parameters)
+        bool IShortDashAction.Execute(string parameters, ref bool toggleState)
         {
             var executeProcessParameters = JsonSerializer.Deserialize<ExecuteProcessParameters>(parameters);
 

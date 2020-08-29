@@ -2,9 +2,9 @@
 {
     public interface IShortDashAction
     {
-        static string Title { get; }
         static string Description { get; }
+        static string Title { get; }
 
-        bool Execute(string parameters);
+        bool Execute(string parameters, ref bool toggleState);
     }
 }

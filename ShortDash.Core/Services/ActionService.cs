@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ShortDash.Core.Actions;
 using ShortDash.Core.Plugins;
-using ShortDash.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Media;
 using System.Reflection;
 
-namespace ShortDash.Server.Services
+namespace ShortDash.Core.Services
 {
     public class ActionService
     {
@@ -23,17 +22,17 @@ namespace ShortDash.Server.Services
 
         private Dictionary<string, Type> Actions { get; } = new Dictionary<string, Type>();
 
-        public void Execute(DashboardAction action, bool toggleState)
+        public void Execute(string actionTypeName, string parameters, ref bool toggleState)
         {
-            if (!Actions.TryGetValue(action.ActionClass, out var actionType))
+            if (!Actions.TryGetValue(actionTypeName, out var actionType))
             {
-                Console.WriteLine($"Unhandled Action Class: {action.ActionClass}");
+                Console.WriteLine($"Unhandled Action Class: {actionTypeName}");
                 SystemSounds.Exclamation.Play();
                 return;
             }
             Console.WriteLine($"Found {actionType.AssemblyQualifiedName}");
             var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
-            actionInstance?.Execute(action.Parameters);
+            actionInstance?.Execute(parameters, ref toggleState);
         }
 
         private IEnumerable<Type> FindActions(Assembly plugin)

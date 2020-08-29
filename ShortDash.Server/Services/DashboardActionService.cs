@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using ShortDash.Core.Plugins;
+using ShortDash.Core.Services;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 
@@ -26,14 +27,14 @@ namespace ShortDash.Server.Services
         {
             Console.WriteLine($"Clicked {action.DashboardActionId} - {toggleState} - {action.Parameters}");
 
-            if (!Actions.TryGetValue(action.ActionClass, out var actionType))
+            if (!Actions.TryGetValue(action.ActionTypeName, out var actionType))
             {
-                actionService.Execute(action, toggleState);
+                actionService.Execute(action.ActionTypeName, action.Parameters, ref toggleState);
                 return;
             }
             Console.WriteLine($"Found {actionType.AssemblyQualifiedName}");
             var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
-            actionInstance?.Execute(action.Parameters);
+            actionInstance?.Execute(action.Parameters, ref toggleState);
         }
 
         private void RegisterActionType(Type actionType)

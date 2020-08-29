@@ -14,7 +14,7 @@ namespace ShortDash.Server.Actions
             this.navigationManager = navigationManager;
         }
 
-        public bool Execute(string parameters)
+        public bool Execute(string parameters, ref bool toggleState)
         {
             var dashLinkParameters = JsonSerializer.Deserialize<DashLinkProcessParameters>(parameters);
             Console.WriteLine($"Clicked dash link button ID {dashLinkParameters.DashboardId}");
