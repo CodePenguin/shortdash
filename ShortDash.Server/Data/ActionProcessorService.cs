@@ -46,15 +46,17 @@ namespace ShortDash.Server.Data
             {
                 var executeProcessParameters = JsonSerializer.Deserialize<ExecuteProcessParameters>(action.Parameters);
 
-                var process = new Process();
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.FileName = executeProcessParameters.FileName;
-                process.StartInfo.Arguments = executeProcessParameters.Arguments;
-                process.StartInfo.RedirectStandardOutput = false;
-                process.StartInfo.WorkingDirectory = executeProcessParameters.WorkingDirectory;
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                process.Start();
-                // TODO: Handle ExecuteProcess error scenarios
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = executeProcessParameters.FileName;
+                    process.StartInfo.Arguments = executeProcessParameters.Arguments;
+                    process.StartInfo.RedirectStandardOutput = false;
+                    process.StartInfo.WorkingDirectory = executeProcessParameters.WorkingDirectory;
+                    process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    process.StartInfo.UseShellExecute = !System.IO.Path.GetExtension(executeProcessParameters.FileName).ToUpper().Equals(".EXE");
+                    process.Start();
+                    // TODO: Handle ExecuteProcess error scenarios
+                }
             } 
             else
             {
