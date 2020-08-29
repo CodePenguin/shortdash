@@ -2,7 +2,7 @@
 @inherits DashboardGridButtonBase<ActionButtonParameters>
 @inject ShortDash.Server.Data.ActionProcessorService ActionProcessorService
 
-@if (string.IsNullOrWhiteSpace(Cell.DashboardAction.ActionClass))
+@if (string.IsNullOrWhiteSpace(Cell.DashboardAction?.ActionClass))
 {
     <div class="grid-icon">
         &nbsp;

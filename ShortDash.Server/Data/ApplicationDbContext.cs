@@ -72,7 +72,7 @@ namespace ShortDash.Server.Data
                 new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Title = "Play", BackgroundColor = Color.DarkBlue, ActionClass="Media.Play" },
                 new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Title = "Next", BackgroundColor = Color.SeaGreen, ActionClass="Media.Next" },
                 new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Title = "Notepad", Icon = "Settings.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
-                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png" },
+                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"test.batch\"}" },
                 new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionClass="Composite" },
                 new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionClass="DashLink", Parameters = "{\"DashboardId\":2}" },
                 new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionClass="DashLink", Parameters = "{\"DashboardId\":3}" },

@@ -1,9 +1,11 @@
 ﻿<div class="grid container px-lg-2">
     <div class="row text-center mx-lg-n2">
-        @foreach (var cell in Dashboard.DashboardCells)
+        @foreach (var cell in DashboardCells)
         {
         <div class="col py-3 px-lg-2 flex-grow-0">
-            <DashboardGridCell Cell="cell" />
+            <ActionButton Cell="cell">
+                <DashboardGridButton Cell="cell" />
+            </ActionButton>
         </div>
         }
     </div>
@@ -12,4 +14,7 @@
 @code {
     [Parameter]
     public Dashboard Dashboard { get; set; }
+
+
+    private List<DashboardCell> DashboardCells => Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList();
 }
