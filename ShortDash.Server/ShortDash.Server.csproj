@@ -16,4 +16,9 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ShortDash.Core\ShortDash.Core.csproj" />
+    <ProjectReference Include="..\ShortDash.Core.Plugins\ShortDash.Core.Plugins.csproj" />
+  </ItemGroup>
+
 </Project>

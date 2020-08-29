@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ShortDash.Server.Data;
+using ShortDash.Server.Services;
 
 namespace ShortDash.Server
 {
@@ -27,7 +28,8 @@ namespace ShortDash.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<DashboardService>();
-            services.AddScoped<ActionProcessorService>();
+            services.AddScoped<DashboardActionService>();
+            services.AddSingleton<ActionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
