@@ -26,6 +26,7 @@ namespace ShortDash.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            #region DashboardSubAction
             modelBuilder.Entity<DashboardSubAction>()
                 .HasKey(u => new { u.DashboardActionChildId, u.DashboardActionParentId });
 
@@ -38,6 +39,7 @@ namespace ShortDash.Server.Data
                 .HasMany(u => u.DashboardSubActionParents)
                 .WithOne(f => f.DashboardActionChild)
                 .HasForeignKey(f => f.DashboardActionChildId);
+            #endregion
 
 
             modelBuilder.Entity<Dashboard>().HasData(SeedDashboards());
@@ -60,24 +62,27 @@ namespace ShortDash.Server.Data
 
         private List<DashboardAction> SeedDashboardActions()
         {
+            // TODO: REMOVE DEBUG SEEDS
             return new List<DashboardAction> {
-                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Twitter", Icon = "Twitter.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://twitter.com\"}" },
-                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Discord", Icon = "Phone.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://discord.com\"}" },
-                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"https://slack.com\"}" },
-                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "open-iconic/svg/ban.svg", Parameters = "{\"IsToggle\":true}" },
-                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Prev", BackgroundColor = Color.Gray },
-                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Play", BackgroundColor = Color.DarkBlue },
-                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Next", BackgroundColor = Color.SeaGreen },
-                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Notepad", Icon = "Settings.png", Parameters = "{\"ActionType\":\"ExecuteProcess\",\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
-                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png" },
-                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Multi", Icon = "Mail.png" },
-                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Dash 2", ActionClass="DashLink", Parameters = "{\"DashboardId\":2}" },
-                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, ActionType = DashboardActionType.Action, Title = "Dash 3", ActionClass="DashLink", Parameters = "{\"DashboardId\":3}" },
+                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, Title = "Twitter", Icon = "Twitter.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"https://twitter.com\"}" },
+                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, Title = "Discord", Icon = "Phone.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"https://discord.com\"}" },
+                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, Title = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"https://slack.com\"}" },
+                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, Title = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "open-iconic/svg/ban.svg", ActionClass="Media.Mute", Parameters = "{\"IsToggle\":true}" },
+                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, Title = "Prev", BackgroundColor = Color.Gray, ActionClass="Media.Previous" },
+                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Title = "Play", BackgroundColor = Color.DarkBlue, ActionClass="Media.Play" },
+                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Title = "Next", BackgroundColor = Color.SeaGreen, ActionClass="Media.Next" },
+                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Title = "Notepad", Icon = "Settings.png", ActionClass="ExecuteProcess", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
+                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png" },
+                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionClass="Composite" },
+                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionClass="DashLink", Parameters = "{\"DashboardId\":2}" },
+                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionClass="DashLink", Parameters = "{\"DashboardId\":3}" },
+                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionClass="" },
             };
         }
 
         private List<DashboardSubAction> SeedDashboardSubActions()
         {
+            // TODO: REMOVE DEBUG SEEDS
             return new List<DashboardSubAction> {
                 new DashboardSubAction() { DashboardActionParentId = 10, DashboardActionChildId = 1  },
                 new DashboardSubAction() { DashboardActionParentId = 10, DashboardActionChildId = 2 },
@@ -96,24 +101,24 @@ namespace ShortDash.Server.Data
             // TODO: REMOVE DEBUG SEEDS
             return new List<DashboardCell>
             {
-                new DashboardCell() { DashboardCellId = 1, DashboardId = 2, Title = "Twitter", CellType = DashboardCellType.Action, DashboardActionId = 1, Icon = "Twitter.png" },
-                new DashboardCell() { DashboardCellId = 2, DashboardId = 2, Title = "Discord", CellType = DashboardCellType.Action, DashboardActionId = 2, Icon = "Phone.png" },
-                new DashboardCell() { DashboardCellId = 3, DashboardId = 2, Title = "Slack", CellType = DashboardCellType.Action, DashboardActionId = 3, BackgroundColor = Color.Gray, Icon = "Mail.png"},
-                new DashboardCell() { DashboardCellId = 4, DashboardId = 2, Title = "Dash 3", CellType = DashboardCellType.DashLink, DashboardActionId = 12, BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg" },
-                new DashboardCell() { DashboardCellId = 5, DashboardId = 2, Title = "Mute", CellType = DashboardCellType.Action, DashboardActionId = 4, BackgroundColor = Color.PaleTurquoise, Icon = "open-iconic/svg/ban.svg" },
-                new DashboardCell() { DashboardCellId = 6, DashboardId = 2, Title = "Prev", CellType = DashboardCellType.Action, DashboardActionId = 5, BackgroundColor = Color.Gray },
-                new DashboardCell() { DashboardCellId = 7, DashboardId = 2, Title = "Play", CellType = DashboardCellType.Action, DashboardActionId = 6, BackgroundColor = Color.DarkBlue },
-                new DashboardCell() { DashboardCellId = 8, DashboardId = 2, Title = "Next", CellType = DashboardCellType.Action, DashboardActionId = 7, BackgroundColor = Color.AliceBlue },
-                new DashboardCell() { DashboardCellId = 9, DashboardId = 2, Title = "Notepad", CellType = DashboardCellType.Action, DashboardActionId = 8, Icon = "Settings.png" },
-                new DashboardCell() { DashboardCellId = 10, DashboardId = 2 },
-                new DashboardCell() { DashboardCellId = 11, DashboardId = 2 },
-                new DashboardCell() { DashboardCellId = 12, DashboardId = 2, Title = "Batch", CellType = DashboardCellType.Action, DashboardActionId = 9, Icon = "Maps.png" },
-                new DashboardCell() { DashboardCellId = 13, DashboardId = 3, Title = "Twitter", CellType = DashboardCellType.Action, DashboardActionId = 1, Icon = "Twitter.png" },
-                new DashboardCell() { DashboardCellId = 14, DashboardId = 3, Title = "Discord", CellType = DashboardCellType.Action, DashboardActionId = 2, Icon = "Phone.png" },
-                new DashboardCell() { DashboardCellId = 15, DashboardId = 3, Title = "Dash 2", CellType = DashboardCellType.DashLink, DashboardActionId = 11, BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg" },
-                new DashboardCell() { DashboardCellId = 16, DashboardId = 3, Title = "GMail", CellType = DashboardCellType.Action, DashboardActionId = 10, Icon = "Mail.png" },
-                new DashboardCell() { DashboardCellId = 17, DashboardId = 3 },
-                new DashboardCell() { DashboardCellId = 18, DashboardId = 3, Title = "Batch", CellType = DashboardCellType.Action, DashboardActionId = 9, BackgroundColor = Color.Blue, Icon = "Podcast.png" }
+                new DashboardCell() { DashboardCellId = 1, DashboardId = 2, DashboardActionId = 1 },
+                new DashboardCell() { DashboardCellId = 2, DashboardId = 2, DashboardActionId = 2 },
+                new DashboardCell() { DashboardCellId = 3, DashboardId = 2, DashboardActionId = 3 },
+                new DashboardCell() { DashboardCellId = 4, DashboardId = 2, DashboardActionId = 12 },
+                new DashboardCell() { DashboardCellId = 5, DashboardId = 2, DashboardActionId = 4 },
+                new DashboardCell() { DashboardCellId = 6, DashboardId = 2, DashboardActionId = 5 },
+                new DashboardCell() { DashboardCellId = 7, DashboardId = 2, DashboardActionId = 6 },
+                new DashboardCell() { DashboardCellId = 8, DashboardId = 2, DashboardActionId = 7 },
+                new DashboardCell() { DashboardCellId = 9, DashboardId = 2, DashboardActionId = 8 },
+                new DashboardCell() { DashboardCellId = 10, DashboardId = 2, DashboardActionId = 13 },
+                new DashboardCell() { DashboardCellId = 11, DashboardId = 2, DashboardActionId = 13 },
+                new DashboardCell() { DashboardCellId = 12, DashboardId = 2, DashboardActionId = 9 },
+                new DashboardCell() { DashboardCellId = 13, DashboardId = 3, DashboardActionId = 1 },
+                new DashboardCell() { DashboardCellId = 14, DashboardId = 3, DashboardActionId = 2 },
+                new DashboardCell() { DashboardCellId = 15, DashboardId = 3, DashboardActionId = 11 },
+                new DashboardCell() { DashboardCellId = 16, DashboardId = 3, DashboardActionId = 10 },
+                new DashboardCell() { DashboardCellId = 17, DashboardId = 3, DashboardActionId = 13 },
+                new DashboardCell() { DashboardCellId = 18, DashboardId = 3, DashboardActionId = 9 }
             };
         }
     }

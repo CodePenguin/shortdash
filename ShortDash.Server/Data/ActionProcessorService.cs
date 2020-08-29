@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Media;
 using System.Text.Json;
+using Microsoft.AspNetCore.Components;
 
 namespace ShortDash.Server.Data
 {
@@ -13,6 +14,11 @@ namespace ShortDash.Server.Data
             public string ActionTarget { get; set; }
         }
 
+        private class DashLinkProcessParameters
+        {
+            public int DashboardId { get; set; }
+        }
+
         private class ExecuteProcessParameters
         {
             public string FileName { get; set; }
@@ -20,14 +26,26 @@ namespace ShortDash.Server.Data
             public string WorkingDirectory { get; set; }
         }
 
-        // TODO: Change actionId to a GUID?
-        public void Execute(string actionId, string parameters, bool toggleState)
+        private readonly NavigationManager navigationManager;
+
+        public ActionProcessorService(NavigationManager navigationManager)
         {
-            Console.WriteLine($"Clicked {actionId} - {toggleState} - {parameters}");
-            var actionParameters = JsonSerializer.Deserialize<ActionParameters>(parameters);
-            if (actionParameters.ActionType == "ExecuteProcess")
+            this.navigationManager = navigationManager;
+        }
+
+        public void Execute(DashboardAction action, bool toggleState)
+        {
+            Console.WriteLine($"Clicked {action.DashboardActionId} - {toggleState} - {action.Parameters}");
+            var actionParameters = JsonSerializer.Deserialize<ActionParameters>(action.Parameters);
+            if (action.ActionClass == "DashLink")
             {
-                var executeProcessParameters = JsonSerializer.Deserialize<ExecuteProcessParameters>(parameters);
+                var dashLinkParameters = JsonSerializer.Deserialize<DashLinkProcessParameters>(action.Parameters);
+                Console.WriteLine($"Clicked dash link button ID {dashLinkParameters.DashboardId}");
+                navigationManager.NavigateTo($"/dashboard/{dashLinkParameters.DashboardId}");
+            }
+            else if (action.ActionClass == "ExecuteProcess")
+            {
+                var executeProcessParameters = JsonSerializer.Deserialize<ExecuteProcessParameters>(action.Parameters);
 
                 var process = new Process();
                 process.StartInfo.UseShellExecute = true;
@@ -40,7 +58,7 @@ namespace ShortDash.Server.Data
             } 
             else
             {
-                Console.WriteLine($"Invalid Action Type: {actionParameters.ActionType}");
+                Console.WriteLine($"Unhandled Action Class: {action.ActionClass}");
                 SystemSounds.Exclamation.Play();
             }
 

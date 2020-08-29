@@ -1,23 +1,8 @@
 ﻿@namespace ShortDash.Server.Components
 
-@if (Cell.CellType == DashboardCellType.Action)
-{
-    <ActionButton Cell="Cell">
-        <DashboardGridButton Cell="Cell" />
-    </ActionButton>
-}
-else if (Cell.CellType == DashboardCellType.DashLink)
-{
-    <DashboardLinkButton Cell="Cell">
-        <DashboardGridButton Cell="Cell" />
-    </DashboardLinkButton>
-}
-else
-{
-    <div class="grid-icon">
-        &nbsp;
-    </div>
-}
+<ActionButton Cell="Cell">
+    <DashboardGridButton Cell="Cell" />
+</ActionButton>
 
 @code {
     [Parameter]

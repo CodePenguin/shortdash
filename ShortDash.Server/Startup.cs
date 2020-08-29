@@ -27,7 +27,7 @@ namespace ShortDash.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<DashboardService>();
-            services.AddSingleton<ActionProcessorService>();
+            services.AddScoped<ActionProcessorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

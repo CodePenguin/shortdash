@@ -5,16 +5,16 @@
     <div class="grid-icon-content d-table-cell align-middle">
         @if (HasIcon())
         {
-            <img src="/assets/@Cell.Icon" alt="@Cell.Title" class="rounded"/>
+            <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded"/>
         }
         else
         {
-            @Cell.Title
+            @Cell.DashboardAction.Title
         }
     </div>
 </div>
 <div class="grid-icon-caption">
-    @Cell.Title
+    @Cell.DashboardAction.Title
 </div>
 
 @code {
@@ -25,13 +25,13 @@
     {
         base.OnParametersSet();
         CellAttributes = new Dictionary<string, object>();
-        if (Cell.BackgroundColor != null)
-            CellAttributes.Add("style", "background-color: " + Cell.BackgroundColor?.ToHtmlString());
+        if (Cell.DashboardAction.BackgroundColor != null)
+            CellAttributes.Add("style", "background-color: " + Cell.DashboardAction.BackgroundColor?.ToHtmlString());
     }
 
     private bool HasIcon()
     {
-        return !string.IsNullOrWhiteSpace(Cell.Icon);
+        return !string.IsNullOrWhiteSpace(Cell.DashboardAction.Icon);
     }
 
 }
