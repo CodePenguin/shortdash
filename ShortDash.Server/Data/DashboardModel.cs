@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ShortDash.Server.Shared;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 
 namespace ShortDash.Server.Data
 {
@@ -10,7 +13,7 @@ namespace ShortDash.Server.Data
         public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
     }
 
-    public class DashboardCell 
+    public class DashboardCell
     {
         public int DashboardCellId { get; set; }
         public int DashboardId { get; set; }
@@ -18,7 +21,19 @@ namespace ShortDash.Server.Data
         public int? DashboardActionId { get; set; }
         public string Title { get; set; }
         public DashboardCellType CellType { get; set; } = DashboardCellType.None;
-        public string BackgroundColor { get; set; } = "";
+        [Column("BackgroundColor")]
+        public string BackgroundColorHtmlValue
+        {
+            get => BackgroundColor?.ToHtmlString();
+            set
+            {
+                ColorExtensions.TryParse(value, out var color);
+                BackgroundColor = color;
+            }
+        }
+
+        [NotMapped]
+        public Color? BackgroundColor { get; set; }
         public string Icon { get; set; } = "";
         public int Sequence { get; set; }
 
@@ -44,8 +59,27 @@ namespace ShortDash.Server.Data
         public DashboardActionType ActionType { get; set; }
         public int DashboardActionTargetId { get; set; }
         public string ActionClass { get; set; }
+        [Required]
         public string Title { get; set; }
-        public string BackgroundColor { get; set; } = "";
+        [Column("BackgroundColor")]
+        public string BackgroundColorHtmlValue
+        {
+            get => BackgroundColor?.ToHtmlString();
+            set
+            {
+                if (ColorExtensions.TryParse(value, out var color))
+                {
+                    BackgroundColor = color;
+                }
+                else
+                {
+                    BackgroundColor = null;
+                }
+            }
+        }
+
+        [NotMapped]
+        public Color? BackgroundColor { get; set; } = Color.Black;
         public string Icon { get; set; } = "";
         public string Parameters { get; set; } = "{}";
 

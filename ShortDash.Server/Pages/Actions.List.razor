@@ -21,6 +21,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        DashboardActions = await dashboardService.GetDashboardActionsAsync();
+        var list = await dashboardService.GetDashboardActionsAsync();
+        DashboardActions = list.OrderBy(o => o.Title).ToList();
+        
     }
 }

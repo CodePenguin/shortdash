@@ -1,0 +1,48 @@
+﻿@page "/actions/{DashboardActionId:int}"
+@inject ShortDash.Server.Data.DashboardService dashboardService
+@inject NavigationManager NavigationManagerService;
+
+<EditForm Model=@DashboardAction OnSubmit=@SaveChanges>
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label for="Title">Title</label>
+        <InputText @bind-Value=DashboardAction.Title class="form-control" id="Title" />
+        <ValidationMessage For="() => DashboardAction.Title" />
+    </div>
+    <div class="form-group">
+        <label for="BackgroundColor">Background Color</label>
+        <InputColor @bind-Value=DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
+        <ValidationMessage For="() => DashboardAction.BackgroundColor" />
+    </div>
+    <div class="form-group">
+        <label for="Icon">Icon</label>
+        <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
+        <ValidationMessage For="() => DashboardAction.Icon" />
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary" />
+    <button class="btn btn-outline-secondary" @onclick=CancelChanges>Cancel</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int DashboardActionId { get; set; }
+    public DashboardAction DashboardAction { get; set; }
+
+    private void CancelChanges()
+    {
+        NavigationManagerService.NavigateTo($"/actions");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
+    }
+
+    private async void SaveChanges(EditContext editContext)
+    {
+        if (!editContext.Validate()) return;
+        await dashboardService.UpdateDashboardActionAsync(DashboardAction);
+
+        NavigationManagerService.NavigateTo($"/actions");
+    }
+}

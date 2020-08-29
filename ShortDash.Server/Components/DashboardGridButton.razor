@@ -25,8 +25,8 @@
     {
         base.OnParametersSet();
         CellAttributes = new Dictionary<string, object>();
-        if (!string.IsNullOrEmpty(Cell.BackgroundColor))
-            CellAttributes.Add("style", "background-color: " + Cell.BackgroundColor);
+        if (Cell.BackgroundColor != null)
+            CellAttributes.Add("style", "background-color: " + Cell.BackgroundColor?.ToHtmlString());
     }
 
     private bool HasIcon()
