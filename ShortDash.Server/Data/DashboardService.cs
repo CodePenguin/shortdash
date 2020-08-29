@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Data
 {
     public class DashboardService
     {
-        private ApplicationDbContext dbContext;
+        private readonly ApplicationDbContext dbContext;
 
         public DashboardService(ApplicationDbContext dbContext)
         {
@@ -22,7 +23,11 @@ namespace ShortDash.Server.Data
 
         public async Task<Dashboard> GetDashboardAsync(int dashboardId)
         {
-            return await dbContext.Dashboards.FirstOrDefaultAsync(d => d.DashboardId == dashboardId);
+            return await dbContext.Dashboards
+                .Include(d => d.DashboardCells)
+                .ThenInclude(c => c.DashboardAction)
+                .Where(d => d.DashboardId == dashboardId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<List<Dashboard>> GetDashboardsAsync()
@@ -51,7 +56,10 @@ namespace ShortDash.Server.Data
 
         public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
-            return await dbContext.DashboardActions.FirstOrDefaultAsync(d => d.DashboardActionId == dashboardActionId);
+            return await dbContext.DashboardActions
+                .Include(a => a.DashboardSubActionChildren)
+                .Where(a => a.DashboardActionId == dashboardActionId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction)
