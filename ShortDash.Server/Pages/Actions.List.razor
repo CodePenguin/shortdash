@@ -1,6 +1,5 @@
 ﻿@page "/actions"
-@inject ShortDash.Server.Data.DashboardService dashboardService
-
+@inject DashboardService dashboardService
 
 <h3>Actions</h3>
 
@@ -23,6 +22,6 @@
     {
         var list = await dashboardService.GetDashboardActionsAsync();
         DashboardActions = list.OrderBy(o => o.Title).ToList();
-        
+
     }
 }

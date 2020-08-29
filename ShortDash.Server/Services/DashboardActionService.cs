@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using ShortDash.Core.Plugins;
 using ShortDash.Server.Actions;
-using ShortDash.Server.Services;
+using ShortDash.Server.Data;
 
-namespace ShortDash.Server.Data
+namespace ShortDash.Server.Services
 {
     public class DashboardActionService
     {

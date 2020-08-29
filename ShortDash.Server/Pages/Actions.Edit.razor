@@ -1,5 +1,5 @@
 ﻿@page "/actions/{DashboardActionId:int}"
-@inject ShortDash.Server.Data.DashboardService dashboardService
+@inject DashboardService dashboardService
 @inject NavigationManager NavigationManagerService;
 
 <EditForm Model=@DashboardAction OnSubmit=@SaveChanges>

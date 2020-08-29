@@ -1,4 +1,4 @@
-﻿@inject ShortDash.Server.Data.DashboardActionService ActionProcessorService
+﻿@inject DashboardActionService ActionProcessorService
 
 @if (string.IsNullOrWhiteSpace(Cell.DashboardAction?.ActionClass))
 {
@@ -8,23 +8,23 @@
 }
 else
 {
-<a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
-    <div class="grid-icon rounded" @attributes=CellAttributes>
-        <div class="grid-icon-content d-table-cell align-middle">
-            @if (HasIcon())
-            {
-                <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded" />
-            }
-            else
-            {
-                @Cell.DashboardAction.Title
-            }
+    <a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
+        <div class="grid-icon rounded" @attributes=CellAttributes>
+            <div class="grid-icon-content d-table-cell align-middle">
+                @if (HasIcon())
+                {
+                    <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded" />
+                }
+                else
+                {
+                    @Cell.DashboardAction.Title
+                }
+            </div>
         </div>
-    </div>
-    <div class="grid-icon-caption">
-        @Cell.DashboardAction.Title
-    </div>
-</a>
+        <div class="grid-icon-caption">
+            @Cell.DashboardAction.Title
+        </div>
+    </a>
 }
 
 @code {
@@ -48,7 +48,6 @@ else
 
         return (IsToggle && _toggleState) ? "active" : "";
     }
-
 
     protected override void OnParametersSet()
     {
