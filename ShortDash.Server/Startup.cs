@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -59,6 +60,7 @@ namespace ShortDash.Server
             services.AddScoped<DashboardActionService>();
             services.AddSingleton<ActionService>();
             services.AddSingleton<PluginService>();
+            services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
         }
     }
 }

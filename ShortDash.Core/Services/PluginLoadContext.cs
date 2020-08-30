@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShortDash.Core.Plugins;
+using System;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -15,6 +16,9 @@ namespace ShortDash.Core.Services
 
         protected override Assembly Load(AssemblyName assemblyName)
         {
+            // Load ShortDash.Plugins.Core from the currently process context
+            if (assemblyName.Name == typeof(IShortDashAction).Assembly.GetName().Name) return null;
+            // Load other assemblies
             var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
             return (assemblyPath != null) ? LoadFromAssemblyPath(assemblyPath) : null;
         }

@@ -33,10 +33,9 @@ namespace ShortDash.Core.Services
                 logger.LogError($"Unhandled Action Class: {actionTypeName}");
                 return;
             }
-            logger.LogDebug($"Found {actionType.AssemblyQualifiedName}");
-            var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType);
-            var shortDashAction = (actionInstance as IShortDashAction);
-            shortDashAction?.Execute(parameters, ref toggleState);
+            logger.LogDebug($"Executing plugin action: {actionType.FullName}");
+            var actionInstance = (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
+            actionInstance.Execute(parameters, ref toggleState);
         }
 
         private void LoadBuiltInActions()
@@ -54,7 +53,7 @@ namespace ShortDash.Core.Services
 
         private void RegisterActionType(Type actionType)
         {
-            if (actionType.GetInterface(nameof(IShortDashAction)) == null) return;
+            if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) return;
             if (!Actions.TryAdd(actionType.FullName, actionType)) return;
         }
     }
