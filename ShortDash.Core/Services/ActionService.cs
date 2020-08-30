@@ -1,21 +1,25 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ShortDash.Core.Actions;
 using ShortDash.Core.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Media;
 using System.Reflection;
 
 namespace ShortDash.Core.Services
 {
     public class ActionService
     {
+        private readonly ILogger logger;
+        private readonly PluginService pluginService;
         private readonly IServiceProvider serviceProvider;
 
-        public ActionService(IServiceProvider serviceProvider)
+        public ActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider)
         {
+            this.logger = logger;
             this.serviceProvider = serviceProvider;
+            this.pluginService = pluginService;
             LoadBuiltInActions();
             LoadPluginActions();
         }
@@ -26,22 +30,13 @@ namespace ShortDash.Core.Services
         {
             if (!Actions.TryGetValue(actionTypeName, out var actionType))
             {
-                Console.WriteLine($"Unhandled Action Class: {actionTypeName}");
-                SystemSounds.Exclamation.Play();
+                logger.LogError($"Unhandled Action Class: {actionTypeName}");
                 return;
             }
-            Console.WriteLine($"Found {actionType.AssemblyQualifiedName}");
-            var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
-            actionInstance?.Execute(parameters, ref toggleState);
-        }
-
-        private IEnumerable<Type> FindActions(Assembly plugin)
-        {
-            foreach (Type type in plugin.GetTypes())
-            {
-                if (!typeof(IShortDashAction).IsAssignableFrom(type)) continue;
-                yield return type;
-            }
+            logger.LogDebug($"Found {actionType.AssemblyQualifiedName}");
+            var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType);
+            var shortDashAction = (actionInstance as IShortDashAction);
+            shortDashAction?.Execute(parameters, ref toggleState);
         }
 
         private void LoadBuiltInActions()
@@ -49,25 +44,9 @@ namespace ShortDash.Core.Services
             RegisterActionType(typeof(ExecuteProcessAction));
         }
 
-        private Assembly LoadPlugin(string pluginPath)
-        {
-            // TODO: Need to implement plugin loading
-            throw new NotImplementedException();
-        }
-
         private void LoadPluginActions()
         {
-            string[] pluginPaths = new string[]
-            {
-                // TODO: Need to figure out paths here
-            };
-
-            IEnumerable<Type> actionTypes = pluginPaths.SelectMany(pluginPath =>
-            {
-                Assembly plugin = LoadPlugin(pluginPath);
-                return FindActions(plugin);
-            });
-            foreach (var actionType in actionTypes)
+            foreach (var actionType in pluginService.Actions)
             {
                 RegisterActionType(actionType);
             }
@@ -75,7 +54,7 @@ namespace ShortDash.Core.Services
 
         private void RegisterActionType(Type actionType)
         {
-            if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) return;
+            if (actionType.GetInterface(nameof(IShortDashAction)) == null) return;
             if (!Actions.TryAdd(actionType.FullName, actionType)) return;
         }
     }

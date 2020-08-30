@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Server.Actions;
@@ -11,11 +12,13 @@ namespace ShortDash.Server.Services
     public class DashboardActionService
     {
         private readonly ActionService actionService;
+        private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
 
-        public DashboardActionService(ActionService actionService, IServiceProvider serviceProvider)
+        public DashboardActionService(ActionService actionService, ILogger<DashboardActionService> logger, IServiceProvider serviceProvider)
         {
             this.actionService = actionService;
+            this.logger = logger;
             this.serviceProvider = serviceProvider;
 
             RegisterActionType(typeof(DashLinkAction));
@@ -25,14 +28,14 @@ namespace ShortDash.Server.Services
 
         public void Execute(DashboardAction action, bool toggleState)
         {
-            Console.WriteLine($"Clicked {action.DashboardActionId} - {toggleState} - {action.Parameters}");
+            logger.LogDebug($"Clicked #{action.DashboardActionId} - {action.ActionTypeName} - {toggleState} - {action.Parameters}");
 
             if (!Actions.TryGetValue(action.ActionTypeName, out var actionType))
             {
                 actionService.Execute(action.ActionTypeName, action.Parameters, ref toggleState);
                 return;
             }
-            Console.WriteLine($"Found {actionType.AssemblyQualifiedName}");
+            logger.LogDebug($"Found {actionType.AssemblyQualifiedName}");
             var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
             actionInstance?.Execute(action.Parameters, ref toggleState);
         }

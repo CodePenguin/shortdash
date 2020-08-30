@@ -58,6 +58,7 @@ namespace ShortDash.Server
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddSingleton<ActionService>();
+            services.AddSingleton<PluginService>();
         }
     }
 }
