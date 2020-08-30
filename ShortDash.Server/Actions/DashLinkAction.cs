@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using ShortDash.Core.Plugins;
+using System;
 using System.Text.Json;
 
 namespace ShortDash.Server.Actions
@@ -13,10 +14,16 @@ namespace ShortDash.Server.Actions
             this.navigationManager = navigationManager;
         }
 
-        public bool Execute(string parameters, ref bool toggleState)
+        public string Description => "Navigates to a specific dashboard.";
+
+        public Type ParametersType => typeof(DashLinkProcessParameters);
+
+        public string Title => "Go to Dashboard";
+
+        public bool Execute(object parametersObject, ref bool toggleState)
         {
-            var dashLinkParameters = JsonSerializer.Deserialize<DashLinkProcessParameters>(parameters);
-            navigationManager.NavigateTo($"/dashboard/{dashLinkParameters.DashboardId}");
+            var parameters = parametersObject as DashLinkProcessParameters;
+            navigationManager.NavigateTo($"/dashboard/{parameters.DashboardId}");
             return true;
         }
 

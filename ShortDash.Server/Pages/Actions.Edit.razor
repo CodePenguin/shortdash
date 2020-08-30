@@ -1,6 +1,7 @@
 ﻿@page "/actions/{DashboardActionId:int}"
 @inject DashboardService dashboardService
 @inject NavigationManager NavigationManagerService;
+@inject ActionService ActionService;
 
 <EditForm Model=@DashboardAction OnSubmit=@SaveChanges>
     <DataAnnotationsValidator />
@@ -26,7 +27,9 @@
 @code {
     [Parameter]
     public int DashboardActionId { get; set; }
-    public DashboardAction DashboardAction { get; set; }
+    private DashboardAction DashboardAction { get; set; }
+    private Type ActionType { get; set; }
+    private Type ParametersType { get; set; }
 
     private void CancelChanges()
     {
@@ -36,6 +39,8 @@
     protected override async Task OnParametersSetAsync()
     {
         DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
+        //ActionService.FindAction
+
     }
 
     private async void SaveChanges(EditContext editContext)

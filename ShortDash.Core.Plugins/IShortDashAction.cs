@@ -1,10 +1,13 @@
-﻿namespace ShortDash.Core.Plugins
+﻿using System;
+
+namespace ShortDash.Core.Plugins
 {
     public interface IShortDashAction
     {
-        static string Description { get; }
-        static string Title { get; }
+        string Description { get; }
+        Type ParametersType { get; }
+        string Title { get; }
 
-        bool Execute(string parameters, ref bool toggleState);
+        bool Execute(object parameters, ref bool toggleState);
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ShortDash.Core.Services
 {
@@ -24,14 +25,28 @@ namespace ShortDash.Core.Services
 
         public void Execute(string actionTypeName, string parameters, ref bool toggleState)
         {
-            if (!Actions.TryGetValue(actionTypeName, out var actionType))
+            var action = GetAction(actionTypeName);
+            if (action == null)
             {
                 logger.LogError($"Unhandled Action Class: {actionTypeName}");
                 return;
             }
-            logger.LogDebug($"Executing plugin action: {actionType.FullName}");
-            var actionInstance = (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
-            actionInstance.Execute(parameters, ref toggleState);
+            logger.LogDebug($"Executing plugin action: {action.GetType().FullName}");
+            var parametersObject = JsonSerializer.Deserialize(parameters, action.ParametersType);
+            action.Execute(parametersObject, ref toggleState);
+        }
+
+        public Type FindActionType(string actionTypeName)
+        {
+            if (!Actions.TryGetValue(actionTypeName, out var actionType)) return null;
+            return actionType;
+        }
+
+        public IShortDashAction GetAction(string actionTypeName)
+        {
+            var actionType = FindActionType(actionTypeName);
+            if (actionType == null) return null;
+            return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
         }
 
         private void LoadPluginActions()

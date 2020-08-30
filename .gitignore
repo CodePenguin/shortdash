@@ -357,4 +357,4 @@ Migrations/
 *.db
 *.db-shm
 *.db-wal
-createdata.bat
+*.bat

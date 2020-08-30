@@ -1,4 +1,5 @@
 ﻿using ShortDash.Core.Plugins;
+using System;
 using System.Media;
 
 namespace ShortDash.Plugins.Core.Windows
@@ -12,7 +13,13 @@ namespace ShortDash.Plugins.Core.Windows
             this.logger = logger;
         }
 
-        public bool Execute(string parameters, ref bool toggleState)
+        public string Description => "Mutes the currently playing system media.";
+
+        public Type ParametersType => typeof(object);
+
+        string IShortDashAction.Title => "Mute Media";
+
+        public bool Execute(object parametersObject, ref bool toggleState)
         {
             // TODO: Actually mute the volume
             logger.LogDebug($"Executing {GetType().Name}");
