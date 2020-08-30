@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace ShortDash.Core.Actions
+namespace ShortDash.Plugins.Core.Windows
 {
     public class ExecuteProcessAction : IShortDashAction
     {

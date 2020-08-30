@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ShortDash.Core.Actions;
 using ShortDash.Core.Plugins;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace ShortDash.Core.Services
 {
@@ -20,7 +17,6 @@ namespace ShortDash.Core.Services
             this.logger = logger;
             this.serviceProvider = serviceProvider;
             this.pluginService = pluginService;
-            LoadBuiltInActions();
             LoadPluginActions();
         }
 
@@ -36,11 +32,6 @@ namespace ShortDash.Core.Services
             logger.LogDebug($"Executing plugin action: {actionType.FullName}");
             var actionInstance = (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
             actionInstance.Execute(parameters, ref toggleState);
-        }
-
-        private void LoadBuiltInActions()
-        {
-            RegisterActionType(typeof(ExecuteProcessAction));
         }
 
         private void LoadPluginActions()
