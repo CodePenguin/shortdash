@@ -11,6 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Core", "ShortDash
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Plugins.Core.Windows", "ShortDash.Plugins.Core.Windows\ShortDash.Plugins.Core.Windows.csproj", "{4654F3DC-ED6E-4576-8C27-8ECEA127EECA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BE1B16B1-76CE-4BBB-81BC-7C6031AAF6D2}"
+	ProjectSection(SolutionItems) = preProject
+		stylecop.json = stylecop.json
+		stylecop.ruleset = stylecop.ruleset
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

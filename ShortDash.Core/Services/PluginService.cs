@@ -24,7 +24,7 @@ namespace ShortDash.Core.Services
         {
             foreach (Type type in plugin.GetTypes())
             {
-                if (!typeof(IShortDashAction).IsAssignableFrom(type)) continue;
+                if (!typeof(IShortDashAction).IsAssignableFrom(type)) { continue; }
                 pluginActions.Add(type);
             }
         }

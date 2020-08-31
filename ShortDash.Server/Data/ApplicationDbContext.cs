@@ -18,8 +18,6 @@ namespace ShortDash.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            #region DashboardSubAction
-
             modelBuilder.Entity<DashboardSubAction>()
                 .HasKey(u => new { u.DashboardActionChildId, u.DashboardActionParentId });
 
@@ -33,8 +31,6 @@ namespace ShortDash.Server.Data
                 .WithOne(f => f.DashboardActionChild)
                 .HasForeignKey(f => f.DashboardActionChildId);
 
-            #endregion DashboardSubAction
-
             modelBuilder.Entity<Dashboard>().HasData(SeedDashboards());
             modelBuilder.Entity<DashboardActionTarget>().HasData(SeedDashboardActionTargets());
             modelBuilder.Entity<DashboardAction>().HasData(SeedDashboardActions());
@@ -46,26 +42,28 @@ namespace ShortDash.Server.Data
         private List<DashboardAction> SeedDashboardActions()
         {
             // TODO: REMOVE DEBUG SEEDS
-            return new List<DashboardAction> {
-                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, Title = "Twitter", Icon = "Twitter.png", ActionTypeName="ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://twitter.com\"}" },
-                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, Title = "Discord", Icon = "Phone.png", ActionTypeName="ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://discord.com\"}" },
-                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, Title = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", ActionTypeName="ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://slack.com\"}" },
-                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, Title = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "open-iconic/svg/ban.svg", ActionTypeName="ShortDash.Plugins.Core.Windows.MediaMuteAction", Parameters = "{\"IsToggle\":true}" },
-                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, Title = "Prev", BackgroundColor = Color.Gray, ActionTypeName="ShortDash.Plugins.Core.Windows.MediaPreviousAction" },
-                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Title = "Play", BackgroundColor = Color.DarkBlue, ActionTypeName="ShortDash.Plugins.Core.Windows.MediaPlayAction" },
-                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Title = "Next", BackgroundColor = Color.SeaGreen, ActionTypeName="ShortDash.Plugins.Core.Windows.MediaNextAction" },
-                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Title = "Notepad", Icon = "Settings.png", ActionTypeName="ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
-                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png", ActionTypeName="ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"test.batch\"}" },
-                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionTypeName="Composite" },
-                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName="ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
-                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName="ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
-                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionTypeName="" },
+            return new List<DashboardAction>
+            {
+                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, Title = "Twitter", Icon = "Twitter.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://twitter.com\"}" },
+                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, Title = "Discord", Icon = "Phone.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://discord.com\"}" },
+                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, Title = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://slack.com\"}" },
+                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, Title = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "open-iconic/svg/ban.svg", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaMuteAction", Parameters = "{\"IsToggle\":true}" },
+                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, Title = "Prev", BackgroundColor = Color.Gray, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPreviousAction" },
+                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Title = "Play", BackgroundColor = Color.DarkBlue, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPlayAction" },
+                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Title = "Next", BackgroundColor = Color.SeaGreen, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaNextAction" },
+                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Title = "Notepad", Icon = "Settings.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
+                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"test.batch\"}" },
+                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionTypeName = "Composite" },
+                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
+                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
+                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionTypeName = "" },
             };
         }
 
         private List<DashboardActionTarget> SeedDashboardActionTargets()
         {
-            return new List<DashboardActionTarget> {
+            return new List<DashboardActionTarget>
+            {
                 new DashboardActionTarget() { DashboardActionTargetId = 1, Title = "Main" },
             };
         }
@@ -98,7 +96,8 @@ namespace ShortDash.Server.Data
 
         private List<Dashboard> SeedDashboards()
         {
-            return new List<Dashboard> {
+            return new List<Dashboard>
+            {
                 new Dashboard { DashboardId = 1, Title = "Main" },
                 // TODO: REMOVE DEBUG SEEDS
                 new Dashboard { DashboardId = 2, Title = "Dash 2" },
@@ -109,8 +108,9 @@ namespace ShortDash.Server.Data
         private List<DashboardSubAction> SeedDashboardSubActions()
         {
             // TODO: REMOVE DEBUG SEEDS
-            return new List<DashboardSubAction> {
-                new DashboardSubAction() { DashboardActionParentId = 10, DashboardActionChildId = 1  },
+            return new List<DashboardSubAction>
+            {
+                new DashboardSubAction() { DashboardActionParentId = 10, DashboardActionChildId = 1 },
                 new DashboardSubAction() { DashboardActionParentId = 10, DashboardActionChildId = 2 },
             };
         }

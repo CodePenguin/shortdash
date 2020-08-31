@@ -16,8 +16,8 @@ namespace ShortDash.Server.Components
     // Adapted from https://github.com/Aaltuj/BlazorFormGeneratorDemo
     public class FormElementComponent : OwningComponentBase
     {
-        private string _Label;
-        private FormGeneratorComponentsRepository _repo = new FormGeneratorComponentsRepository();
+        private readonly FormGeneratorComponentsRepository componentsRepository = new FormGeneratorComponentsRepository();
+        private string label;
         public string CssClass { get => string.Join(" ", CssClasses.ToArray()); }
 
         [Parameter]
@@ -45,22 +45,26 @@ namespace ShortDash.Server.Components
                     .GetProperty(FieldIdentifier.Name)
                     .GetCustomAttributes(typeof(DisplayAttribute), false)
                     .FirstOrDefault() as DisplayAttribute;
-                return _Label ?? dd?.Name;
+                return label ?? dd?.Name;
             }
-            set { _Label = value; }
+            set
+            {
+                label = value;
+            }
         }
 
         public RenderFragment CreateComponent(PropertyInfo propInfo) => builder =>
         {
-            var componentType = _repo.GetComponent(propInfo.PropertyType.ToString());
-            //if (componentType == null) throw new Exception($"No component found: {propInfo.PropertyType}");
-            if (componentType == null) return;
+            var componentType = componentsRepository.GetComponent(propInfo.PropertyType.ToString());
+            if (componentType == null) { throw new Exception($"No component found: {propInfo.PropertyType}"); }
+            if (componentType == null) { return; }
             var elementType = componentType;
             if (elementType.IsGenericTypeDefinition)
             {
                 Type[] typeArgs = { propInfo.PropertyType };
                 elementType = elementType.MakeGenericType(typeArgs);
             }
+
             var instance = Activator.CreateInstance(elementType);
             var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.CreateFormComponent));
             var genericMethod = method.MakeGenericMethod(propInfo.PropertyType, elementType);
@@ -74,12 +78,15 @@ namespace ShortDash.Server.Components
             builder.AddAttribute(1, nameof(InputBase<T>.Value), s);
             builder.AddAttribute(3, nameof(InputBase<T>.ValueChanged),
                 RuntimeHelpers.TypeCheck(EventCallback.Factory.Create<T>(
-                    target, EventCallback.Factory.CreateInferred(target, __value => propInfo.SetValue(dataContext, __value),
-                    (T)propInfo.GetValue(dataContext)))));
-            var constant = Expression.Constant(dataContext, dataContext.GetType());
-            var exp = Expression.Property(constant, propInfo.Name);
-            var lamb = Expression.Lambda<Func<T>>(exp);
-            builder.AddAttribute(4, nameof(InputBase<T>.ValueExpression), lamb);
+                    target,
+                    EventCallback.Factory.CreateInferred(
+                        target,
+                        value => propInfo.SetValue(dataContext, value),
+                        (T)propInfo.GetValue(dataContext)))));
+            var expressionConstant = Expression.Constant(dataContext, dataContext.GetType());
+            var expressionProperty = Expression.Property(expressionConstant, propInfo.Name);
+            var expressionLambda = Expression.Lambda<Func<T>>(expressionProperty);
+            builder.AddAttribute(4, nameof(InputBase<T>.ValueExpression), expressionLambda);
 
             builder.AddAttribute(5, "class", GetDefaultFieldClasses(instance));
 
@@ -118,20 +125,21 @@ namespace ShortDash.Server.Components
         private string GetDefaultFieldClasses<T>(InputBase<T> instance)
         {
             var output = DefaultFieldClasses == null ? "" : string.Join(" ", DefaultFieldClasses);
-            if (instance == null) return output;
+            if (instance == null) { return output; }
             var additionalAttributes = instance.AdditionalAttributes;
-            if (additionalAttributes != null && additionalAttributes.TryGetValue("class", out var @class) && !string.IsNullOrEmpty(Convert.ToString(@class)))
+            if (additionalAttributes != null && additionalAttributes.TryGetValue("class", out var cssClass) && !string.IsNullOrEmpty(Convert.ToString(cssClass)))
             {
-                return $"{@class} {output}";
+                return $"{cssClass} {output}";
             }
+
             return output;
         }
 
         private bool IsTypeDerivedFromGenericType(Type typeToCheck, Type genericType)
         {
-            if (typeToCheck == typeof(object)) return false;
-            if (typeToCheck == null) return false;
-            if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericType) return true;
+            if (typeToCheck == typeof(object)) { return false; }
+            if (typeToCheck == null) { return false; }
+            if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericType) { return true; }
             return IsTypeDerivedFromGenericType(typeToCheck.BaseType, genericType);
         }
     }

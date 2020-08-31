@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "orderingRules": {
+      "elementOrder": [
+        "kind",
+        "accessibility",
+        "constant",
+        "static",
+        "readonly"
+      ],
+      "usingDirectivesPlacement": "outsideNamespace"
+    }
+  }
+}

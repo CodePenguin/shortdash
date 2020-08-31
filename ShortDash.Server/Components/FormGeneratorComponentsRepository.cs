@@ -8,43 +8,43 @@ namespace ShortDash.Server.Components
 {
     public class FormGeneratorComponentsRepository
     {
-        private Dictionary<string, Type> _ComponentDict = new Dictionary<string, Type>();
+        private Dictionary<string, Type> componentMappings = new Dictionary<string, Type>();
 
         public FormGeneratorComponentsRepository()
         {
-            _ComponentDict = new Dictionary<string, Type>()
+            componentMappings = new Dictionary<string, Type>()
                   {
-                        {typeof(string).ToString(), typeof(InputText) },
-                        {typeof(DateTime).ToString(), typeof(InputDate<>) },
-                        {typeof(bool).ToString(), typeof(InputCheckbox) },
-                        {typeof(decimal).ToString(), typeof(InputNumber<>) }
+                        { typeof(string).ToString(), typeof(InputText) },
+                        { typeof(DateTime).ToString(), typeof(InputDate<>) },
+                        { typeof(bool).ToString(), typeof(InputCheckbox) },
+                        { typeof(decimal).ToString(), typeof(InputNumber<>) }
                   };
-            _DefaultComponent = null; // typeof(InputText);
+            DefaultComponent = null; // typeof(InputText);
             FormElementComponent = typeof(FormElement);
         }
 
-        public Type _DefaultComponent { get; private set; }
+        public Type DefaultComponent { get; private set; }
         public Type FormElementComponent { get; private set; }
 
         public void Clear()
         {
-            _ComponentDict.Clear();
+            componentMappings.Clear();
         }
 
         public Type GetComponent(string key)
         {
-            _ComponentDict.TryGetValue(key, out var component);
-            return component ?? _DefaultComponent;
+            componentMappings.TryGetValue(key, out var component);
+            return component ?? DefaultComponent;
         }
 
         public void RegisterComponent(string key, Type component)
         {
-            _ComponentDict.Add(key, component);
+            componentMappings.Add(key, component);
         }
 
         public void RemoveComponent(string key)
         {
-            _ComponentDict.Remove(key);
+            componentMappings.Remove(key);
         }
     }
 }
