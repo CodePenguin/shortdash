@@ -1,0 +1,10 @@
+﻿@inherits FormGeneratorComponent
+
+@foreach (var property in Properties)
+{
+    <FormElement DataContext="@DataContext" FieldIdentifier="@property"></FormElement>
+}
+
+@code {
+
+}

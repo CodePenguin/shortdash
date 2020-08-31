@@ -1,4 +1,5 @@
 ﻿@page "/actions/{DashboardActionId:int}"
+@using System.Text.Json
 @inject DashboardService dashboardService
 @inject NavigationManager NavigationManagerService;
 @inject ActionService ActionService;
@@ -20,6 +21,9 @@
         <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
         <ValidationMessage For="() => DashboardAction.Icon" />
     </div>
+
+    <FormGenerator DataContext="@Parameters"></FormGenerator>
+
     <input type="submit" value="Submit" class="btn btn-primary" />
     <button class="btn btn-outline-secondary" @onclick=CancelChanges>Cancel</button>
 </EditForm>
@@ -28,8 +32,7 @@
     [Parameter]
     public int DashboardActionId { get; set; }
     private DashboardAction DashboardAction { get; set; }
-    private Type ActionType { get; set; }
-    private Type ParametersType { get; set; }
+    private object Parameters { get; set; }
 
     private void CancelChanges()
     {
@@ -39,13 +42,14 @@
     protected override async Task OnParametersSetAsync()
     {
         DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
-        //ActionService.FindAction
-
+        var action = ActionService.GetAction(DashboardAction.ActionTypeName);
+        Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, action.ParametersType);
     }
 
     private async void SaveChanges(EditContext editContext)
     {
         if (!editContext.Validate()) return;
+        DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
         await dashboardService.UpdateDashboardActionAsync(DashboardAction);
 
         NavigationManagerService.NavigateTo($"/actions");

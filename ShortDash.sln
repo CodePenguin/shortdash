@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Core.Plugins", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Core", "ShortDash.Core\ShortDash.Core.csproj", "{8D811E32-F52B-4ADF-A154-F8FAD8F75E81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortDash.Plugins.Core.Windows", "ShortDash.Plugins.Core.Windows\ShortDash.Plugins.Core.Windows.csproj", "{4654F3DC-ED6E-4576-8C27-8ECEA127EECA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Plugins.Core.Windows", "ShortDash.Plugins.Core.Windows\ShortDash.Plugins.Core.Windows.csproj", "{4654F3DC-ED6E-4576-8C27-8ECEA127EECA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
