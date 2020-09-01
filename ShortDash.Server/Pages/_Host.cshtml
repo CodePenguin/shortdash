@@ -33,7 +33,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function (event) {
-            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) { setTimeout(function () { document.location.reload(); }, 1000); }
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) { setTimeout(function () { document.location.reload(); }, 5000); }
         });
     </script>
     <script src="_framework/blazor.server.js"></script>

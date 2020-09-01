@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class FormGeneratorComponent : OwningComponentBase
+    public class FormGeneratorComponent<TValue> : OwningComponentBase
     {
         public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
 
@@ -19,7 +20,10 @@ namespace ShortDash.Server.Components
         }
 
         [Parameter]
-        public object DataContext { get; set; }
+        public TValue DataContext { get; set; }
+
+        [Parameter]
+        public EventCallback<EditContext> OnValidSubmit { get; set; }
 
         public bool HasLabel(PropertyInfo propInfo)
         {
@@ -31,7 +35,9 @@ namespace ShortDash.Server.Components
         public RenderFragment RenderFormElement(PropertyInfo propInfo) => builder =>
         {
             builder.OpenComponent(0, _repo.FormElementComponent);
+
             builder.AddAttribute(1, nameof(FormElement.FieldIdentifier), propInfo);
+
             builder.CloseComponent();
         };
 

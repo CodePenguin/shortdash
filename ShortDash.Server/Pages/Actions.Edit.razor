@@ -6,6 +6,7 @@
 
 <EditForm Model=@DashboardAction OnSubmit=@SaveChanges>
     <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="form-group">
         <label for="Title">Title</label>
         <InputText @bind-Value=DashboardAction.Title class="form-control" id="Title" />
@@ -22,6 +23,7 @@
         <ValidationMessage For="() => DashboardAction.Icon" />
     </div>
 
+    <h3>Generated</h3>
     <FormGenerator DataContext="@Parameters"></FormGenerator>
 
     <input type="submit" value="Submit" class="btn btn-primary" />
@@ -49,6 +51,7 @@
     private async void SaveChanges(EditContext editContext)
     {
         if (!editContext.Validate()) return;
+        return;
         DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
         await dashboardService.UpdateDashboardActionAsync(DashboardAction);
 

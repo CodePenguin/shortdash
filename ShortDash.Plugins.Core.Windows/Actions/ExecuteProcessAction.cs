@@ -1,5 +1,6 @@
 ﻿using ShortDash.Core.Plugins;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
 namespace ShortDash.Plugins.Core.Windows
@@ -40,7 +41,10 @@ namespace ShortDash.Plugins.Core.Windows
     public class ExecuteProcessParameters
     {
         public string Arguments { get; set; }
+
+        [Required]
         public string FileName { get; set; }
+
         public string WorkingDirectory { get; set; }
     }
 }

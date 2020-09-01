@@ -17,13 +17,12 @@ namespace ShortDash.Server.Components
     public class FormElementComponent : OwningComponentBase
     {
         private readonly FormGeneratorComponentsRepository componentsRepository = new FormGeneratorComponentsRepository();
-        private string label;
         public string CssClass { get => string.Join(" ", CssClasses.ToArray()); }
 
         [Parameter]
         public List<string> CssClasses { get; set; }
 
-        [Parameter]
+        [CascadingParameter(Name = "DataContext")]
         public object DataContext { get; set; }
 
         [Parameter]
@@ -32,24 +31,18 @@ namespace ShortDash.Server.Components
         [Parameter]
         public PropertyInfo FieldIdentifier { get; set; }
 
-        [Parameter]
-        public string Id { get; set; }
+        public string Id { get => FieldIdentifier.Name; }
 
-        [Parameter]
         public string Label
         {
             get
             {
-                var dd = DataContext
+                var displayAttribute = DataContext
                     .GetType()
                     .GetProperty(FieldIdentifier.Name)
                     .GetCustomAttributes(typeof(DisplayAttribute), false)
                     .FirstOrDefault() as DisplayAttribute;
-                return label ?? dd?.Name;
-            }
-            set
-            {
-                label = value;
+                return displayAttribute?.Name ?? FieldIdentifier.Name;
             }
         }
 
@@ -73,9 +66,23 @@ namespace ShortDash.Server.Components
 
         public void CreateFormComponent<T, TElement>(object target, object dataContext, PropertyInfo propInfo, RenderTreeBuilder builder, InputBase<T> instance)
         {
+            // Generate the Label
+            if (!string.IsNullOrWhiteSpace(Label))
+            {
+                builder.OpenRegion(0);
+                builder.OpenElement(0, "label");
+                builder.AddAttribute(1, "for", Id);
+                builder.AddContent(1, Label);
+                builder.CloseElement();
+                builder.CloseRegion();
+            }
+
+            // Generate the InputBase component
+            builder.OpenRegion(1);
             builder.OpenComponent(0, typeof(TElement));
             var s = propInfo.GetValue(dataContext);
-            builder.AddAttribute(1, nameof(InputBase<T>.Value), s);
+            builder.AddAttribute(1, "id", Id);
+            builder.AddAttribute(2, nameof(InputBase<T>.Value), s);
             builder.AddAttribute(3, nameof(InputBase<T>.ValueChanged),
                 RuntimeHelpers.TypeCheck(EventCallback.Factory.Create<T>(
                     target,
@@ -92,6 +99,14 @@ namespace ShortDash.Server.Components
 
             CheckForInterfaceActions<T, TElement>(this, DataContext, propInfo, builder, instance, 6);
             builder.CloseComponent();
+            builder.CloseRegion();
+
+            // Generate validator
+            builder.OpenRegion(2);
+            builder.OpenComponent(0, typeof(ValidationMessage<T>));
+            builder.AddAttribute(1, nameof(ValidationMessage<T>.For), expressionLambda);
+            builder.CloseComponent();
+            builder.CloseRegion();
         }
 
         private static bool TypeImplementsInterface(Type type, Type typeToImplement)
@@ -137,8 +152,7 @@ namespace ShortDash.Server.Components
 
         private bool IsTypeDerivedFromGenericType(Type typeToCheck, Type genericType)
         {
-            if (typeToCheck == typeof(object)) { return false; }
-            if (typeToCheck == null) { return false; }
+            if (typeToCheck == null || typeToCheck == typeof(object)) { return false; }
             if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericType) { return true; }
             return IsTypeDerivedFromGenericType(typeToCheck.BaseType, genericType);
         }
