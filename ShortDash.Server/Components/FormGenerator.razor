@@ -1,14 +1,13 @@
-﻿@typeparam TValue
-@inherits FormGeneratorComponent<TValue>
-<EditForm Model="@DataContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
+﻿@inherits FormGeneratorComponent
+<EditForm EditContext="@EditContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <CascadingValue Name="DataContext" Value="@DataContext">
+    <CascadingValue Name="DataContext" Value="@EditContext.Model">
         @foreach (var property in Properties)
         {
-            @RenderFormElement(property);
+            <div class="form-group">
+                @RenderFormElement(property)
+            </div>
         }
     </CascadingValue>
-
-    <button type="submit">Submit</button>
 </EditForm>

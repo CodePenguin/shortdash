@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class FormGeneratorComponent<TValue> : OwningComponentBase
+    public class FormGeneratorComponent : OwningComponentBase
     {
         public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
 
@@ -20,24 +20,16 @@ namespace ShortDash.Server.Components
         }
 
         [Parameter]
-        public TValue DataContext { get; set; }
+        public EditContext EditContext { get; set; }
 
         [Parameter]
         public EventCallback<EditContext> OnValidSubmit { get; set; }
 
-        public bool HasLabel(PropertyInfo propInfo)
-        {
-            var componentType = _repo.GetComponent(propInfo.PropertyType.ToString());
-            var dd = componentType.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault() as DisplayAttribute;
-            return dd != null && dd.Name.Length > 0;
-        }
-
         public RenderFragment RenderFormElement(PropertyInfo propInfo) => builder =>
         {
             builder.OpenComponent(0, _repo.FormElementComponent);
-
             builder.AddAttribute(1, nameof(FormElement.FieldIdentifier), propInfo);
-
+            builder.AddAttribute(2, nameof(FormElement.DefaultFieldClasses), new List<string> { "form-control" });
             builder.CloseComponent();
         };
 
@@ -50,7 +42,7 @@ namespace ShortDash.Server.Components
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            Properties = DataContext.GetType().GetProperties();
+            Properties = EditContext.Model.GetType().GetProperties();
         }
     }
 }

@@ -1,20 +1,21 @@
 ﻿@page "/actions/{DashboardActionId:int}"
+@using System.Dynamic
 @using System.Text.Json
 @inject DashboardService dashboardService
 @inject NavigationManager NavigationManagerService;
 @inject ActionService ActionService;
 
-<EditForm Model=@DashboardAction OnSubmit=@SaveChanges>
+<EditForm EditContext="@ActionEditContext">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group">
         <label for="Title">Title</label>
-        <InputText @bind-Value=DashboardAction.Title class="form-control" id="Title" />
+        <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" />
         <ValidationMessage For="() => DashboardAction.Title" />
     </div>
     <div class="form-group">
         <label for="BackgroundColor">Background Color</label>
-        <InputColor @bind-Value=DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
+        <InputColor @bind-Value=@DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
         <ValidationMessage For="() => DashboardAction.BackgroundColor" />
     </div>
     <div class="form-group">
@@ -24,9 +25,9 @@
     </div>
 
     <h3>Generated</h3>
-    <FormGenerator DataContext="@Parameters"></FormGenerator>
+    <FormGenerator EditContext="@ParametersEditContext"></FormGenerator>
 
-    <input type="submit" value="Submit" class="btn btn-primary" />
+    <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
     <button class="btn btn-outline-secondary" @onclick=CancelChanges>Cancel</button>
 </EditForm>
 
@@ -36,6 +37,9 @@
     private DashboardAction DashboardAction { get; set; }
     private object Parameters { get; set; }
 
+    private EditContext ActionEditContext { get; set; }
+    private EditContext ParametersEditContext { get; set; }
+
     private void CancelChanges()
     {
         NavigationManagerService.NavigateTo($"/actions");
@@ -44,14 +48,18 @@
     protected override async Task OnParametersSetAsync()
     {
         DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
+        ActionEditContext = new EditContext(DashboardAction);
+
         var action = ActionService.GetAction(DashboardAction.ActionTypeName);
         Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, action.ParametersType);
+        ParametersEditContext = new EditContext(Parameters);
     }
 
-    private async void SaveChanges(EditContext editContext)
+    private async void SaveChanges()
     {
-        if (!editContext.Validate()) return;
-        return;
+        if (!ActionEditContext.Validate()) return;
+        if (!ParametersEditContext.Validate()) return;
+
         DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
         await dashboardService.UpdateDashboardActionAsync(DashboardAction);
 

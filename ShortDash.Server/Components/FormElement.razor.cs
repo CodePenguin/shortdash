@@ -17,10 +17,6 @@ namespace ShortDash.Server.Components
     public class FormElementComponent : OwningComponentBase
     {
         private readonly FormGeneratorComponentsRepository componentsRepository = new FormGeneratorComponentsRepository();
-        public string CssClass { get => string.Join(" ", CssClasses.ToArray()); }
-
-        [Parameter]
-        public List<string> CssClasses { get; set; }
 
         [CascadingParameter(Name = "DataContext")]
         public object DataContext { get; set; }
@@ -84,7 +80,7 @@ namespace ShortDash.Server.Components
             builder.AddAttribute(1, "id", Id);
             builder.AddAttribute(2, nameof(InputBase<T>.Value), s);
             builder.AddAttribute(3, nameof(InputBase<T>.ValueChanged),
-                RuntimeHelpers.TypeCheck(EventCallback.Factory.Create<T>(
+                RuntimeHelpers.TypeCheck(EventCallback.Factory.Create(
                     target,
                     EventCallback.Factory.CreateInferred(
                         target,
@@ -94,10 +90,7 @@ namespace ShortDash.Server.Components
             var expressionProperty = Expression.Property(expressionConstant, propInfo.Name);
             var expressionLambda = Expression.Lambda<Func<T>>(expressionProperty);
             builder.AddAttribute(4, nameof(InputBase<T>.ValueExpression), expressionLambda);
-
             builder.AddAttribute(5, "class", GetDefaultFieldClasses(instance));
-
-            CheckForInterfaceActions<T, TElement>(this, DataContext, propInfo, builder, instance, 6);
             builder.CloseComponent();
             builder.CloseRegion();
 
@@ -107,34 +100,6 @@ namespace ShortDash.Server.Components
             builder.AddAttribute(1, nameof(ValidationMessage<T>.For), expressionLambda);
             builder.CloseComponent();
             builder.CloseRegion();
-        }
-
-        private static bool TypeImplementsInterface(Type type, Type typeToImplement)
-        {
-            Type foundInterface = type
-                .GetInterfaces()
-                .Where(i =>
-                {
-                    return i.Name == typeToImplement.Name;
-                })
-                .Select(i => i)
-                .FirstOrDefault();
-
-            return foundInterface != null;
-        }
-
-        private void CheckForInterfaceActions<T, TElement>(object target, object dataContext, PropertyInfo propInfo, RenderTreeBuilder builder, InputBase<T> instance, int indexBuilder)
-        {
-            /*
-            if (TypeImplementsInterface(typeof(TElement), typeof(IRenderAsFormElement)))
-            {
-                this.CssClasses.AddRange((instance as IRenderAsFormElement).FormElementClasses);
-            }
-            if (TypeImplementsInterface(typeof(TElement), typeof(IRenderChildren)))
-            {
-                (instance as RenderChildren).RenderChildren(builder, indexBuilder, dataContext, propInfo);
-            }
-            */
         }
 
         private string GetDefaultFieldClasses<T>(InputBase<T> instance)
@@ -148,13 +113,6 @@ namespace ShortDash.Server.Components
             }
 
             return output;
-        }
-
-        private bool IsTypeDerivedFromGenericType(Type typeToCheck, Type genericType)
-        {
-            if (typeToCheck == null || typeToCheck == typeof(object)) { return false; }
-            if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericType) { return true; }
-            return IsTypeDerivedFromGenericType(typeToCheck.BaseType, genericType);
         }
     }
 }
