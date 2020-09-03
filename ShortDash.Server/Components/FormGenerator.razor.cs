@@ -29,7 +29,8 @@ namespace ShortDash.Server.Components
         public RenderFragment RenderFormElement(PropertyInfo propInfo) => builder =>
         {
             builder.OpenComponent(0, FormElementType);
-            builder.AddAttribute(1, nameof(FormElementComponent.FieldIdentifier), propInfo);
+            builder.AddAttribute(1, nameof(FormElementComponent.Model), EditContext.Model);
+            builder.AddAttribute(2, nameof(FormElementComponent.ModelProperty), propInfo);
             builder.CloseComponent();
         };
 

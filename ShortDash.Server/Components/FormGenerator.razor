@@ -2,12 +2,8 @@
 <EditForm EditContext="@EditContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <CascadingValue Name="DataContext" Value="@EditContext.Model">
-        @foreach (var property in Properties)
-        {
-            <div class="form-group">
-                @RenderFormElement(property)
-            </div>
-        }
-    </CascadingValue>
+    @foreach (var property in Properties)
+    {
+        @RenderFormElement(property)
+    }
 </EditForm>

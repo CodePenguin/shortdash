@@ -18,19 +18,19 @@ namespace ShortDash.Server.Components
     {
         private FormGeneratorPropertyMapper componentsMapper;
 
-        [CascadingParameter(Name = "DataContext")]
-        public object DataContext { get; set; }
-
         [Parameter]
         public string DescriptionFieldClasses { get; set; }
 
-        [Parameter]
-        public PropertyInfo FieldIdentifier { get; set; }
-
-        public string Id { get => FieldIdentifier.Name; }
+        public string Id { get => ModelProperty.Name; }
 
         [Parameter]
         public string InputFieldClasses { get; set; }
+
+        [Parameter]
+        public object Model { get; set; }
+
+        [Parameter]
+        public PropertyInfo ModelProperty { get; set; }
 
         public RenderFragment RenderComponent(PropertyInfo propInfo) => builder =>
         {
@@ -47,7 +47,7 @@ namespace ShortDash.Server.Components
             var instance = Activator.CreateInstance(elementType);
             var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
             var genericMethod = method.MakeGenericMethod(propInfo.PropertyType, elementType);
-            genericMethod.Invoke(this, new object[] { this, DataContext, propInfo, builder, instance });
+            genericMethod.Invoke(this, new object[] { this, Model, propInfo, builder, instance });
         };
 
         protected override void OnInitialized()
@@ -61,7 +61,7 @@ namespace ShortDash.Server.Components
             var displayAttribute = GetDisplayAttribute(property);
 
             // Generate the Label
-            var label = displayAttribute?.GetName() ?? FieldIdentifier.Name;
+            var label = displayAttribute?.GetName() ?? ModelProperty.Name;
             if (!string.IsNullOrWhiteSpace(label))
             {
                 builder.OpenRegion(0);

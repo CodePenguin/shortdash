@@ -1,12 +1,14 @@
 ﻿@inherits FormElementComponent
 
-@RenderComponent(FieldIdentifier)
+<div class="form-group">
+    @RenderComponent(ModelProperty)
+</div>
 
 @code {
     protected override void OnInitialized()
     {
-        InputFieldClasses = "form-control BOB";
-        DescriptionFieldClasses = "form-text text-muted BOB";
+        InputFieldClasses = "form-control";
+        DescriptionFieldClasses = "form-text text-muted";
         base.OnInitialized();
     }
 }
