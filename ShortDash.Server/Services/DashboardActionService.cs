@@ -31,7 +31,8 @@ namespace ShortDash.Server.Services
         {
             logger.LogDebug($"Clicked #{action.DashboardActionId} - {action.ActionTypeName} - {toggleState} - {action.Parameters}");
 
-            if (!Actions.TryGetValue(action.ActionTypeName, out var actionType))
+            var actionType = FindActionType(action.ActionTypeName);
+            if (actionType == null)
             {
                 actionService.Execute(action.ActionTypeName, action.Parameters, ref toggleState);
                 return;
@@ -41,6 +42,23 @@ namespace ShortDash.Server.Services
             var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
             var parametersObject = JsonSerializer.Deserialize(action.Parameters, actionInstance.ParametersType);
             actionInstance.Execute(parametersObject, ref toggleState);
+        }
+
+        public Type FindActionType(string actionTypeName)
+        {
+            if (!Actions.TryGetValue(actionTypeName, out var actionType)) { return null; }
+            return actionType;
+        }
+
+        public IShortDashAction GetAction(string actionTypeName)
+        {
+            var actionType = FindActionType(actionTypeName);
+            if (actionType == null)
+            {
+                return actionService.GetAction(actionTypeName);
+            }
+
+            return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
         }
 
         private void RegisterActionType(Type actionType)

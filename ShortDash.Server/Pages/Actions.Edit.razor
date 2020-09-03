@@ -1,31 +1,47 @@
 ﻿@page "/actions/{DashboardActionId:int}"
 @using System.Dynamic
 @using System.Text.Json
+@using ShortDash.Core.Plugins
 @inject DashboardService dashboardService
 @inject NavigationManager NavigationManagerService;
-@inject ActionService ActionService;
+@inject DashboardActionService DashboardActionService;
 
 <EditForm EditContext="@ActionEditContext">
     <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="form-group">
-        <label for="Title">Title</label>
-        <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" />
-        <ValidationMessage For="() => DashboardAction.Title" />
-    </div>
-    <div class="form-group">
-        <label for="BackgroundColor">Background Color</label>
-        <InputColor @bind-Value=@DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
-        <ValidationMessage For="() => DashboardAction.BackgroundColor" />
-    </div>
-    <div class="form-group">
-        <label for="Icon">Icon</label>
-        <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
-        <ValidationMessage For="() => DashboardAction.Icon" />
-    </div>
 
-    <h3>Generated</h3>
-    <FormGenerator EditContext="@ParametersEditContext"></FormGenerator>
+    <fieldset>
+        <legend>Action</legend>
+        <div class="form-group">
+            <label for="Title">Title</label>
+            <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" />
+            <ValidationMessage For="() => DashboardAction.Title" />
+        </div>
+        <div class="form-group">
+            <label for="BackgroundColor">Background Color</label>
+            <InputColor @bind-Value=@DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
+            <ValidationMessage For="() => DashboardAction.BackgroundColor" />
+        </div>
+        <div class="form-group">
+            <label for="Icon">Icon</label>
+            <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
+            <ValidationMessage For="() => DashboardAction.Icon" />
+        </div>
+        @if (!string.IsNullOrWhiteSpace(ShortDashAction?.Title))
+        {
+            <div class="form-group disabled">
+                <label for="ActionType">Action Type</label>
+                <input type="text" class="form-control" value="@ShortDashAction.Title" disabled />
+            </div>
+        }
+    </fieldset>
+
+    @if (ParametersEditContext != null)
+    {
+        <fieldset>
+            <legend>Parameters</legend>
+            <FormGenerator EditContext="@ParametersEditContext"></FormGenerator>
+        </fieldset>
+    }
 
     <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
     <button class="btn btn-outline-secondary" @onclick=CancelChanges>Cancel</button>
@@ -35,6 +51,7 @@
     [Parameter]
     public int DashboardActionId { get; set; }
     private DashboardAction DashboardAction { get; set; }
+    private IShortDashAction ShortDashAction { get; set; }
     private object Parameters { get; set; }
 
     private EditContext ActionEditContext { get; set; }
@@ -50,17 +67,29 @@
         DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
         ActionEditContext = new EditContext(DashboardAction);
 
-        var action = ActionService.GetAction(DashboardAction.ActionTypeName);
-        Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, action.ParametersType);
-        ParametersEditContext = new EditContext(Parameters);
+        ShortDashAction = DashboardActionService.GetAction(DashboardAction.ActionTypeName);
+        if (ShortDashAction != null)
+        {
+            Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ShortDashAction.ParametersType);
+            ParametersEditContext = new EditContext(Parameters);
+        }
+        else
+        {
+            Parameters = null;
+            ParametersEditContext = null;
+        }
     }
 
     private async void SaveChanges()
     {
         if (!ActionEditContext.Validate()) return;
-        if (!ParametersEditContext.Validate()) return;
 
-        DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
+        if (ParametersEditContext != null)
+        {
+            if (!ParametersEditContext.Validate()) return;
+
+            DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
+        }
         await dashboardService.UpdateDashboardActionAsync(DashboardAction);
 
         NavigationManagerService.NavigateTo($"/actions");

@@ -29,9 +29,25 @@ namespace ShortDash.Server.Components
         {
             builder.OpenComponent(0, _repo.FormElementComponent);
             builder.AddAttribute(1, nameof(FormElement.FieldIdentifier), propInfo);
-            builder.AddAttribute(2, nameof(FormElement.DefaultFieldClasses), new List<string> { "form-control" });
+            builder.AddAttribute(2, nameof(FormElement.InputFieldClasses), "form-control");
+            builder.AddAttribute(3, nameof(FormElement.DescriptionFieldClasses), "form-text text-muted");
             builder.CloseComponent();
         };
+
+        protected static int GetDisplayOrder(PropertyInfo property)
+        {
+            var displayAttribute = property.GetCustomAttributes(typeof(DisplayAttribute), true).FirstOrDefault() as DisplayAttribute;
+            return displayAttribute?.GetOrder() ?? 10000;
+        }
+
+        protected PropertyInfo[] GenerateProperties()
+        {
+            return EditContext.Model
+                .GetType()
+                .GetProperties()
+                .OrderBy(p => GetDisplayOrder(p))
+                .ToArray();
+        }
 
         protected override void OnInitialized()
         {
@@ -42,7 +58,7 @@ namespace ShortDash.Server.Components
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            Properties = EditContext.Model.GetType().GetProperties();
+            Properties = GenerateProperties();
         }
     }
 }

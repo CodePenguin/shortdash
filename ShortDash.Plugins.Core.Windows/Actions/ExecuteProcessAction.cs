@@ -1,5 +1,6 @@
 ﻿using ShortDash.Core.Plugins;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
@@ -31,7 +32,7 @@ namespace ShortDash.Plugins.Core.Windows
             process.StartInfo.RedirectStandardOutput = false;
             process.StartInfo.WorkingDirectory = parameters.WorkingDirectory;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            process.StartInfo.UseShellExecute = !System.IO.Path.GetExtension(parameters.FileName).ToUpper().Equals(".EXE");
+            process.StartInfo.UseShellExecute = true;
             process.Start();
             // TODO: Handle ExecuteProcess error scenarios
             return true;
@@ -40,11 +41,18 @@ namespace ShortDash.Plugins.Core.Windows
 
     public class ExecuteProcessParameters
     {
+        [Display(Order = 3)]
         public string Arguments { get; set; }
 
         [Required]
+        [Display(
+            Name = "File Name",
+            Order = 1,
+            Description = "The location and file name of the application to start, a document, or a URL.",
+            Prompt = "Enter a file name or URL")]
         public string FileName { get; set; }
 
+        [Display(Name = "Working Directory", Order = 2)]
         public string WorkingDirectory { get; set; }
     }
 }

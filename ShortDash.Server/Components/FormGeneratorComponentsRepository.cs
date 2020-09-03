@@ -18,6 +18,7 @@ namespace ShortDash.Server.Components
                     { typeof(DateTime).ToString(), typeof(InputDate<>) },
                     { typeof(bool).ToString(), typeof(InputCheckbox) },
                     { typeof(decimal).ToString(), typeof(InputNumber<>) },
+                    { typeof(int).ToString(), typeof(InputNumber<>) },
                     { typeof(Color).ToString(), typeof(InputColor) }
                 };
             DefaultComponent = null;

@@ -22,25 +22,15 @@ namespace ShortDash.Server.Components
         public object DataContext { get; set; }
 
         [Parameter]
-        public List<string> DefaultFieldClasses { get; set; }
+        public string DescriptionFieldClasses { get; set; }
 
         [Parameter]
         public PropertyInfo FieldIdentifier { get; set; }
 
         public string Id { get => FieldIdentifier.Name; }
 
-        public string Label
-        {
-            get
-            {
-                var displayAttribute = DataContext
-                    .GetType()
-                    .GetProperty(FieldIdentifier.Name)
-                    .GetCustomAttributes(typeof(DisplayAttribute), false)
-                    .FirstOrDefault() as DisplayAttribute;
-                return displayAttribute?.Name ?? FieldIdentifier.Name;
-            }
-        }
+        [Parameter]
+        public string InputFieldClasses { get; set; }
 
         public RenderFragment CreateComponent(PropertyInfo propInfo) => builder =>
         {
@@ -60,15 +50,18 @@ namespace ShortDash.Server.Components
             genericMethod.Invoke(this, new object[] { this, DataContext, propInfo, builder, instance });
         };
 
-        public void CreateFormComponent<T, TElement>(object target, object dataContext, PropertyInfo propInfo, RenderTreeBuilder builder, InputBase<T> instance)
+        public void CreateFormComponent<T, TElement>(object target, object dataContext, PropertyInfo property, RenderTreeBuilder builder, InputBase<T> instance)
         {
+            var displayAttribute = GetDisplayAttribute(property);
+
             // Generate the Label
-            if (!string.IsNullOrWhiteSpace(Label))
+            var label = displayAttribute?.GetName() ?? FieldIdentifier.Name;
+            if (!string.IsNullOrWhiteSpace(label))
             {
                 builder.OpenRegion(0);
                 builder.OpenElement(0, "label");
                 builder.AddAttribute(1, "for", Id);
-                builder.AddContent(1, Label);
+                builder.AddContent(1, label);
                 builder.CloseElement();
                 builder.CloseRegion();
             }
@@ -76,7 +69,7 @@ namespace ShortDash.Server.Components
             // Generate the InputBase component
             builder.OpenRegion(1);
             builder.OpenComponent(0, typeof(TElement));
-            var s = propInfo.GetValue(dataContext);
+            var s = property.GetValue(dataContext);
             builder.AddAttribute(1, "id", Id);
             builder.AddAttribute(2, nameof(InputBase<T>.Value), s);
             builder.AddAttribute(3, nameof(InputBase<T>.ValueChanged),
@@ -84,34 +77,62 @@ namespace ShortDash.Server.Components
                     target,
                     EventCallback.Factory.CreateInferred(
                         target,
-                        value => propInfo.SetValue(dataContext, value),
-                        (T)propInfo.GetValue(dataContext)))));
+                        value => property.SetValue(dataContext, value),
+                        (T)property.GetValue(dataContext)))));
             var expressionConstant = Expression.Constant(dataContext, dataContext.GetType());
-            var expressionProperty = Expression.Property(expressionConstant, propInfo.Name);
+            var expressionProperty = Expression.Property(expressionConstant, property.Name);
             var expressionLambda = Expression.Lambda<Func<T>>(expressionProperty);
             builder.AddAttribute(4, nameof(InputBase<T>.ValueExpression), expressionLambda);
-            builder.AddAttribute(5, "class", GetDefaultFieldClasses(instance));
+            builder.AddAttribute(5, "class", GetInputFieldClasses(instance));
+
+            var prompt = displayAttribute?.Prompt;
+            if (!string.IsNullOrWhiteSpace(prompt))
+            {
+                builder.AddAttribute(6, "placeholder", prompt);
+            }
+
             builder.CloseComponent();
             builder.CloseRegion();
 
+            // Generate Description Text
+            var description = displayAttribute?.GetDescription();
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                builder.OpenRegion(2);
+                builder.OpenElement(0, "small");
+                if (!string.IsNullOrWhiteSpace(DescriptionFieldClasses))
+                {
+                    builder.AddAttribute(1, "class", DescriptionFieldClasses);
+                }
+                builder.AddContent(2, description);
+                builder.CloseElement();
+                builder.CloseRegion();
+            }
+
             // Generate validator
-            builder.OpenRegion(2);
+            builder.OpenRegion(3);
             builder.OpenComponent(0, typeof(ValidationMessage<T>));
             builder.AddAttribute(1, nameof(ValidationMessage<T>.For), expressionLambda);
             builder.CloseComponent();
             builder.CloseRegion();
         }
 
-        private string GetDefaultFieldClasses<T>(InputBase<T> instance)
+        private DisplayAttribute GetDisplayAttribute(PropertyInfo property)
         {
-            var output = DefaultFieldClasses == null ? "" : string.Join(" ", DefaultFieldClasses);
+            return property
+                .GetCustomAttributes(typeof(DisplayAttribute), false)
+                .FirstOrDefault() as DisplayAttribute;
+        }
+
+        private string GetInputFieldClasses<T>(InputBase<T> instance)
+        {
+            var output = InputFieldClasses;
             if (instance == null) { return output; }
             var additionalAttributes = instance.AdditionalAttributes;
             if (additionalAttributes != null && additionalAttributes.TryGetValue("class", out var cssClass) && !string.IsNullOrEmpty(Convert.ToString(cssClass)))
             {
                 return $"{cssClass} {output}";
             }
-
             return output;
         }
     }
