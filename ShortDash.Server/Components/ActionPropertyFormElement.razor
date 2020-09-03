@@ -1,0 +1,12 @@
+﻿@inherits FormElementComponent
+
+@RenderComponent(FieldIdentifier)
+
+@code {
+    protected override void OnInitialized()
+    {
+        InputFieldClasses = "form-control BOB";
+        DescriptionFieldClasses = "form-text text-muted BOB";
+        base.OnInitialized();
+    }
+}

@@ -16,7 +16,7 @@ namespace ShortDash.Server.Components
     // Adapted from https://github.com/Aaltuj/BlazorFormGeneratorDemo
     public class FormElementComponent : OwningComponentBase
     {
-        private readonly FormGeneratorComponentsRepository componentsRepository = new FormGeneratorComponentsRepository();
+        private FormGeneratorPropertyMapper componentsMapper;
 
         [CascadingParameter(Name = "DataContext")]
         public object DataContext { get; set; }
@@ -32,9 +32,9 @@ namespace ShortDash.Server.Components
         [Parameter]
         public string InputFieldClasses { get; set; }
 
-        public RenderFragment CreateComponent(PropertyInfo propInfo) => builder =>
+        public RenderFragment RenderComponent(PropertyInfo propInfo) => builder =>
         {
-            var componentType = componentsRepository.GetComponent(propInfo.PropertyType.ToString());
+            var componentType = componentsMapper.GetComponent(propInfo.PropertyType.ToString());
             if (componentType == null) { throw new Exception($"No component found: {propInfo.PropertyType}"); }
             if (componentType == null) { return; }
             var elementType = componentType;
@@ -45,12 +45,18 @@ namespace ShortDash.Server.Components
             }
 
             var instance = Activator.CreateInstance(elementType);
-            var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.CreateFormComponent));
+            var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
             var genericMethod = method.MakeGenericMethod(propInfo.PropertyType, elementType);
             genericMethod.Invoke(this, new object[] { this, DataContext, propInfo, builder, instance });
         };
 
-        public void CreateFormComponent<T, TElement>(object target, object dataContext, PropertyInfo property, RenderTreeBuilder builder, InputBase<T> instance)
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            componentsMapper = ScopedServices.GetService(typeof(FormGeneratorPropertyMapper)) as FormGeneratorPropertyMapper;
+        }
+
+        protected void RenderFormComponent<T, TElement>(object target, object dataContext, PropertyInfo property, RenderTreeBuilder builder, InputBase<T> instance)
         {
             var displayAttribute = GetDisplayAttribute(property);
 

@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace ShortDash.Server.Components
 {
-    public class FormGeneratorComponentsRepository
+    public class FormGeneratorPropertyMapper
     {
         private readonly Dictionary<string, Type> componentMappings = new Dictionary<string, Type>();
 
-        public FormGeneratorComponentsRepository()
+        public FormGeneratorPropertyMapper()
         {
             componentMappings = new Dictionary<string, Type>()
                 {
@@ -21,17 +21,12 @@ namespace ShortDash.Server.Components
                     { typeof(int).ToString(), typeof(InputNumber<>) },
                     { typeof(Color).ToString(), typeof(InputColor) }
                 };
-            DefaultComponent = null;
-            FormElementComponent = typeof(FormElement);
         }
-
-        public Type DefaultComponent { get; private set; }
-        public Type FormElementComponent { get; private set; }
 
         public Type GetComponent(string key)
         {
             componentMappings.TryGetValue(key, out var component);
-            return component ?? DefaultComponent;
+            return component;
         }
     }
 }
