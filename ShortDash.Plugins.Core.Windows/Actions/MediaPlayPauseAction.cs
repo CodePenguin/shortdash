@@ -2,6 +2,9 @@
 
 namespace ShortDash.Plugins.Core.Windows
 {
+    [ShortDashAction(
+        Title = "Play/Pause Media",
+        Description = "Toggles the currently playing system media.")]
     public class MediaPlayPauseAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaPlayPauseAction> logger;
@@ -10,10 +13,6 @@ namespace ShortDash.Plugins.Core.Windows
         {
             this.logger = logger;
         }
-
-        public override string Description => "Toggles the currently playing system media.";
-
-        public override string Title => "Play/Pause Media";
 
         public override bool Execute(object parametersObject, ref bool toggleState)
         {

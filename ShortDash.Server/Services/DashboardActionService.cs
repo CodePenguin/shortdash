@@ -40,7 +40,8 @@ namespace ShortDash.Server.Services
 
             logger.LogDebug($"Found {actionType.AssemblyQualifiedName}");
             var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
-            var parametersObject = JsonSerializer.Deserialize(action.Parameters, actionInstance.ParametersType);
+            var actionAttribute = actionService.GetActionAttribute(actionType);
+            var parametersObject = JsonSerializer.Deserialize(action.Parameters, actionAttribute.ParametersType);
             actionInstance.Execute(parametersObject, ref toggleState);
         }
 
@@ -59,6 +60,16 @@ namespace ShortDash.Server.Services
             }
 
             return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
+        }
+
+        public ShortDashActionAttribute GetActionAttribute(string actionTypeName)
+        {
+            var actionType = FindActionType(actionTypeName);
+            if (actionType == null)
+            {
+                return actionService.GetActionAttribute(actionTypeName);
+            }
+            return actionService.GetActionAttribute(actionType);
         }
 
         private void RegisterActionType(Type actionType)

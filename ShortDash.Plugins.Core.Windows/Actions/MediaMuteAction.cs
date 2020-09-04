@@ -2,6 +2,9 @@
 
 namespace ShortDash.Plugins.Core.Windows
 {
+    [ShortDashAction(
+        Title = "Mute Media",
+        Description = "Mutes the currently playing system media.")]
     public class MediaMuteAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaMuteAction> logger;
@@ -10,10 +13,6 @@ namespace ShortDash.Plugins.Core.Windows
         {
             this.logger = logger;
         }
-
-        public override string Description => "Mutes the currently playing system media.";
-
-        public override string Title => "Mute Media";
 
         public override bool Execute(object parametersObject, ref bool toggleState)
         {

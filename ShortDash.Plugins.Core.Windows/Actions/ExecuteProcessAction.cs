@@ -1,10 +1,13 @@
 ﻿using ShortDash.Core.Plugins;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
 namespace ShortDash.Plugins.Core.Windows
 {
+    [ShortDashAction(
+        Title = "Execute Process (Windows)",
+        Description = "Execute processes, documents and links via the system shell.",
+        ParametersType = typeof(ExecuteProcessParameters))]
     public class ExecuteProcessAction : IShortDashAction
     {
         private readonly IShortDashPluginLogger<ExecuteProcessAction> logger;
@@ -13,12 +16,6 @@ namespace ShortDash.Plugins.Core.Windows
         {
             this.logger = logger;
         }
-
-        public string Description => "Execute processes, documents and links via the system shell.";
-
-        public Type ParametersType => typeof(ExecuteProcessParameters);
-
-        public string Title => "Execute Process (Windows)";
 
         public bool Execute(object parametersObject, ref bool toggleState)
         {
@@ -38,7 +35,7 @@ namespace ShortDash.Plugins.Core.Windows
         }
     }
 
-    public class ExecuteProcessParameters
+    public class ExecuteProcessParameters : ShortDashActionParameters
     {
         [Display(Order = 3)]
         public string Arguments { get; set; }

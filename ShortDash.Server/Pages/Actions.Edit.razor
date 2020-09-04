@@ -1,4 +1,5 @@
 ﻿@page "/actions/{DashboardActionId:int}"
+@page "/actions/new"
 @using System.Dynamic
 @using System.Text.Json
 @using ShortDash.Core.Plugins
@@ -26,11 +27,11 @@
             <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
-        @if (!string.IsNullOrWhiteSpace(ShortDashAction?.Title))
+        @if (!string.IsNullOrWhiteSpace(ActionAttribute?.Title))
         {
             <div class="form-group disabled">
                 <label for="ActionType">Action Type</label>
-                <input type="text" class="form-control" value="@ShortDashAction.Title" disabled />
+                <input type="text" class="form-control" value="@ActionAttribute.Title" disabled />
             </div>
         }
     </fieldset>
@@ -51,7 +52,7 @@
     [Parameter]
     public int DashboardActionId { get; set; }
     private DashboardAction DashboardAction { get; set; }
-    private IShortDashAction ShortDashAction { get; set; }
+    private ShortDashActionAttribute ActionAttribute { get; set; }
     private object Parameters { get; set; }
 
     private EditContext ActionEditContext { get; set; }
@@ -64,13 +65,26 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (DashboardActionId > 0)
+        {
+            await LoadDashboardAction();
+        }
+        else
+        {
+            await Task.Run(() => NewDashboardAction());
+        }
+    }
+
+    private async Task LoadDashboardAction()
+    {
         DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
         ActionEditContext = new EditContext(DashboardAction);
 
-        ShortDashAction = DashboardActionService.GetAction(DashboardAction.ActionTypeName);
-        if (ShortDashAction != null)
+        ActionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
+        if (ActionAttribute != null)
         {
-            Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ShortDashAction.ParametersType);
+
+            Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ActionAttribute.ParametersType);
             ParametersEditContext = new EditContext(Parameters);
         }
         else
@@ -78,6 +92,16 @@
             Parameters = null;
             ParametersEditContext = null;
         }
+    }
+
+    private void NewDashboardAction()
+    {
+        DashboardAction = new DashboardAction();
+        ActionEditContext = new EditContext(DashboardAction);
+
+        ActionAttribute = null;
+        Parameters = null;
+        ParametersEditContext = null;
     }
 
     private async void SaveChanges()

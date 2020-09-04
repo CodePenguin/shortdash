@@ -10,10 +10,6 @@ namespace ShortDash.Plugins.Core.Windows
 
         private const uint KeyEventKeyUp = 0x0002;
 
-        public abstract string Description { get; }
-        public Type ParametersType => typeof(object);
-        public abstract string Title { get; }
-
         public abstract bool Execute(object parametersObject, ref bool toggleState);
 
         protected static void PressKey(byte keyCode)

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 
 namespace ShortDash.Core.Services
@@ -33,7 +35,8 @@ namespace ShortDash.Core.Services
             }
 
             logger.LogDebug($"Executing plugin action: {action.GetType().FullName}");
-            var parametersObject = JsonSerializer.Deserialize(parameters, action.ParametersType);
+            var actionAttribute = GetActionAttribute(action.GetType());
+            var parametersObject = JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType);
             action.Execute(parametersObject, ref toggleState);
         }
 
@@ -49,6 +52,28 @@ namespace ShortDash.Core.Services
             if (actionType == null) { return null; }
 
             return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
+        }
+
+        public ShortDashActionAttribute GetActionAttribute(string actionTypeName)
+        {
+            var actionType = FindActionType(actionTypeName);
+            return GetActionAttribute(actionType);
+        }
+
+        public ShortDashActionAttribute GetActionAttribute(Type actionType)
+        {
+            return actionType.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
+        }
+
+        public IList<IShortDashAction> GetActions()
+        {
+            var list = new List<IShortDashAction>();
+            foreach (var actionType in Actions.Values)
+            {
+                var action = (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
+                list.Add(action);
+            }
+            return list;
         }
 
         private void LoadPluginActions()

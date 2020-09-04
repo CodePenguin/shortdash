@@ -2,6 +2,9 @@
 
 namespace ShortDash.Plugins.Core.Windows
 {
+    [ShortDashAction(
+        Title = "Previous Track",
+        Description = "Goes to the previous track for the current system media.")]
     public class MediaPreviousTrackAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaPreviousTrackAction> logger;
@@ -10,10 +13,6 @@ namespace ShortDash.Plugins.Core.Windows
         {
             this.logger = logger;
         }
-
-        public override string Description => "Goes to the previous track for the current system media.";
-
-        public override string Title => "Previous Track";
 
         public override bool Execute(object parametersObject, ref bool toggleState)
         {
