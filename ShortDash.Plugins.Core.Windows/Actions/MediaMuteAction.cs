@@ -1,10 +1,8 @@
 ﻿using ShortDash.Core.Plugins;
-using System;
-using System.Media;
 
 namespace ShortDash.Plugins.Core.Windows
 {
-    public class MediaMuteAction : IShortDashAction
+    public class MediaMuteAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaMuteAction> logger;
 
@@ -13,17 +11,14 @@ namespace ShortDash.Plugins.Core.Windows
             this.logger = logger;
         }
 
-        public string Description => "Mutes the currently playing system media.";
+        public override string Description => "Mutes the currently playing system media.";
 
-        public Type ParametersType => typeof(object);
+        public override string Title => "Mute Media";
 
-        string IShortDashAction.Title => "Mute Media";
-
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public override bool Execute(object parametersObject, ref bool toggleState)
         {
-            // TODO: Actually mute the volume
-            logger.LogDebug($"Executing {GetType().Name}");
-            SystemSounds.Exclamation.Play();
+            logger.LogDebug("Sending mute volume keyboard events.");
+            PressKey(0xAD /* VK_VOLUME_MUTE */);
             return true;
         }
     }

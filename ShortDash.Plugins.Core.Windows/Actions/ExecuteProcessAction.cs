@@ -1,6 +1,5 @@
 ﻿using ShortDash.Core.Plugins;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
@@ -15,13 +14,13 @@ namespace ShortDash.Plugins.Core.Windows
             this.logger = logger;
         }
 
-        string IShortDashAction.Description => "Execute processes, documents and links via the system shell.";
+        public string Description => "Execute processes, documents and links via the system shell.";
 
-        Type IShortDashAction.ParametersType => typeof(ExecuteProcessParameters);
+        public Type ParametersType => typeof(ExecuteProcessParameters);
 
-        string IShortDashAction.Title => "Execute Process (Windows)";
+        public string Title => "Execute Process (Windows)";
 
-        bool IShortDashAction.Execute(object parametersObject, ref bool toggleState)
+        public bool Execute(object parametersObject, ref bool toggleState)
         {
             var parameters = parametersObject as ExecuteProcessParameters;
 
