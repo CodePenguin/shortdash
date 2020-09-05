@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Rendering;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -61,7 +62,7 @@ namespace ShortDash.Server.Components
 
         protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
         {
-            if (!int.TryParse(value, out var dashboardId) || Options.First(p => p.Key == dashboardId).Key == 0)
+            if (!BindConverter.TryConvertToInt(value, CultureInfo.InvariantCulture, out var dashboardId) || Options.First(p => p.Key == dashboardId).Key == 0)
             {
                 result = default;
                 validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";

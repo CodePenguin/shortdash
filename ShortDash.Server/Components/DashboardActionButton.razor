@@ -1,6 +1,7 @@
 ﻿@inject DashboardActionService ActionProcessorService
+@using ShortDash.Server.Actions
 
-@if (string.IsNullOrWhiteSpace(Cell.DashboardAction?.ActionTypeName))
+@if (!IsExecutable(Cell.DashboardAction))
 {
     <div class="grid-icon">
         &nbsp;
@@ -47,6 +48,12 @@ else
     {
 
         return (IsToggle && _toggleState) ? "active" : "";
+    }
+
+    private bool IsExecutable(DashboardAction action)
+    {
+        var actionTypeName = action?.ActionTypeName;
+        return (!string.IsNullOrWhiteSpace(actionTypeName) && actionTypeName != typeof(DashSeparatorAction).FullName);
     }
 
     protected override void OnParametersSet()

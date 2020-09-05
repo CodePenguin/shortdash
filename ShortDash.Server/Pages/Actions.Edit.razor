@@ -11,10 +11,16 @@
     <DataAnnotationsValidator />
 
     <fieldset>
-        <legend>Action</legend>
+        <legend>
+            Action
+            @if (DashboardActionId != 0)
+            {
+                <button class="btn btn-outline-danger float-right" @onclick=ConfirmDelete>Delete</button>
+            }
+        </legend>
         <div class="form-group">
             <label for="Title">Title</label>
-            <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" />
+            <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" placeholder="Enter text to display" />
             <ValidationMessage For="() => DashboardAction.Title" />
         </div>
         <div class="form-group">
@@ -24,7 +30,8 @@
         </div>
         <div class="form-group">
             <label for="Icon">Icon</label>
-            <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
+            <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
+            <small>An optional image to be displayed for this action.</small>
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
         @if (DashboardActionId == 0)
@@ -51,12 +58,10 @@
         </fieldset>
     }
 
-    <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
-    <button class="btn btn-outline-secondary" @onclick=CancelChanges>Cancel</button>
-    @if (DashboardActionId != 0)
-    {
-        <button class="btn btn-danger" @onclick=ConfirmDelete>Delete</button>
-    }
+    <div class="float-right">
+        <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+        <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+    </div>
 </EditForm>
 
 @code {
@@ -84,9 +89,10 @@
     private async void ConfirmDelete()
     {
         var parameters = new ModalParameters();
+        parameters.Add(nameof(ConfirmDialog.Message), "Are you sure you want to delete this action?");
         parameters.Add(nameof(ConfirmDialog.ConfirmCss), "btn-danger");
         parameters.Add(nameof(ConfirmDialog.ConfirmLabel), "Delete");
-        var modal = Modal.Show<ConfirmDialog>("Are you sure you want to delete this action?", parameters);
+        var modal = Modal.Show<ConfirmDialog>("Delete Action", parameters);
         var result = await modal.Result;
         if (result.Cancelled) { return; }
         await dashboardService.DeleteDashboardActionAsync(DashboardAction);

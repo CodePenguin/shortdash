@@ -25,6 +25,7 @@ namespace ShortDash.Server.Services
             this.serviceProvider = serviceProvider;
 
             RegisterActionType(typeof(DashLinkAction));
+            RegisterActionType(typeof(DashSeparatorAction));
         }
 
         private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();

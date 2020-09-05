@@ -56,7 +56,7 @@ namespace ShortDash.Server.Data
                 new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionTypeName = "Composite" },
                 new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
                 new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "open-iconic/svg/grid-three-up.svg", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
-                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionTypeName = "" },
+                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionTypeName = "ShortDash.Server.Actions.DashSeparatorAction" },
             };
         }
 
