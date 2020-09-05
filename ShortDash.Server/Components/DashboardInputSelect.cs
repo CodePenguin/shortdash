@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class ActionTypeInputSelect : InputBase<string>
+    public class DashboardInputSelect : InputBase<int>
     {
         [Parameter]
         public EventCallback<string> OptionSelected { get; set; }
 
         [Inject]
-        private DashboardActionService DashboardActionService { get; set; }
+        private DashboardService DashboardService { get; set; }
 
-        private List<KeyValuePair<string, string>> Options { get; } = new List<KeyValuePair<string, string>>();
+        private List<KeyValuePair<int, string>> Options { get; } = new List<KeyValuePair<int, string>>();
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
@@ -43,37 +43,34 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected override void OnParametersSet()
+        protected override async Task OnParametersSetAsync()
         {
-            var actionTypes = DashboardActionService.GetActionTypes();
+            var dashboards = await DashboardService.GetDashboardsAsync();
             Options.Clear();
-            foreach (var actionType in actionTypes)
+            foreach (var dashboard in dashboards)
             {
-                var actionAttribute = DashboardActionService.GetActionAttribute(actionType);
-                var title = !string.IsNullOrWhiteSpace(actionAttribute.Title) ? actionAttribute.Title : actionType.Name;
-                Options.Add(new KeyValuePair<string, string>(actionType.FullName, title));
+                Options.Add(new KeyValuePair<int, string>(dashboard.DashboardId, dashboard.Title));
             }
             Options.Sort((a, b) => a.Value.CompareTo(b.Value));
             if (string.IsNullOrWhiteSpace(CurrentValueAsString))
             {
-                CurrentValueAsString = Options.FirstOrDefault().Key;
-                OptionSelected.InvokeAsync(CurrentValueAsString);
+                CurrentValueAsString = Options.FirstOrDefault().Key.ToString();
+                await OptionSelected.InvokeAsync(CurrentValueAsString);
             }
         }
 
-        protected override bool TryParseValueFromString(string value, out string result, out string validationErrorMessage)
+        protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
         {
-            var selectedItem = Options.FirstOrDefault(p => p.Key == value);
-            if (selectedItem.Key != null)
+            if (!int.TryParse(value, out var dashboardId) || Options.First(p => p.Key == dashboardId).Key == 0)
             {
-                result = value;
-                validationErrorMessage = null;
-                return true;
+                result = default;
+                validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";
+                return false;
             }
 
-            result = default;
-            validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";
-            return false;
+            result = dashboardId;
+            validationErrorMessage = null;
+            return true;
         }
     }
 }

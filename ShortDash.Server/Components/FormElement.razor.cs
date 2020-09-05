@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
@@ -32,22 +33,22 @@ namespace ShortDash.Server.Components
         [Parameter]
         public PropertyInfo ModelProperty { get; set; }
 
-        public RenderFragment RenderComponent(PropertyInfo propInfo) => builder =>
+        public RenderFragment RenderComponent(PropertyInfo property) => builder =>
         {
-            var componentType = componentsMapper.GetComponent(propInfo.PropertyType.ToString());
-            if (componentType == null) { throw new Exception($"No component found: {propInfo.PropertyType}"); }
+            var componentType = GetInputType(property);
+            if (componentType == null) { throw new Exception($"No component found: {property.PropertyType}"); }
             if (componentType == null) { return; }
             var elementType = componentType;
             if (elementType.IsGenericTypeDefinition)
             {
-                Type[] typeArgs = { propInfo.PropertyType };
+                Type[] typeArgs = { property.PropertyType };
                 elementType = elementType.MakeGenericType(typeArgs);
             }
 
             var instance = Activator.CreateInstance(elementType);
             var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
-            var genericMethod = method.MakeGenericMethod(propInfo.PropertyType, elementType);
-            genericMethod.Invoke(this, new object[] { this, Model, propInfo, builder, instance });
+            var genericMethod = method.MakeGenericMethod(property.PropertyType, elementType);
+            genericMethod.Invoke(this, new object[] { this, Model, property, builder, instance });
         };
 
         protected override void OnInitialized()
@@ -140,6 +141,12 @@ namespace ShortDash.Server.Components
                 return $"{cssClass} {output}";
             }
             return output;
+        }
+
+        private Type GetInputType(PropertyInfo property)
+        {
+            return property.GetCustomAttribute<FormInputAttribute>()?.Type
+                ?? componentsMapper.GetComponent(property.PropertyType.ToString());
         }
     }
 }

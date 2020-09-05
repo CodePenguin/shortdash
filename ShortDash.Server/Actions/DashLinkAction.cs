@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Components;
 using ShortDash.Core.Plugins;
+using ShortDash.Server.Components;
+using ShortDash.Server.Shared;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace ShortDash.Server.Actions
 {
     [ShortDashAction(
-        Title = "Go to Dashboard",
+        Title = "Switch to Dashboard",
         Description = "Navigates to a specific dashboard.",
         ParametersType = typeof(DashLinkProcessParameters))]
     public class DashLinkAction : IShortDashAction
@@ -27,6 +30,8 @@ namespace ShortDash.Server.Actions
 
         private class DashLinkProcessParameters
         {
+            [Display(Name = "Dashboard")]
+            [FormInput(Type = typeof(DashboardInputSelect))]
             public int DashboardId { get; set; }
         }
     }
