@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,7 @@ namespace ShortDash.Server.Services
             RegisterActionType(typeof(DashLinkAction));
         }
 
-        private Dictionary<string, Type> Actions { get; } = new Dictionary<string, Type>();
+        private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
 
         public void Execute(DashboardAction action, bool toggleState)
         {
@@ -47,7 +49,8 @@ namespace ShortDash.Server.Services
 
         public Type FindActionType(string actionTypeName)
         {
-            if (!Actions.TryGetValue(actionTypeName, out var actionType)) { return null; }
+            if (string.IsNullOrWhiteSpace(actionTypeName)) { return null; }
+            if (!ActionTypes.TryGetValue(actionTypeName, out var actionType)) { return null; }
             return actionType;
         }
 
@@ -72,10 +75,22 @@ namespace ShortDash.Server.Services
             return actionService.GetActionAttribute(actionType);
         }
 
+        public ShortDashActionAttribute GetActionAttribute(Type actionType)
+        {
+            return actionType?.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
+        }
+
+        public IList<Type> GetActionTypes()
+        {
+            var list = ActionTypes.Values.ToList();
+            list.AddRange(actionService.GetActionTypes());
+            return list;
+        }
+
         private void RegisterActionType(Type actionType)
         {
             if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) { return; }
-            if (!Actions.TryAdd(actionType.FullName, actionType)) { return; }
+            if (!ActionTypes.TryAdd(actionType.FullName, actionType)) { return; }
         }
     }
 }

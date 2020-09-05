@@ -27,7 +27,14 @@
             <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" />
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
-        @if (!string.IsNullOrWhiteSpace(ActionAttribute?.Title))
+        @if (DashboardActionId == 0)
+        {
+            <div class="form-group disabled">
+                <label for="ActionType">Action Type</label>
+                <ActionTypeInputSelect @bind-Value="DashboardAction.ActionTypeName" OptionSelected="@ChangeActionTypeName" />
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(ActionAttribute?.Title))
         {
             <div class="form-group disabled">
                 <label for="ActionType">Action Type</label>
@@ -63,25 +70,15 @@
         NavigationManagerService.NavigateTo($"/actions");
     }
 
-    protected override async Task OnParametersSetAsync()
+    private async Task ChangeActionTypeName(string actionTypeName)
     {
-        if (DashboardActionId > 0)
-        {
-            await LoadDashboardAction();
-        }
-        else
-        {
-            await Task.Run(() => NewDashboardAction());
-        }
+        await Task.Run(() => RefreshParameters());
     }
 
-    private async Task LoadDashboardAction()
+    private void RefreshParameters()
     {
-        DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
-        ActionEditContext = new EditContext(DashboardAction);
-
         ActionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
-        if (ActionAttribute != null)
+        if (ActionAttribute != null && ActionAttribute.ParametersType != null)
         {
 
             Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ActionAttribute.ParametersType);
@@ -94,19 +91,43 @@
         }
     }
 
+    private async Task LoadDashboardAction()
+    {
+        DashboardAction = await dashboardService.GetDashboardActionAsync(DashboardActionId);
+        ActionEditContext = new EditContext(DashboardAction);
+
+        RefreshParameters();
+    }
+
     private void NewDashboardAction()
     {
-        DashboardAction = new DashboardAction();
+        DashboardAction = new DashboardAction { DashboardActionTargetId = 1 };
         ActionEditContext = new EditContext(DashboardAction);
 
         ActionAttribute = null;
         Parameters = null;
         ParametersEditContext = null;
+
+        RefreshParameters();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DashboardActionId > 0)
+        {
+            await LoadDashboardAction();
+        }
+        else
+        {
+            await Task.Run(() => NewDashboardAction());
+        }
     }
 
     private async void SaveChanges()
     {
         if (!ActionEditContext.Validate()) return;
+
+        if (DashboardAction.DashboardActionId == 0 && string.IsNullOrWhiteSpace(DashboardAction.ActionTypeName)) { return; }
 
         if (ParametersEditContext != null)
         {
@@ -114,7 +135,15 @@
 
             DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
         }
-        await dashboardService.UpdateDashboardActionAsync(DashboardAction);
+
+        if (DashboardAction.DashboardActionId == 0)
+        {
+            await dashboardService.AddDashboardActionAsync(DashboardAction);
+        }
+        else
+        {
+            await dashboardService.UpdateDashboardActionAsync(DashboardAction);
+        }
 
         NavigationManagerService.NavigateTo($"/actions");
     }

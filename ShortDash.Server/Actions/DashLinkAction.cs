@@ -5,6 +5,10 @@ using System.Text.Json;
 
 namespace ShortDash.Server.Actions
 {
+    [ShortDashAction(
+        Title = "Go to Dashboard",
+        Description = "Navigates to a specific dashboard.",
+        ParametersType = typeof(DashLinkProcessParameters))]
     public class DashLinkAction : IShortDashAction
     {
         private readonly NavigationManager navigationManager;
@@ -13,12 +17,6 @@ namespace ShortDash.Server.Actions
         {
             this.navigationManager = navigationManager;
         }
-
-        public string Description => "Navigates to a specific dashboard.";
-
-        public Type ParametersType => typeof(DashLinkProcessParameters);
-
-        public string Title => "Go to Dashboard";
 
         public bool Execute(object parametersObject, ref bool toggleState)
         {

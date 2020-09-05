@@ -5,7 +5,7 @@ namespace ShortDash.Core.Plugins
     public sealed class ShortDashActionAttribute : Attribute
     {
         public string Description { get; set; } = "";
-        public Type ParametersType { get; set; } = typeof(ShortDashActionParameters);
+        public Type ParametersType { get; set; } = null;
         public string Title { get; set; } = "";
     }
 }

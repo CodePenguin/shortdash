@@ -23,7 +23,7 @@ namespace ShortDash.Core.Services
             LoadPluginActions();
         }
 
-        private Dictionary<string, Type> Actions { get; } = new Dictionary<string, Type>();
+        private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
 
         public void Execute(string actionTypeName, string parameters, ref bool toggleState)
         {
@@ -42,7 +42,8 @@ namespace ShortDash.Core.Services
 
         public Type FindActionType(string actionTypeName)
         {
-            if (!Actions.TryGetValue(actionTypeName, out var actionType)) { return null; }
+            if (string.IsNullOrWhiteSpace(actionTypeName)) { return null; }
+            if (!ActionTypes.TryGetValue(actionTypeName, out var actionType)) { return null; }
             return actionType;
         }
 
@@ -62,18 +63,12 @@ namespace ShortDash.Core.Services
 
         public ShortDashActionAttribute GetActionAttribute(Type actionType)
         {
-            return actionType.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
+            return actionType?.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
         }
 
-        public IList<IShortDashAction> GetActions()
+        public IList<Type> GetActionTypes()
         {
-            var list = new List<IShortDashAction>();
-            foreach (var actionType in Actions.Values)
-            {
-                var action = (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
-                list.Add(action);
-            }
-            return list;
+            return ActionTypes.Values.ToList();
         }
 
         private void LoadPluginActions()
@@ -87,7 +82,7 @@ namespace ShortDash.Core.Services
         private void RegisterActionType(Type actionType)
         {
             if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) { return; }
-            if (!Actions.TryAdd(actionType.FullName, actionType)) { return; }
+            if (!ActionTypes.TryAdd(actionType.FullName, actionType)) { return; }
         }
     }
 }

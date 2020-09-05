@@ -35,7 +35,7 @@ namespace ShortDash.Plugins.Core.Windows
         }
     }
 
-    public class ExecuteProcessParameters : ShortDashActionParameters
+    public class ExecuteProcessParameters
     {
         [Display(Order = 3)]
         public string Arguments { get; set; }
