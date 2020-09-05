@@ -1,7 +1,10 @@
 ﻿@page "/actions"
 @inject DashboardService dashboardService
+@inject NavigationManager NavigationManagerService;
 
 <h3>Actions</h3>
+
+<button @onclick="AddAction" class="btn btn-outline-primary">Add</button>
 
 <ul class="nav flex-column">
     @foreach (var action in DashboardActions)
@@ -18,10 +21,14 @@
 @code {
     private List<DashboardAction> DashboardActions = new List<DashboardAction>();
 
+    protected void AddAction()
+    {
+        NavigationManagerService.NavigateTo($"/actions/new");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         var list = await dashboardService.GetDashboardActionsAsync();
         DashboardActions = list.OrderBy(o => o.Title).ToList();
-
     }
 }

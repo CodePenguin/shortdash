@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,7 @@ namespace ShortDash.Server
             });
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddBlazoredModal();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddSingleton<ActionService>();
