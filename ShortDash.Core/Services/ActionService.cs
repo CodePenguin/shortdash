@@ -6,9 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ShortDash.Core.Services
 {
+    public struct ActionResult
+    {
+        public bool Success;
+        public bool ToggleState;
+    }
+
     public class ActionService
     {
         private readonly ILogger logger;
@@ -25,19 +32,23 @@ namespace ShortDash.Core.Services
 
         private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
 
-        public void Execute(string actionTypeName, string parameters, ref bool toggleState)
+        public Task<ActionResult> Execute(string actionTypeName, string parameters, bool toggleState)
         {
-            var action = GetAction(actionTypeName);
-            if (action == null)
+            var actionType = FindActionType(actionTypeName);
+            if (actionType == null)
             {
-                logger.LogError($"Unhandled Action Class: {actionTypeName}");
-                return;
+                logger.LogError($"Unregistered action type: {actionTypeName}");
+                return Task.FromResult(new ActionResult { Success = false, ToggleState = toggleState });
             }
-
-            logger.LogDebug($"Executing plugin action: {action.GetType().FullName}");
-            var actionAttribute = GetActionAttribute(action.GetType());
-            var parametersObject = JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType);
-            action.Execute(parametersObject, ref toggleState);
+            logger.LogDebug($"Executing action: {actionType.FullName}");
+            return Task.Run(() =>
+            {
+                var action = GetAction(actionType);
+                var actionAttribute = GetActionAttribute(action.GetType());
+                var parametersObject = JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
+                var success = action.Execute(parametersObject, ref toggleState);
+                return new ActionResult { Success = success, ToggleState = toggleState };
+            });
         }
 
         public Type FindActionType(string actionTypeName)
@@ -50,6 +61,11 @@ namespace ShortDash.Core.Services
         public IShortDashAction GetAction(string actionTypeName)
         {
             var actionType = FindActionType(actionTypeName);
+            return GetAction(actionType);
+        }
+
+        public IShortDashAction GetAction(Type actionType)
+        {
             if (actionType == null) { return null; }
 
             return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);

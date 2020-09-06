@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
@@ -30,22 +31,24 @@ namespace ShortDash.Server.Services
 
         private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
 
-        public void Execute(DashboardAction action, bool toggleState)
+        public Task<ActionResult> Execute(DashboardAction dashboardAction, bool toggleState)
         {
-            logger.LogDebug($"Clicked #{action.DashboardActionId} - {action.ActionTypeName} - {toggleState} - {action.Parameters}");
+            logger.LogDebug($"Clicked #{dashboardAction.DashboardActionId} - {dashboardAction.ActionTypeName} - {toggleState} - {dashboardAction.Parameters}");
 
-            var actionType = FindActionType(action.ActionTypeName);
+            var actionType = FindActionType(dashboardAction.ActionTypeName);
             if (actionType == null)
             {
-                actionService.Execute(action.ActionTypeName, action.Parameters, ref toggleState);
-                return;
+                return actionService.Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
             }
-
-            logger.LogDebug($"Found {actionType.AssemblyQualifiedName}");
-            var actionInstance = ActivatorUtilities.CreateInstance(serviceProvider, actionType) as IShortDashAction;
-            var actionAttribute = actionService.GetActionAttribute(actionType);
-            var parametersObject = JsonSerializer.Deserialize(action.Parameters, actionAttribute.ParametersType);
-            actionInstance.Execute(parametersObject, ref toggleState);
+            logger.LogDebug($"Executing action: {actionType.FullName}");
+            return Task.Run(() =>
+            {
+                var action = GetAction(actionType);
+                var actionAttribute = GetActionAttribute(action.GetType());
+                var parametersObject = JsonSerializer.Deserialize(dashboardAction.Parameters, actionAttribute.ParametersType ?? typeof(object));
+                var success = action.Execute(parametersObject, ref toggleState);
+                return new ActionResult { Success = success, ToggleState = toggleState };
+            });
         }
 
         public Type FindActionType(string actionTypeName)
@@ -58,10 +61,12 @@ namespace ShortDash.Server.Services
         public IShortDashAction GetAction(string actionTypeName)
         {
             var actionType = FindActionType(actionTypeName);
-            if (actionType == null)
-            {
-                return actionService.GetAction(actionTypeName);
-            }
+            return GetAction(actionType);
+        }
+
+        public IShortDashAction GetAction(Type actionType)
+        {
+            if (actionType == null) { return null; }
 
             return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
         }

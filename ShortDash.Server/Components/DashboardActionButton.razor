@@ -21,6 +21,10 @@ else
                     @Cell.DashboardAction.Title
                 }
             </div>
+            @if (IsExecuting)
+            {
+                <div class="executing-indicator spinner-border text-warning" role="status"></div>
+            }
         </div>
         <div class="grid-icon-caption">
             @Cell.DashboardAction.Title
@@ -34,20 +38,27 @@ else
     public DashboardCell Cell { get; set; }
 
     private Dictionary<string, object> CellAttributes;
-    private bool _toggleState = false;
-    private bool IsToggle => false; // TODO: Implement toggle functionality
+    private bool ToggleState { get; set; } = false;
+    private bool IsToggle { get; set; } = false; // TODO: Implement toggle functionality
+    private bool IsExecuting { get; set; } = false;
 
-    private void Click()
+    private async void Click()
     {
-        _toggleState = !IsToggle || !_toggleState;
-
-        ActionProcessorService.Execute(Cell.DashboardAction, _toggleState);
+        IsExecuting = true;
+        ToggleState = !IsToggle || !ToggleState;
+        var result = await ActionProcessorService.Execute(Cell.DashboardAction, ToggleState);
+        if (result.Success)
+        {
+            ToggleState = result.ToggleState;
+        }
+        IsExecuting = false;
+        StateHasChanged();
     }
 
     private string GetActiveStateClass()
     {
 
-        return (IsToggle && _toggleState) ? "active" : "";
+        return (IsToggle && ToggleState) ? "active" : "";
     }
 
     private bool IsExecutable(DashboardAction action)
