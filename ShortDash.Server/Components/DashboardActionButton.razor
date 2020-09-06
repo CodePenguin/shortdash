@@ -44,6 +44,7 @@ else
 
     private async void Click()
     {
+        if (IsExecuting) { return; }
         IsExecuting = true;
         ToggleState = !IsToggle || !ToggleState;
         var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
@@ -51,6 +52,8 @@ else
         {
             ToggleState = result.ToggleState;
         }
+        // Intentional delay so the execution indicator has time to display for super fast operations
+        await Task.Delay(100);
         IsExecuting = false;
         StateHasChanged();
     }
@@ -70,9 +73,13 @@ else
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        IsExecuting = false;
+        ToggleState = false;
         CellAttributes = new Dictionary<string, object>();
         if (Cell.DashboardAction.BackgroundColor != null)
+        {
             CellAttributes.Add("style", "background-color: " + Cell.DashboardAction.BackgroundColor?.ToHtmlString());
+        }
     }
 
     private bool HasIcon()
