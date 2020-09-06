@@ -9,13 +9,9 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class FormGeneratorComponent : OwningComponentBase
+    public partial class FormGenerator : ComponentBase
     {
         public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
-
-        public FormGeneratorComponent()
-        {
-        }
 
         [Parameter]
         public EditContext EditContext { get; set; }

@@ -1,5 +1,4 @@
-﻿@inherits FormGeneratorComponent
-<EditForm EditContext="@EditContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
+﻿<EditForm EditContext="@EditContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
     <DataAnnotationsValidator />
     <ValidationSummary />
     @foreach (var property in Properties)

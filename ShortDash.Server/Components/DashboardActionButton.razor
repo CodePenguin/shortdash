@@ -1,7 +1,4 @@
-﻿@inject DashboardActionService DashboardActionService
-@using ShortDash.Server.Actions
-
-@if (!IsExecutable(Cell.DashboardAction))
+﻿@if (!IsExecutable(Cell.DashboardAction))
 {
     <div class="grid-icon">
         &nbsp;
@@ -10,7 +7,7 @@
 else
 {
     <a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
-        <div class="grid-icon rounded" @attributes=CellAttributes>
+        <div class="grid-icon rounded" @attributes=cellAttributes>
             <div class="grid-icon-content d-table-cell align-middle">
                 @if (HasIcon())
                 {
@@ -30,61 +27,4 @@ else
             @Cell.DashboardAction.Title
         </div>
     </a>
-}
-
-@code {
-
-    [Parameter]
-    public DashboardCell Cell { get; set; }
-
-    private Dictionary<string, object> CellAttributes;
-    private bool ToggleState { get; set; } = false;
-    private bool IsToggle { get; set; } = false; // TODO: Implement toggle functionality
-    private bool IsExecuting { get; set; } = false;
-
-    private async void Click()
-    {
-        if (IsExecuting) { return; }
-        IsExecuting = true;
-        ToggleState = !IsToggle || !ToggleState;
-        var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
-        if (result.Success)
-        {
-            ToggleState = result.ToggleState;
-        }
-        // Intentional delay so the execution indicator has time to display for super fast operations
-        await Task.Delay(100);
-        IsExecuting = false;
-        StateHasChanged();
-    }
-
-    private string GetActiveStateClass()
-    {
-
-        return (IsToggle && ToggleState) ? "active" : "";
-    }
-
-    private bool IsExecutable(DashboardAction action)
-    {
-        var actionTypeName = action?.ActionTypeName;
-        return (!string.IsNullOrWhiteSpace(actionTypeName) && actionTypeName != typeof(DashSeparatorAction).FullName);
-    }
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        IsExecuting = false;
-        ToggleState = false;
-        CellAttributes = new Dictionary<string, object>();
-        if (Cell.DashboardAction.BackgroundColor != null)
-        {
-            CellAttributes.Add("style", "background-color: " + Cell.DashboardAction.BackgroundColor?.ToHtmlString());
-        }
-    }
-
-    private bool HasIcon()
-    {
-        return !string.IsNullOrWhiteSpace(Cell.DashboardAction.Icon);
-    }
-
 }
