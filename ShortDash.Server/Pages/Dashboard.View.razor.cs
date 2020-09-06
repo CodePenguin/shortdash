@@ -10,7 +10,7 @@ using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class DashboardView : ComponentBase
+    public partial class DashboardViewPage : ComponentBase
     {
         protected Dashboard dashboard;
 

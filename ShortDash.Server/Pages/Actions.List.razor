@@ -1,6 +1,5 @@
 ﻿@page "/actions"
-@inject DashboardService dashboardService
-@inject NavigationManager NavigationManagerService;
+@inherits ActionsListPage
 
 <h3>Actions</h3>
 
@@ -17,18 +16,3 @@
         </li>
     }
 </ul>
-
-@code {
-    private List<DashboardAction> DashboardActions = new List<DashboardAction>();
-
-    protected void AddAction()
-    {
-        NavigationManagerService.NavigateTo($"/actions/new");
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var list = await dashboardService.GetDashboardActionsAsync();
-        DashboardActions = list.OrderBy(o => o.Title).ToList();
-    }
-}
