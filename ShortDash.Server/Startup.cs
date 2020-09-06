@@ -61,7 +61,6 @@ namespace ShortDash.Server
             services.AddBlazoredModal();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
-            services.AddSingleton<ActionService>();
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));

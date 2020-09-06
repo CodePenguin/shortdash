@@ -13,6 +13,5 @@
     [Parameter]
     public Dashboard Dashboard { get; set; }
 
-
     private List<DashboardCell> DashboardCells => Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList();
 }

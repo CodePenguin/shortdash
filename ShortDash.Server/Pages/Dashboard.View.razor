@@ -1,31 +1,20 @@
 ﻿@page "/dashboard"
 @page "/dashboard/{DashboardId:int}"
 
-@inject DashboardService DashboardService
+@inherits DashboardView
 
 @if (dashboard == null)
 {
-    <h3>Opps, the dashboard doesn't seem to exist anymore.</h3>
+    <h3>Opps, this dashboard doesn't seem to exist anymore.</h3>
 }
 else
 {
-<h3>@dashboard.Title</h3>
-<div class="dashboard">
-    <DashboardGrid Dashboard="dashboard" />
-</div>
-}
+    <div class="float-right">
+        <button class="btn btn-outline-primary" @onclick="ShowAddDialog">Add</button>
+    </div>
 
-@code {
-    [Parameter]
-    public int? DashboardId { get; set; }
-
-    private Dashboard dashboard;
-
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        await base.SetParametersAsync(parameters);
-        DashboardId = DashboardId ?? 1;
-        dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);        
-    }
-
+    <h3>@dashboard.Title</h3>
+    <div class="dashboard">
+        <DashboardGrid Dashboard="dashboard" />
+    </div>
 }

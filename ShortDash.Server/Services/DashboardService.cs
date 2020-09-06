@@ -46,7 +46,9 @@ namespace ShortDash.Server.Services
 
         public async Task<List<DashboardAction>> GetDashboardActionsAsync()
         {
-            return await dbContext.DashboardActions.ToListAsync();
+            return await dbContext.DashboardActions
+                .OrderBy(a => a.Title)
+                .ToListAsync();
         }
 
         public async Task<Dashboard> GetDashboardAsync(int dashboardId)
@@ -55,6 +57,7 @@ namespace ShortDash.Server.Services
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
                 .Where(d => d.DashboardId == dashboardId)
+                .OrderBy(d => d.Title)
                 .FirstOrDefaultAsync();
         }
 
@@ -68,6 +71,13 @@ namespace ShortDash.Server.Services
             dbContext.Update(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
+        }
+
+        public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard)
+        {
+            dbContext.Update(dashboard);
+            await dbContext.SaveChangesAsync();
+            return dashboard;
         }
     }
 }
