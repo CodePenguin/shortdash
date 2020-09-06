@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public partial class BaseDialogComponent<TResult> : ComponentBase
+    public partial class BaseDialog<TResult> : ComponentBase
     {
         [Parameter]
         public string CancelClass { get; set; } = "btn-secondary";
@@ -31,8 +31,11 @@ namespace ShortDash.Server.Components
         [CascadingParameter]
         protected BlazoredModalInstance BlazoredModal { get; set; }
 
-        protected async Task CancelClick() => await BlazoredModal.Cancel();
+        protected Task CancelClick() => BlazoredModal.Cancel();
 
-        protected async Task OkClick() => await BlazoredModal.Close(ModalResult.Ok(Result));
+        protected Task OkClick()
+        {
+            return BlazoredModal.Close(ModalResult.Ok(Result));
+        }
     }
 }

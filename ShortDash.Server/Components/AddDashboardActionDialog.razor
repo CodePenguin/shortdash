@@ -1,47 +1,12 @@
-﻿@inject DashboardService DashboardService
-
-<div class="modal-backdrop fade show" @onclick="Cancel"></div>
-<div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
-    <div class="modal-dialog " role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add an action</h5>
-            </div>
-            <div class="modal-body form-group">
-                <EditForm Model="selected">
-                    <InputSelect @bind-Value="selected.Value" class="form-control" placeholder="Select an action...">
-                        @foreach (var action in availableActions)
-                        {
-                            <option value="@action.DashboardActionId">@action.Title</option>
-                        }
-                    </InputSelect>
-                </EditForm>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-                <button type="button" class="btn btn-primary" @onclick="Add">Add</button>
-            </div>
-        </div>
+﻿<BaseDialog TResult="int" Result="@ParseResult()" OkLabel="Add" OkClass="btn-primary">
+    <div class="form-group">
+        <EditForm Model="Selected">
+            <InputSelect @bind-Value="Selected.Value" class="form-control" placeholder="Select an action...">
+                @foreach (var action in AvailableActions)
+                {
+                    <option value="@action.DashboardActionId">@action.Title</option>
+                }
+            </InputSelect>
+        </EditForm>
     </div>
-</div>
-
-@code {
-    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
-
-    private SelectedItem selected { get; } = new SelectedItem();
-
-    private List<DashboardAction> availableActions { get; } = new List<DashboardAction>();
-
-    async Task Add() => await BlazoredModal.Close(ModalResult.Ok(int.Parse(selected.Value)));
-    async Task Cancel() => await BlazoredModal.Cancel();
-
-    protected override async Task OnParametersSetAsync()
-    {
-        availableActions.AddRange(await DashboardService.GetDashboardActionsAsync());
-    }
-
-    private class SelectedItem
-    {
-        public string Value { get; set; }
-    }
-}
+</BaseDialog>

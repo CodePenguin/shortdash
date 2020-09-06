@@ -18,7 +18,7 @@ namespace ShortDash.Server.Pages
         public int? DashboardId { get; set; }
 
         [CascadingParameter]
-        public IModalService Modal { get; set; }
+        public IModalService ModalService { get; set; }
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -31,10 +31,9 @@ namespace ShortDash.Server.Pages
 
         protected async void ShowAddDialog()
         {
-            var modal = Modal.Show<AddDashboardActionDialog>();
-            var result = await modal.Result;
+            var result = await AddDashboardActionDialog.ShowAsync(ModalService);
             if (result.Cancelled) { return; }
-            dashboard.DashboardCells.Add(new DashboardCell { DashboardActionId = int.Parse(result.Data.ToString()) });
+            dashboard.DashboardCells.Add(new DashboardCell { DashboardActionId = (int)result.Data });
             await DashboardService.UpdateDashboardAsync(dashboard);
             StateHasChanged();
         }

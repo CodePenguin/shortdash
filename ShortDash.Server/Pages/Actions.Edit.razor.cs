@@ -21,7 +21,7 @@ namespace ShortDash.Server.Pages
         public int DashboardActionId { get; set; }
 
         [CascadingParameter]
-        public IModalService Modal { get; set; }
+        public IModalService ModalService { get; set; }
 
         protected ShortDashActionAttribute ActionAttribute { get; set; }
 
@@ -54,7 +54,7 @@ namespace ShortDash.Server.Pages
 
         protected async void ConfirmDelete()
         {
-            var confirmed = await ConfirmDialogComponent.ShowAsync(Modal,
+            var confirmed = await ConfirmDialog.ShowAsync(ModalService,
                 title: "Delete Action",
                 message: "Are you sure you want to delete this action?",
                 confirmLabel: "Delete",

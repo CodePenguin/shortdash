@@ -1,14 +1,3 @@
 ﻿<BaseDialog TResult="bool" Result="true" OkClass="@ConfirmClass" OkLabel="@ConfirmLabel">
     @Message
 </BaseDialog>
-
-@code {
-    [Parameter]
-    public string Message { get; set; }
-
-    [Parameter]
-    public string ConfirmLabel { get; set; } = "Confirm";
-
-    [Parameter]
-    public string ConfirmClass { get; set; } = "btn-secondary";
-}
