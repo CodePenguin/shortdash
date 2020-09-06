@@ -47,20 +47,19 @@ namespace ShortDash.Server.Pages
             NavigationManagerService.NavigateTo($"/actions");
         }
 
-        protected async Task ChangeActionTypeName(string actionTypeName)
+        protected async Task ChangeActionTypeName()
         {
             await Task.Run(() => RefreshParameters());
         }
 
         protected async void ConfirmDelete()
         {
-            var parameters = new ModalParameters();
-            parameters.Add(nameof(ConfirmDialog.Message), "Are you sure you want to delete this action?");
-            parameters.Add(nameof(ConfirmDialog.ConfirmCss), "btn-danger");
-            parameters.Add(nameof(ConfirmDialog.ConfirmLabel), "Delete");
-            var modal = Modal.Show<ConfirmDialog>("Delete Action", parameters);
-            var result = await modal.Result;
-            if (result.Cancelled) { return; }
+            var confirmed = await ConfirmDialogComponent.ShowAsync(Modal,
+                title: "Delete Action",
+                message: "Are you sure you want to delete this action?",
+                confirmLabel: "Delete",
+                confirmClass: "btn-danger");
+            if (!confirmed) { return; }
             await DashboardService.DeleteDashboardActionAsync(DashboardAction);
             NavigationManagerService.NavigateTo($"/actions");
         }

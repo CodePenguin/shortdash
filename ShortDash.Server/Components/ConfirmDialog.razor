@@ -1,31 +1,14 @@
-﻿<div class="modal-backdrop fade show" @onclick="Cancel"></div>
-<div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
-    <div class="modal-dialog " role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@BlazoredModal.Title</h5>
-            </div>
-            @if (!string.IsNullOrWhiteSpace(Message))
-            {
-                <div class="modal-body">
-                    @Message
-                </div>
-            }
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-                <button type="button" class="btn @ConfirmCss" @onclick="Confirm">@ConfirmLabel</button>
-            </div>
-        </div>
-    </div>
-</div>
+﻿<BaseDialog TResult="bool" Result="true" OkClass="@ConfirmClass" OkLabel="@ConfirmLabel">
+    @Message
+</BaseDialog>
 
 @code {
-    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    [Parameter]
+    public string Message { get; set; }
 
-    [Parameter] public string ConfirmCss { get; set; } = "btn-primary";
-    [Parameter] public string ConfirmLabel { get; set; } = "Confirm";
-    [Parameter] public string Message { get; set; }
+    [Parameter]
+    public string ConfirmLabel { get; set; } = "Confirm";
 
-    async Task Confirm() => await BlazoredModal.Close(ModalResult.Ok(true));
-    async Task Cancel() => await BlazoredModal.Cancel();
+    [Parameter]
+    public string ConfirmClass { get; set; } = "btn-secondary";
 }

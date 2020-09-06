@@ -1,0 +1,20 @@
+﻿@typeparam TResult
+@inherits BaseDialogComponent<TResult>
+
+<div class="modal-backdrop fade show" @onclick="CancelClick"></div>
+<div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@BlazoredModal.Title</h5>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn @CancelClass" @onclick="CancelClick">@CancelLabel</button>
+                <button type="button" class="btn @OkClass" @onclick="OkClick">@OkLabel</button>
+            </div>
+        </div>
+    </div>
+</div>
