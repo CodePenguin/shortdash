@@ -27,7 +27,7 @@ namespace ShortDash.Core.Services
             this.logger = logger;
             this.serviceProvider = serviceProvider;
             this.pluginService = pluginService;
-            LoadPluginActions();
+            RegisterActions();
         }
 
         private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
@@ -87,18 +87,23 @@ namespace ShortDash.Core.Services
             return ActionTypes.Values.ToList();
         }
 
+        protected virtual void RegisterActions()
+        {
+            LoadPluginActions();
+        }
+
+        protected void RegisterActionType(Type actionType)
+        {
+            if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) { return; }
+            if (!ActionTypes.TryAdd(actionType.FullName, actionType)) { return; }
+        }
+
         private void LoadPluginActions()
         {
             foreach (var actionType in pluginService.Actions)
             {
                 RegisterActionType(actionType);
             }
-        }
-
-        private void RegisterActionType(Type actionType)
-        {
-            if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) { return; }
-            if (!ActionTypes.TryAdd(actionType.FullName, actionType)) { return; }
         }
     }
 }

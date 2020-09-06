@@ -1,4 +1,4 @@
-﻿@inject DashboardActionService ActionProcessorService
+﻿@inject DashboardActionService DashboardActionService
 @using ShortDash.Server.Actions
 
 @if (!IsExecutable(Cell.DashboardAction))
@@ -46,7 +46,7 @@ else
     {
         IsExecuting = true;
         ToggleState = !IsToggle || !ToggleState;
-        var result = await ActionProcessorService.Execute(Cell.DashboardAction, ToggleState);
+        var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
         if (result.Success)
         {
             ToggleState = result.ToggleState;
