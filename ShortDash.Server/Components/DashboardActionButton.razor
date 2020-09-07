@@ -1,7 +1,9 @@
 ﻿@if (!IsExecutable(Cell.DashboardAction))
 {
     <div class="grid-icon">
-        &nbsp;
+        <div class="grid-icon-content d-table-cell align-middle">
+            &nbsp;
+        </div>
     </div>
 }
 else
@@ -22,9 +24,6 @@ else
             {
                 <div class="executing-indicator spinner-border text-warning" role="status"></div>
             }
-        </div>
-        <div class="grid-icon-caption">
-            @Cell.DashboardAction.Title
         </div>
     </a>
 }

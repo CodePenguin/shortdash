@@ -36,6 +36,20 @@ namespace ShortDash.Server.Services
             return dashboardAction;
         }
 
+        public async Task<Dashboard> DeleteDashboardAsync(Dashboard dashboard)
+        {
+            dbContext.Remove(dashboard);
+            await dbContext.SaveChangesAsync();
+            return dashboard;
+        }
+
+        public async Task<DashboardCell> DeleteDashboardCellAsync(DashboardCell dashboardCell)
+        {
+            dbContext.Remove(dashboardCell);
+            await dbContext.SaveChangesAsync();
+            return dashboardCell;
+        }
+
         public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
             return await dbContext.DashboardActions

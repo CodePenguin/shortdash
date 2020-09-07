@@ -23,17 +23,36 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DashboardService DashboardService { get; set; }
 
+        [Inject]
+        private NavigationManager NavigationManagerService { get; set; }
+
+        protected async void ConfirmDelete()
+        {
+            var confirmed = await ConfirmDialog.ShowAsync(ModalService,
+                title: "Delete Dashboard",
+                message: "Are you sure you want to delete this dashboard?",
+                confirmLabel: "Delete",
+                confirmClass: "btn-danger");
+            if (!confirmed) { return; }
+            await DashboardService.DeleteDashboardAsync(dashboard);
+            NavigationManagerService.NavigateTo($"/");
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             DashboardId ??= 1;
             dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
         }
 
-        protected async void ShowAddDialog()
+        protected async void RemoveCell(DashboardCell cell)
         {
-            var result = await AddDashboardActionDialog.ShowAsync(ModalService);
-            if (result.Cancelled) { return; }
-            dashboard.DashboardCells.Add(new DashboardCell { DashboardActionId = (int)result.Data });
+            dashboard.DashboardCells.Remove(cell);
+            await DashboardService.DeleteDashboardCellAsync(cell);
+            StateHasChanged();
+        }
+
+        protected async void SaveChanges()
+        {
             await DashboardService.UpdateDashboardAsync(dashboard);
             StateHasChanged();
         }

@@ -3,15 +3,20 @@
         @foreach (var cell in DashboardCells)
         {
             <div class="col py-3 px-lg-2 flex-grow-0">
-                <DashboardActionButton Cell="cell" />
+                <DashboardGridCell Cell="cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" />
+            </div>
+        }
+        @if (EditMode)
+        {
+            <div class="col py-3 px-lg-2 flex-grow-0">
+                <a href="" @onclick="ShowAddDialog" @onclick:preventDefault>
+                    <div class="add-cell grid-icon rounded">
+                        <div class="grid-icon-content d-table-cell align-middle">
+                            <span class="oi oi-plus"></span>
+                        </div>
+                    </div>
+                </a>
             </div>
         }
     </div>
 </div>
-
-@code {
-    [Parameter]
-    public Dashboard Dashboard { get; set; }
-
-    private List<DashboardCell> DashboardCells => Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList();
-}

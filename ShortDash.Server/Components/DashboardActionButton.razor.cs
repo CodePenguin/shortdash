@@ -17,6 +17,15 @@ namespace ShortDash.Server.Components
         [Parameter]
         public DashboardCell Cell { get; set; }
 
+        [Parameter]
+        public EventCallback<DashboardCell> OnMoveCellLeft { get; set; }
+
+        [Parameter]
+        public EventCallback<DashboardCell> OnMoveCellRight { get; set; }
+
+        [Parameter]
+        public EventCallback<DashboardCell> OnRemoveCell { get; set; }
+
         [Inject]
         protected DashboardActionService DashboardActionService { get; set; }
 
@@ -67,6 +76,21 @@ namespace ShortDash.Server.Components
         {
             var actionTypeName = action?.ActionTypeName;
             return !string.IsNullOrWhiteSpace(actionTypeName) && actionTypeName != typeof(DashSeparatorAction).FullName;
+        }
+
+        private Task MoveCellLeft()
+        {
+            return OnMoveCellLeft.InvokeAsync(Cell);
+        }
+
+        private Task MoveCellRight()
+        {
+            return OnMoveCellRight.InvokeAsync(Cell);
+        }
+
+        private Task RemoveCell()
+        {
+            return OnRemoveCell.InvokeAsync(Cell);
         }
     }
 }

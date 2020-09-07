@@ -10,9 +10,23 @@
             Action
             @if (DashboardActionId != 0)
             {
-                <button class="btn btn-outline-danger float-right" @onclick=ConfirmDelete>Delete</button>
+                <button class="btn btn-outline-danger float-right" @onclick="ConfirmDelete">Delete</button>
             }
         </legend>
+        @if (DashboardActionId == 0)
+        {
+            <div class="form-group disabled">
+                <label for="ActionType">Action Type</label>
+                <ActionTypeInputSelect @bind-Value="DashboardAction.ActionTypeName" OptionSelected="@ChangeActionTypeName" />
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(ActionAttribute?.Title))
+        {
+            <div class="form-group disabled">
+                <label for="ActionType">Type</label>
+                <input type="text" class="form-control" value="@ActionAttribute.Title" disabled />
+            </div>
+        }
         <div class="form-group">
             <label for="Title">Title</label>
             <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" placeholder="Enter text to display" />
@@ -29,20 +43,6 @@
             <small>An optional image to be displayed for this action.</small>
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
-        @if (DashboardActionId == 0)
-        {
-            <div class="form-group disabled">
-                <label for="ActionType">Action Type</label>
-                <ActionTypeInputSelect @bind-Value="DashboardAction.ActionTypeName" OptionSelected="@ChangeActionTypeName" />
-            </div>
-        }
-        else if (!string.IsNullOrWhiteSpace(ActionAttribute?.Title))
-        {
-            <div class="form-group disabled">
-                <label for="ActionType">Action Type</label>
-                <input type="text" class="form-control" value="@ActionAttribute.Title" disabled />
-            </div>
-        }
     </fieldset>
 
     @if (ParametersEditContext != null)

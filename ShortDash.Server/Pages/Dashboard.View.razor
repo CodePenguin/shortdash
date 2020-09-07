@@ -9,12 +9,10 @@
 }
 else
 {
-    <div class="float-right">
-        <button class="btn btn-outline-primary" @onclick="ShowAddDialog">Add</button>
-    </div>
+    <button class="btn btn-outline-danger float-right" @onclick="ConfirmDelete">Delete</button>
 
     <h3>@dashboard.Title</h3>
     <div class="dashboard">
-        <DashboardGrid Dashboard="dashboard" />
+        <DashboardGrid Dashboard="dashboard" OnRemoveCell="RemoveCell" OnSaveChanges="SaveChanges" />
     </div>
 }
