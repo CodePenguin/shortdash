@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class ActionsEditPage : ComponentBase
+    public partial class Actions_Edit : ComponentBase
     {
         [Parameter]
         public int DashboardActionId { get; set; }

@@ -15,7 +15,7 @@ namespace ShortDash.Server.Components
         public Dashboard Dashboard { get; set; }
 
         [Parameter]
-        public bool EditMode { get; set; } = true;
+        public bool EditMode { get; set; } = false;
 
         [CascadingParameter]
         public IModalService ModalService { get; set; }

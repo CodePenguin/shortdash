@@ -221,6 +221,10 @@ app {
     border-radius: 0 !important;
 }
 
+.grid-icon-content span {
+    font-size: 32px;
+}
+
 .grid-icon-caption {
     font-size: 0.8em;
 }
@@ -254,5 +258,9 @@ app {
 
 .grid-icon.add-cell {
     border: 1px dotted #6c757d;
-    color: #6c757d;
 }
+
+    .grid-icon.add-cell span {
+        font-size: 16px;
+        color: #6c757d;
+    }

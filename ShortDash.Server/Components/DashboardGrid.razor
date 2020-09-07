@@ -3,7 +3,7 @@
         @foreach (var cell in DashboardCells)
         {
             <div class="col py-3 px-lg-2 flex-grow-0">
-                <DashboardGridCell Cell="cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" />
+                <DashboardGridCell Cell="cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" EditMode="EditMode" />
             </div>
         }
         @if (EditMode)

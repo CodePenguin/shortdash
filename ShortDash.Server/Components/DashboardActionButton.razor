@@ -13,6 +13,10 @@ else
             <div class="grid-icon-content d-table-cell align-middle">
                 @if (HasIcon())
                 {
+                    <span class="oi @Cell.DashboardAction.Icon"></span>
+                }
+                else if (HasImage())
+                {
                     <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded" />
                 }
                 else

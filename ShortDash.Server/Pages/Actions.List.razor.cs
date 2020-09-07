@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class ActionsListPage : ComponentBase
+    public partial class Actions_List : ComponentBase
     {
         protected List<DashboardAction> DashboardActions { get; } = new List<DashboardAction>();
 

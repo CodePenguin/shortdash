@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ namespace ShortDash.Server.Components
     {
         [Parameter]
         public DashboardCell Cell { get; set; }
+
+        [Parameter]
+        public bool EditMode { get; set; }
 
         [Parameter]
         public EventCallback<DashboardCell> OnMoveCellLeft { get; set; }
@@ -40,6 +44,11 @@ namespace ShortDash.Server.Components
         private Task RemoveCell()
         {
             return OnRemoveCell.InvokeAsync(Cell);
+        }
+
+        private bool ShouldShowCaption()
+        {
+            return Cell.DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName || EditMode;
         }
     }
 }

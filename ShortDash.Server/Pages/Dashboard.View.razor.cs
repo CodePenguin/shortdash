@@ -10,7 +10,7 @@ using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class DashboardViewPage : ComponentBase
+    public partial class Dashboard_View : ComponentBase
     {
         protected Dashboard dashboard;
 
@@ -19,6 +19,8 @@ namespace ShortDash.Server.Pages
 
         [CascadingParameter]
         public IModalService ModalService { get; set; }
+
+        protected bool EditMode { get; set; }
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -55,6 +57,11 @@ namespace ShortDash.Server.Pages
         {
             await DashboardService.UpdateDashboardAsync(dashboard);
             StateHasChanged();
+        }
+
+        protected void ToggleEditMode()
+        {
+            EditMode = !EditMode;
         }
     }
 }
