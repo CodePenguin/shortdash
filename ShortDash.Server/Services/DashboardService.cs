@@ -87,8 +87,15 @@ namespace ShortDash.Server.Services
             return dashboardAction;
         }
 
-        public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard)
+        public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard, List<DashboardCell> removalList = null)
         {
+            if (removalList != null)
+            {
+                foreach (var cell in removalList)
+                {
+                    dbContext.Remove(cell);
+                }
+            }
             dbContext.Update(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;

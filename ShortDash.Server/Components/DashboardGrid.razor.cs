@@ -1,6 +1,7 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Data;
+using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -12,7 +13,10 @@ namespace ShortDash.Server.Components
     public partial class DashboardGrid : ComponentBase
     {
         [Parameter]
-        public Dashboard Dashboard { get; set; }
+        public List<DashboardCell> DashboardCells { get; set; }
+
+        [CascadingParameter]
+        public DashboardService DashboardService { get; set; }
 
         [Parameter]
         public bool EditMode { get; set; } = false;
@@ -20,27 +24,17 @@ namespace ShortDash.Server.Components
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
-        [Parameter]
-        public EventCallback<DashboardCell> OnRemoveCell { get; set; }
-
-        [Parameter]
-        public EventCallback OnSaveChanges { get; set; }
-
-        private List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
-
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            DashboardCells.Clear();
-            DashboardCells.AddRange(Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList());
-        }
-
         protected async void ShowAddDialog()
         {
             var result = await AddDashboardActionDialog.ShowAsync(ModalService);
             if (result.Cancelled) { return; }
-            Dashboard.DashboardCells.Add(new DashboardCell { DashboardActionId = (int)result.Data });
-            await SaveChanges();
+            var dashboardActionId = (int)result.Data;
+            if (dashboardActionId <= 0) { return; }
+            var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
+            if (dashboardAction == null) { return; }
+
+            DashboardCells.Add(new DashboardCell { DashboardActionId = dashboardActionId, DashboardAction = dashboardAction });
+            StateHasChanged();
         }
 
         private void MoveCellLeft(DashboardCell cell)
@@ -49,7 +43,7 @@ namespace ShortDash.Server.Components
             if (index < 1) { return; }
             DashboardCells[index] = DashboardCells[index - 1];
             DashboardCells[index - 1] = cell;
-            SaveChanges();
+            StateHasChanged();
         }
 
         private void MoveCellRight(DashboardCell cell)
@@ -58,22 +52,13 @@ namespace ShortDash.Server.Components
             if (index >= DashboardCells.Count - 1) { return; }
             DashboardCells[index] = DashboardCells[index + 1];
             DashboardCells[index + 1] = cell;
-            SaveChanges();
+            StateHasChanged();
         }
 
         private void RemoveCell(DashboardCell cell)
         {
-            OnRemoveCell.InvokeAsync(cell);
             DashboardCells.Remove(cell);
-        }
-
-        private Task SaveChanges()
-        {
-            for (var i = 0; i < DashboardCells.Count; i++)
-            {
-                DashboardCells[i].Sequence = i;
-            }
-            return OnSaveChanges.InvokeAsync(null);
+            StateHasChanged();
         }
     }
 }

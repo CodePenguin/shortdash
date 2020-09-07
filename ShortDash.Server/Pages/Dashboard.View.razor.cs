@@ -17,16 +17,24 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public int? DashboardId { get; set; }
 
+        [Inject]
+        public DashboardService DashboardService { get; set; }
+
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
         protected bool EditMode { get; set; }
 
-        [Inject]
-        private DashboardService DashboardService { get; set; }
+        private List<DashboardCell> DashboardCells { get; } = new List<DashboardCell>();
 
         [Inject]
         private NavigationManager NavigationManagerService { get; set; }
+
+        protected void CancelChanges()
+        {
+            LoadDashboardCells();
+            StateHasChanged();
+        }
 
         protected async void ConfirmDelete()
         {
@@ -40,10 +48,18 @@ namespace ShortDash.Server.Pages
             NavigationManagerService.NavigateTo($"/");
         }
 
+        protected void LoadDashboardCells()
+        {
+            DashboardCells.Clear();
+            DashboardCells.AddRange(dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList());
+            EditMode = DashboardCells.Count == 0;
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             DashboardId ??= 1;
             dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
+            LoadDashboardCells();
         }
 
         protected async void RemoveCell(DashboardCell cell)
@@ -55,7 +71,27 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            await DashboardService.UpdateDashboardAsync(dashboard);
+            // Update sequences and add new cells to the main list
+            for (var i = 0; i < DashboardCells.Count; i++)
+            {
+                var cell = DashboardCells[i];
+                cell.Sequence = i;
+                if (!dashboard.DashboardCells.Contains(cell))
+                {
+                    dashboard.DashboardCells.Add(cell);
+                }
+            }
+            // Create a list of cells that have been removed
+            var removalList = new List<DashboardCell>();
+            foreach (var cell in dashboard.DashboardCells)
+            {
+                if (!DashboardCells.Contains(cell))
+                {
+                    removalList.Add(cell);
+                }
+            }
+            await DashboardService.UpdateDashboardAsync(dashboard, removalList);
+            EditMode = false;
             StateHasChanged();
         }
 

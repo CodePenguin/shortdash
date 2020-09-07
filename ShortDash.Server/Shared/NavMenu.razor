@@ -1,6 +1,4 @@
-﻿@inject DashboardService dashboardService
-
-<div class="top-row pl-4 navbar navbar-dark">
+﻿<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">ShortDash</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -28,21 +26,10 @@
                 </NavLink>
             </li>
         }
+        <li class="nav-item px-3">
+            <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
+                <span class="oi oi-plus" aria-hidden="true"></span> New Dashboard
+            </a>
+        </li>
     </ul>
 </div>
-
-@code {
-    private bool collapseNavMenu = true;
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    private List<Dashboard> Dashboards = new List<Dashboard>();
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Dashboards = await dashboardService.GetDashboardsAsync();
-    }
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}

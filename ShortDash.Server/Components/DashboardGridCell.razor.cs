@@ -25,12 +25,6 @@ namespace ShortDash.Server.Components
         [Parameter]
         public EventCallback<DashboardCell> OnRemoveCell { get; set; }
 
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            // TODO: REMOVE?
-        }
-
         private Task MoveCellLeft()
         {
             return OnMoveCellLeft.InvokeAsync(Cell);

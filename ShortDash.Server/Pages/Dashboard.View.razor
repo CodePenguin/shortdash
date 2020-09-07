@@ -1,24 +1,31 @@
 ﻿@page "/dashboard"
 @page "/dashboard/{DashboardId:int}"
 
-@if (dashboard == null)
-{
-    <h3>Opps, this dashboard doesn't seem to exist anymore.</h3>
-}
-else
-{
-    <div class="float-right">
-        @if (EditMode)
-        {
-            <button class="btn btn-outline-danger btn-sm mr-3" @onclick="ConfirmDelete">Delete</button>
-        }
-        <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="button" @onclick="ToggleEditMode">
-            <span class="oi oi-pencil"></span>
-        </button>
-    </div>
+<CascadingValue Value="DashboardService">
+    @if (dashboard == null)
+    {
+        <h3>Opps, this dashboard doesn't seem to exist anymore.</h3>
+    }
+    else
+    {
+        <div class="float-right">
+            @if (EditMode)
+            {
+                <button class="btn btn-outline-danger btn-sm mr-5" @onclick="ConfirmDelete">Delete</button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CancelChanges">Cancel</button>
+                <button class="btn btn-primary btn-sm" @onclick="SaveChanges">Save</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ToggleEditMode">
+                    <span class="oi oi-pencil"></span> Edit
+                </button>
+            }
+        </div>
 
-    <h3>@dashboard.Title</h3>
-    <div class="dashboard">
-        <DashboardGrid Dashboard="dashboard" EditMode="EditMode" OnRemoveCell="RemoveCell" OnSaveChanges="SaveChanges" />
-    </div>
-}
+        <h3>@dashboard.Title</h3>
+        <div class="dashboard">
+            <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" />
+        </div>
+    }
+</CascadingValue>
