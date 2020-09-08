@@ -1,35 +1,35 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿<nav class="navbar navbar-dark bg-dark">
     <a class="navbar-brand" href="">ShortDash</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
-</div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
-                <span class="oi oi-puzzle-piece" aria-hidden="true"></span> Actions
-            </NavLink>
-        </li>
-        @foreach (var dashboard in Dashboards)
-        {
-            var link = $"dashboard/{dashboard.DashboardId}";
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                    <span class="oi oi-dashboard" aria-hidden="true"></span> @dashboard.Title
+    <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
                 </NavLink>
             </li>
-        }
-        <li class="nav-item px-3">
-            <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
-                <span class="oi oi-plus" aria-hidden="true"></span> New Dashboard
-            </a>
-        </li>
-    </ul>
-</div>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
+                    <span class="oi oi-puzzle-piece" aria-hidden="true"></span> Actions
+                </NavLink>
+            </li>
+            @foreach (var dashboard in Dashboards)
+            {
+                var link = $"dashboard/{dashboard.DashboardId}";
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                        <span class="oi oi-dashboard" aria-hidden="true"></span> @dashboard.Title
+                    </NavLink>
+                </li>
+            }
+            <li class="nav-item">
+                <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
+                    <span class="oi oi-plus" aria-hidden="true"></span> New Dashboard
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
