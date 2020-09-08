@@ -15,57 +15,37 @@ namespace ShortDash.Server.Components
         private Dictionary<string, object> cellAttributes;
 
         [Parameter]
-        public DashboardCell Cell { get; set; }
+        public DashboardAction DashboardAction { get; set; }
 
-        [Inject]
-        protected DashboardActionService DashboardActionService { get; set; }
+        [Parameter]
+        public bool IsExecuting { get; set; }
 
-        private bool IsExecuting { get; set; } = false;
-        private bool IsToggle { get; set; } = false;
-        private bool ToggleState { get; set; } = false;
+        [Parameter]
+        public bool ToggleState { get; set; }
 
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            IsExecuting = false;
-            ToggleState = false;
             cellAttributes = new Dictionary<string, object>();
-            if (Cell.DashboardAction.BackgroundColor != null)
+            if (DashboardAction.BackgroundColor != null)
             {
-                cellAttributes.Add("style", "background-color: " + Cell.DashboardAction.BackgroundColor?.ToHtmlString());
+                cellAttributes.Add("style", "background-color: " + DashboardAction.BackgroundColor?.ToHtmlString());
             }
-        }
-
-        // TODO: Implement toggle functionality
-        private async void Click()
-        {
-            if (IsExecuting) { return; }
-            IsExecuting = true;
-            ToggleState = !IsToggle || !ToggleState;
-            var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
-            if (result.Success)
-            {
-                ToggleState = result.ToggleState;
-            }
-            // Intentional delay so the execution indicator has time to display for super fast operations
-            await Task.Delay(100);
-            IsExecuting = false;
-            StateHasChanged();
         }
 
         private string GetActiveStateClass()
         {
-            return (IsToggle && ToggleState) ? "active" : "";
+            return ToggleState ? "active" : "";
         }
 
         private bool HasIcon()
         {
-            return !string.IsNullOrWhiteSpace(Cell.DashboardAction.Icon) && Cell.DashboardAction.Icon.StartsWith("oi-");
+            return !string.IsNullOrWhiteSpace(DashboardAction.Icon) && DashboardAction.Icon.StartsWith("oi-");
         }
 
         private bool HasImage()
         {
-            return !string.IsNullOrWhiteSpace(Cell.DashboardAction.Icon);
+            return !string.IsNullOrWhiteSpace(DashboardAction.Icon);
         }
 
         private bool IsExecutable(DashboardAction action)

@@ -1,17 +1,23 @@
 ﻿@page "/actions"
 
+<button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>
 <h3>Actions</h3>
 
-<button @onclick="AddAction" class="btn btn-outline-primary">Add</button>
-
-<ul class="nav flex-column">
-    @foreach (var action in DashboardActions)
-    {
-        var link = $"actions/{action.DashboardActionId}";
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                <span class="oi oi-puzzle-piece" aria-hidden="true"></span> @action.Title
-            </NavLink>
-        </li>
-    }
-</ul>
+<div class="grid container px-lg-2">
+    <div class="row text-center mx-lg-n2">
+        @foreach (var action in DashboardActions)
+        {
+            var link = $"actions/{action.DashboardActionId}";
+            <div class="col py-3 px-lg-2 flex-grow-0">
+                <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                    <div class="grid-cell">
+                        <DashboardActionButton DashboardAction="action" />
+                        <div class="grid-icon-caption">
+                            @action.Title
+                        </div>
+                    </div>
+                </NavLink>
+            </div>
+        }
+    </div>
+</div>

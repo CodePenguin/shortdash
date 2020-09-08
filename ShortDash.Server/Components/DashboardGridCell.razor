@@ -1,5 +1,7 @@
 ﻿<div class="grid-cell">
-    <DashboardActionButton Cell="@Cell" />
+    <a href="" @onclick="ExecuteAction" @onclick:preventDefault>
+        <DashboardActionButton DashboardAction="@Cell.DashboardAction" IsExecuting="IsExecuting" ToggleState="ToggleState" />
+    </a>
     @if (ShouldShowCaption())
     {
         <div class="grid-icon-caption">

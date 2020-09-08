@@ -7,10 +7,6 @@
     <fieldset>
         <legend>
             Action
-            @if (DashboardActionId != 0)
-            {
-                <button class="btn btn-outline-danger float-right" @onclick="ConfirmDelete">Delete</button>
-            }
         </legend>
         @if (DashboardActionId == 0)
         {
@@ -42,6 +38,9 @@
             <small>An optional image to be displayed for this action.</small>
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
+        <div class="form-group">
+            <DashboardActionButton DashboardAction="DashboardAction" />
+        </div>
     </fieldset>
 
     @if (ParametersEditContext != null)
@@ -50,6 +49,11 @@
             <legend>Parameters</legend>
             <FormGenerator EditContext="@ParametersEditContext" FormElementType="typeof(ActionPropertyFormElement)"></FormGenerator>
         </fieldset>
+    }
+
+    @if (DashboardActionId != 0)
+    {
+        <button class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
     }
 
     <div class="float-right">

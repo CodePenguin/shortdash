@@ -1,4 +1,4 @@
-﻿@if (!IsExecutable(Cell.DashboardAction))
+﻿@if (!IsExecutable(DashboardAction))
 {
     <div class="grid-icon">
         <div class="grid-icon-content d-table-cell align-middle">
@@ -8,26 +8,24 @@
 }
 else
 {
-    <a href="" class=@($"{GetActiveStateClass()}") @onclick=Click @onclick:preventDefault>
-        <div class="grid-icon rounded" @attributes=cellAttributes>
-            <div class="grid-icon-content d-table-cell align-middle">
-                @if (HasIcon())
-                {
-                    <span class="oi @Cell.DashboardAction.Icon"></span>
-                }
-                else if (HasImage())
-                {
-                    <img src="/assets/@Cell.DashboardAction.Icon" alt="@Cell.DashboardAction.Title" class="rounded" />
-                }
-                else
-                {
-                    @Cell.DashboardAction.Title
-                }
-            </div>
-            @if (IsExecuting)
+    <div class="grid-icon rounded text-center @GetActiveStateClass()" @attributes=cellAttributes>
+        <div class="grid-icon-content d-table-cell align-middle">
+            @if (HasIcon())
             {
-                <div class="executing-indicator spinner-border text-warning" role="status"></div>
+                <span class="oi @DashboardAction.Icon"></span>
+            }
+            else if (HasImage())
+            {
+                <img src="/assets/@DashboardAction.Icon" alt="@DashboardAction.Title" class="rounded" />
+            }
+            else
+            {
+                @DashboardAction.Title
             }
         </div>
-    </a>
+        @if (IsExecuting)
+        {
+            <div class="executing-indicator spinner-border text-warning" role="status"></div>
+        }
+    </div>
 }
