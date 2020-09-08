@@ -2,6 +2,8 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #000000;
+    color: #FFFFFF;
 }
 
 app {
@@ -12,6 +14,15 @@ app {
 
 .main {
     padding: 0.5em;
+}
+
+.navbar-brand {
+    font-size: 1rem;
+}
+
+.navbar-toggler {
+    font-size: 1rem;
+    padding: 0.25rem 0.50rem;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -61,7 +72,7 @@ app {
     width: 74px;
 }
 
-.grid-icon, .grid-icon a, .grid-icon a:hover, .grid-icon a:active, .grid-icon a:visited {
+.grid-cell, .grid-cell a, .grid-cell a:hover, .grid-cell a:active, .grid-cell a:visited {
     color: #FFFFFF;
 }
 
