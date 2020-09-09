@@ -1,14 +1,14 @@
-﻿<div class="grid container px-lg-2">
-    <div class="row text-center mx-lg-n2">
+﻿<div class="grid container-fluid">
+    <div class="row text-center">
         @foreach (var cell in DashboardCells)
         {
-            <div class="col py-3 px-lg-2 flex-grow-0">
+            <div class="col py-3 px-3 flex-grow-0">
                 <DashboardGridCell Cell="cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" EditMode="EditMode" />
             </div>
         }
         @if (EditMode)
         {
-            <div class="col py-3 px-lg-2 flex-grow-0">
+            <div class="col py-3 px-3 flex-grow-0">
                 <a href="" @onclick="ShowAddDialog" @onclick:preventDefault>
                     <div class="add-cell grid-icon rounded">
                         <div class="grid-icon-content d-table-cell align-middle">

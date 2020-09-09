@@ -13,7 +13,7 @@ app {
 }
 
 .main {
-    padding: 0.5em;
+    padding: 0.5rem;
 }
 
 .navbar-brand {
@@ -62,21 +62,21 @@ app {
     background-color: #000000;
 }
 
+.dashboard .grid-icon-caption {
+    color: #FFFFFF;
+}
+
 .grid-icon {
     display: inline-block;
     position: relative;
 }
 
-.grid-icon, .grid-icon-content, .executing-indicator {
-    height: 74px;
-    width: 74px;
+.grid-icon, .grid-icon img, .grid-icon-content, .executing-indicator {
+    height: 4rem;
+    width: 4rem;
 }
 
 .grid-cell, .grid-cell a, .grid-cell a:hover, .grid-cell a:active, .grid-cell a:visited {
-    color: #FFFFFF;
-}
-
-.dashboard .grid-icon-caption {
     color: #FFFFFF;
 }
 
@@ -88,41 +88,46 @@ app {
     position: absolute;
     top: 0;
     left: 0;
-    height: 3em;
-    width: 3em;
-    margin: 0.8em;
+    height: 3rem;
+    width: 3rem;
+    margin: 0.8rem;
     box-shadow: 0px 0px 3em 1.5em rgba(0,0,0,0.8);
 }
 
 .grid-icon-content span {
-    font-size: 32px;
+    font-size: 1rem;
+}
+
+.grid-icon-content span.oi {
+    font-size: 2rem;
+    margin-top: 0.3rem;
 }
 
 .grid-icon-caption {
-    font-size: 0.8em;
+    font-size: 0.8rem;
 }
 
 .grid-cell .edit-controls span {
-    font-size: 28px;
+    font-size: 1.75rem;
     color: #007bff;
 }
 
 .grid-cell .edit-controls a.move-cell-left {
     position: absolute;
-    bottom: 1.8em;
-    left: 0.5em;
+    bottom: 1.8rem;
+    left: 0.5rem;
 }
 
 .grid-cell .edit-controls a.move-cell-right {
     position: absolute;
-    bottom: 1.8em;
-    right: 0.5em;
+    bottom: 1.8rem;
+    right: 0.5rem;
 }
 
 .grid-cell .edit-controls a.remove-cell {
     position: absolute;
-    top: 0.5em;
-    right: 0.5em;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .grid-cell .edit-controls .remove-cell span {
@@ -134,6 +139,6 @@ app {
 }
 
 .grid-icon.add-cell span {
-    font-size: 16px;
+    font-size: 1rem;
     color: #6c757d;
 }
