@@ -15,7 +15,7 @@ csharp_new_line_before_members_in_anonymous_types = true
 #require members of object initializers to be on the same line
 csharp_new_line_before_members_in_object_initializers = false
 #require braces to be on a new line for methods, control_blocks, types, lambdas, and anonymous_types (also known as "Allman" style)
-csharp_new_line_before_open_brace = methods, control_blocks, types, lambdas, anonymous_types
+csharp_new_line_before_open_brace = accessors, anonymous_types, control_blocks, lambdas, methods, object_collection_array_initializers, properties, types
 
 #Formatting - organize using options
 

@@ -53,8 +53,14 @@ namespace ShortDash.Core.Services
 
         public Type FindActionType(string actionTypeName)
         {
-            if (string.IsNullOrWhiteSpace(actionTypeName)) { return null; }
-            if (!ActionTypes.TryGetValue(actionTypeName, out var actionType)) { return null; }
+            if (string.IsNullOrWhiteSpace(actionTypeName))
+            {
+                return null;
+            }
+            if (!ActionTypes.TryGetValue(actionTypeName, out var actionType))
+            {
+                return null;
+            }
             return actionType;
         }
 
@@ -66,7 +72,10 @@ namespace ShortDash.Core.Services
 
         public IShortDashAction GetAction(Type actionType)
         {
-            if (actionType == null) { return null; }
+            if (actionType == null)
+            {
+                return null;
+            }
 
             return (IShortDashAction)ActivatorUtilities.CreateInstance(serviceProvider, actionType);
         }
@@ -105,8 +114,14 @@ namespace ShortDash.Core.Services
 
         protected void RegisterActionType(Type actionType)
         {
-            if (!typeof(IShortDashAction).IsAssignableFrom(actionType)) { return; }
-            if (!ActionTypes.TryAdd(actionType.FullName, actionType)) { return; }
+            if (!typeof(IShortDashAction).IsAssignableFrom(actionType))
+            {
+                return;
+            }
+            if (!ActionTypes.TryAdd(actionType.FullName, actionType))
+            {
+                return;
+            }
         }
 
         private void LoadPluginActions()

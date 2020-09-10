@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace ShortDash.Core.Services
@@ -24,8 +23,14 @@ namespace ShortDash.Core.Services
         {
             foreach (Type type in plugin.GetTypes())
             {
-                if (!typeof(IShortDashAction).IsAssignableFrom(type)) { continue; }
-                if (type.IsAbstract) { continue; }
+                if (!typeof(IShortDashAction).IsAssignableFrom(type))
+                {
+                    continue;
+                }
+                if (type.IsAbstract)
+                {
+                    continue;
+                }
                 pluginActions.Add(type);
             }
         }
@@ -47,7 +52,7 @@ namespace ShortDash.Core.Services
             var pluginPaths = Directory.GetFiles(pluginBasePath, "ShortDash.Plugins.*.dll", options);
             foreach (var pluginPath in pluginPaths)
             {
-                Assembly plugin = LoadPlugin(pluginPath);
+                var plugin = LoadPlugin(pluginPath);
                 FindActions(plugin);
             }
         }

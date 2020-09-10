@@ -5,8 +5,8 @@ namespace ShortDash.Core.Plugins
 {
     public interface IShortDashPlugin
     {
-        string Name { get; }
         string Description { get; }
+        string Name { get; }
 
         IEnumerable<Type> RegisterActions();
     }

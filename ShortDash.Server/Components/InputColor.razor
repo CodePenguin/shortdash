@@ -7,7 +7,6 @@
 @code {
     private static Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-
     protected override string FormatValueAsString(Color? value)
     {
         return value?.ToHtmlString();

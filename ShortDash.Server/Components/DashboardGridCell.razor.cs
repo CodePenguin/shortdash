@@ -36,7 +36,11 @@ namespace ShortDash.Server.Components
         // TODO: Implement toggle functionality
         protected async void ExecuteAction()
         {
-            if (EditMode || IsExecuting) { return; }
+            if (EditMode || IsExecuting)
+            {
+                return;
+            }
+
             IsExecuting = true;
             ToggleState = !IsToggle || !ToggleState;
             var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);

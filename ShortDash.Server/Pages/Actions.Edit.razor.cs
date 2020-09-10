@@ -63,7 +63,10 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this action?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed) { return; }
+            if (!confirmed)
+            {
+                return;
+            }
             await DashboardService.DeleteDashboardActionAsync(DashboardAction);
             NavigationManagerService.NavigateTo($"/actions");
         }
@@ -82,13 +85,22 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            if (!ActionEditContext.Validate()) { return; }
+            if (!ActionEditContext.Validate())
+            {
+                return;
+            }
 
-            if (DashboardAction.DashboardActionId == 0 && string.IsNullOrWhiteSpace(DashboardAction.ActionTypeName)) { return; }
+            if (DashboardAction.DashboardActionId == 0 && string.IsNullOrWhiteSpace(DashboardAction.ActionTypeName))
+            {
+                return;
+            }
 
             if (ParametersEditContext != null)
             {
-                if (!ParametersEditContext.Validate()) { return; }
+                if (!ParametersEditContext.Validate())
+                {
+                    return;
+                }
 
                 DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
             }

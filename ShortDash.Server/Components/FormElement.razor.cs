@@ -36,8 +36,10 @@ namespace ShortDash.Server.Components
         public RenderFragment RenderComponent(PropertyInfo property) => builder =>
         {
             var componentType = GetInputType(property);
-            if (componentType == null) { throw new Exception($"No component found: {property.PropertyType}"); }
-            if (componentType == null) { return; }
+            if (componentType == null)
+            {
+                throw new Exception($"No component found: {property.PropertyType}");
+            }
             var elementType = componentType;
             if (elementType.IsGenericTypeDefinition)
             {
@@ -134,7 +136,10 @@ namespace ShortDash.Server.Components
         private string GetInputFieldClasses<T>(InputBase<T> instance)
         {
             var output = InputFieldClasses;
-            if (instance == null) { return output; }
+            if (instance == null)
+            {
+                return output;
+            }
             var additionalAttributes = instance.AdditionalAttributes;
             if (additionalAttributes != null && additionalAttributes.TryGetValue("class", out var cssClass) && !string.IsNullOrEmpty(Convert.ToString(cssClass)))
             {

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Blazored.Modal.Services;
+﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
@@ -43,7 +43,10 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this dashboard?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed) { return; }
+            if (!confirmed)
+            {
+                return;
+            }
             await DashboardService.DeleteDashboardAsync(dashboard);
             NavigationManagerService.NavigateTo($"/");
         }

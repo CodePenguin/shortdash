@@ -27,11 +27,20 @@ namespace ShortDash.Server.Components
         protected async void ShowAddDialog()
         {
             var result = await AddDashboardActionDialog.ShowAsync(ModalService);
-            if (result.Cancelled) { return; }
+            if (result.Cancelled)
+            {
+                return;
+            }
             var dashboardActionId = (int)result.Data;
-            if (dashboardActionId <= 0) { return; }
+            if (dashboardActionId <= 0)
+            {
+                return;
+            }
             var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
-            if (dashboardAction == null) { return; }
+            if (dashboardAction == null)
+            {
+                return;
+            }
 
             DashboardCells.Add(new DashboardCell { DashboardActionId = dashboardActionId, DashboardAction = dashboardAction });
             StateHasChanged();
@@ -40,7 +49,10 @@ namespace ShortDash.Server.Components
         private void MoveCellLeft(DashboardCell cell)
         {
             var index = DashboardCells.IndexOf(cell);
-            if (index < 1) { return; }
+            if (index < 1)
+            {
+                return;
+            }
             DashboardCells[index] = DashboardCells[index - 1];
             DashboardCells[index - 1] = cell;
             StateHasChanged();
@@ -49,7 +61,10 @@ namespace ShortDash.Server.Components
         private void MoveCellRight(DashboardCell cell)
         {
             var index = DashboardCells.IndexOf(cell);
-            if (index >= DashboardCells.Count - 1) { return; }
+            if (index >= DashboardCells.Count - 1)
+            {
+                return;
+            }
             DashboardCells[index] = DashboardCells[index + 1];
             DashboardCells[index + 1] = cell;
             StateHasChanged();

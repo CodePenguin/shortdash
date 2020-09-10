@@ -62,7 +62,7 @@ namespace ShortDash.Server.Data
     {
         public virtual Dashboard Dashboard { get; set; }
         public virtual DashboardAction DashboardAction { get; set; }
-        public int? DashboardActionId { get; set; }
+        public int DashboardActionId { get; set; }
         public int DashboardCellId { get; set; }
         public int DashboardId { get; set; }
         public int Sequence { get; set; }

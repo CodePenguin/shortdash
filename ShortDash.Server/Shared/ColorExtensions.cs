@@ -15,9 +15,15 @@ namespace ShortDash.Server.Shared
         public static bool TryParse(string value, out Color output)
         {
             output = default;
-            if (string.IsNullOrWhiteSpace(value)) { return false; }
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
             Match match = _regex.Match(value);
-            if (!match.Success) { return false; }
+            if (!match.Success)
+            {
+                return false;
+            }
 
             var r = HexStringToByte(match.Groups[1].Captures[0].Value);
             var g = HexStringToByte(match.Groups[1].Captures[1].Value);
@@ -29,7 +35,10 @@ namespace ShortDash.Server.Shared
 
         private static byte HexStringToByte(string hex)
         {
-            if (hex.Length != 2) { return 0; }
+            if (hex.Length != 2)
+            {
+                return 0;
+            }
             const string HexChars = "0123456789abcdef";
             hex = hex.ToLowerInvariant();
             var result = (HexChars.IndexOf(hex[0]) * 16) + HexChars.IndexOf(hex[1]);
