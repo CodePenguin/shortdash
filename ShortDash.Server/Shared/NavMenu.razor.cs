@@ -41,7 +41,7 @@ namespace ShortDash.Server.Shared
         {
             var result = await AddDashboardDialog.ShowAsync(ModalService);
             if (result.Cancelled) { return; }
-            var dashboard = new Dashboard { Title = result.Data.ToString() };
+            var dashboard = new Dashboard { Name = result.Data.ToString() };
             await DashboardService.AddDashboardAsync(dashboard);
             LoadDashboards();
             StateHasChanged();

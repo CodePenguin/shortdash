@@ -49,6 +49,10 @@ namespace ShortDash.Server.Pages
 
         protected async Task ChangeActionTypeName()
         {
+            var settingsDefault = DashboardActionService.GetActionDefaultSettingsAttribute(DashboardAction.ActionTypeName);
+            DashboardAction.BackgroundColor = DashboardAction.BackgroundColor ?? settingsDefault.BackgroundColor;
+            DashboardAction.Icon = settingsDefault.Icon;
+            DashboardAction.Label = settingsDefault.Label;
             await Task.Run(() => RefreshParameters());
         }
 

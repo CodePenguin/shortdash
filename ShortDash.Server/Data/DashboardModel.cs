@@ -10,7 +10,7 @@ namespace ShortDash.Server.Data
     {
         public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
         public int DashboardId { get; set; }
-        public string Title { get; set; }
+        public string Name { get; set; }
     }
 
     public class DashboardAction
@@ -46,16 +46,16 @@ namespace ShortDash.Server.Data
 
         public string Icon { get; set; } = "";
 
-        public string Parameters { get; set; } = "{}";
-
         [Required]
-        public string Title { get; set; }
+        public string Label { get; set; }
+
+        public string Parameters { get; set; } = "{}";
     }
 
     public class DashboardActionTarget
     {
         public int DashboardActionTargetId { get; set; }
-        public string Title { get; set; }
+        public string Name { get; set; }
     }
 
     public class DashboardCell

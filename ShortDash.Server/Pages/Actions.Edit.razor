@@ -23,18 +23,18 @@
             </div>
         }
         <div class="form-group">
-            <label for="Title">Title</label>
-            <InputText @bind-Value=@DashboardAction.Title class="form-control" id="Title" placeholder="Enter text to display" />
-            <ValidationMessage For="() => DashboardAction.Title" />
+            <label for="ActionLabel">Label</label>
+            <InputText @bind-Value="@DashboardAction.Label" class="form-control" id="ActionLabel" placeholder="Enter text to display" />
+            <ValidationMessage For="() => DashboardAction.Label" />
         </div>
         <div class="form-group">
             <label for="BackgroundColor">Background Color</label>
-            <InputColor @bind-Value=@DashboardAction.BackgroundColor class="form-control" id="BackgroundColor" />
+            <InputColor @bind-Value="@DashboardAction.BackgroundColor" class="form-control" id="BackgroundColor" />
             <ValidationMessage For="() => DashboardAction.BackgroundColor" />
         </div>
         <div class="form-group">
             <label for="Icon">Icon</label>
-            <InputText @bind-Value=DashboardAction.Icon class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
+            <InputText @bind-Value="DashboardAction.Icon" class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
             <small>An optional image to be displayed for this action.</small>
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>

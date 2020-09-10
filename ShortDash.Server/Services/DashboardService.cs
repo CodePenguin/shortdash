@@ -61,7 +61,7 @@ namespace ShortDash.Server.Services
         public async Task<List<DashboardAction>> GetDashboardActionsAsync()
         {
             return await dbContext.DashboardActions
-                .OrderBy(a => a.Title)
+                .OrderBy(a => a.Label)
                 .ToListAsync();
         }
 
@@ -71,7 +71,7 @@ namespace ShortDash.Server.Services
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
                 .Where(d => d.DashboardId == dashboardId)
-                .OrderBy(d => d.Title)
+                .OrderBy(d => d.Name)
                 .FirstOrDefaultAsync();
         }
 

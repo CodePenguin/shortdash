@@ -5,6 +5,9 @@ namespace ShortDash.Plugins.Core.Windows
     [ShortDashAction(
         Title = "Previous Track",
         Description = "Goes to the previous track for the current system media.")]
+    [ShortDashActionDefaultSettings(
+        Label = "Prev",
+        Icon = "oi-media-step-backward")]
     public class MediaPreviousTrackAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaPreviousTrackAction> logger;

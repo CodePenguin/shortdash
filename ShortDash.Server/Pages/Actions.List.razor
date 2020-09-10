@@ -3,17 +3,17 @@
 <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>
 <h3>Actions</h3>
 
-<div class="grid container px-lg-2">
-    <div class="row text-center mx-lg-n2">
+<div class="grid container-fluid">
+    <div class="row text-center">
         @foreach (var action in DashboardActions)
         {
             var link = $"actions/{action.DashboardActionId}";
-            <div class="col py-3 px-lg-2 flex-grow-0">
+            <div class="col py-3 px-3 flex-grow-0">
                 <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
                     <div class="grid-cell">
                         <DashboardActionButton DashboardAction="action" />
                         <div class="grid-icon-caption">
-                            @action.Title
+                            @action.Label
                         </div>
                     </div>
                 </NavLink>

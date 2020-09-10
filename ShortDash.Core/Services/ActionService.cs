@@ -82,6 +82,17 @@ namespace ShortDash.Core.Services
             return actionType?.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
         }
 
+        public ShortDashActionDefaultSettingsAttribute GetActionDefaultSettingsAttribute(Type actionType)
+        {
+            return actionType?.GetCustomAttribute<ShortDashActionDefaultSettingsAttribute>() ?? new ShortDashActionDefaultSettingsAttribute();
+        }
+
+        public ShortDashActionDefaultSettingsAttribute GetActionDefaultSettingsAttribute(string actionTypeName)
+        {
+            var actionType = FindActionType(actionTypeName);
+            return GetActionDefaultSettingsAttribute(actionType);
+        }
+
         public IList<Type> GetActionTypes()
         {
             return ActionTypes.Values.ToList();

@@ -44,19 +44,19 @@ namespace ShortDash.Server.Data
             // TODO: REMOVE DEBUG SEEDS
             return new List<DashboardAction>
             {
-                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, Title = "Twitter", Icon = "Twitter.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://twitter.com\"}" },
-                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, Title = "Discord", Icon = "Phone.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://discord.com\"}" },
-                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, Title = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://slack.com\"}" },
-                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, Title = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "oi-ban", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaMuteAction", Parameters = "{\"IsToggle\":true}" },
-                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, Title = "Prev", BackgroundColor = Color.Gray, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPreviousTrackAction" },
-                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Title = "Play", BackgroundColor = Color.DarkBlue, Icon = "oi-media-play", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPlayPauseAction" },
-                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Title = "Next", BackgroundColor = Color.SeaGreen, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaNextTrackAction" },
-                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Title = "Notepad", Icon = "Settings.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
-                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Title = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"test.batch\"}" },
-                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Title = "Multi", Icon = "Mail.png", ActionTypeName = "Composite" },
-                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Title = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
-                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Title = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
-                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Title = "Separator", ActionTypeName = "ShortDash.Server.Actions.DashSeparatorAction" },
+                new DashboardAction() { DashboardActionId = 1, DashboardActionTargetId = 1, Label = "Twitter", Icon = "Twitter.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://twitter.com\"}" },
+                new DashboardAction() { DashboardActionId = 2, DashboardActionTargetId = 1, Label = "Discord", Icon = "Phone.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://discord.com\"}" },
+                new DashboardAction() { DashboardActionId = 3, DashboardActionTargetId = 1, Label = "Slack", BackgroundColor = Color.Gray, Icon = "Mail.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"https://slack.com\"}" },
+                new DashboardAction() { DashboardActionId = 4, DashboardActionTargetId = 1, Label = "Mute", BackgroundColor = Color.CornflowerBlue, Icon = "oi-ban", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaMuteAction", Parameters = "{\"IsToggle\":true}" },
+                new DashboardAction() { DashboardActionId = 5, DashboardActionTargetId = 1, Label = "Prev", BackgroundColor = Color.Gray, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPreviousTrackAction" },
+                new DashboardAction() { DashboardActionId = 6, DashboardActionTargetId = 1, Label = "Play", BackgroundColor = Color.DarkBlue, Icon = "oi-media-play", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaPlayPauseAction" },
+                new DashboardAction() { DashboardActionId = 7, DashboardActionTargetId = 1, Label = "Next", BackgroundColor = Color.SeaGreen, ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaNextTrackAction" },
+                new DashboardAction() { DashboardActionId = 8, DashboardActionTargetId = 1, Label = "Notepad", Icon = "Settings.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"c:\\\\windows\\\\Notepad.exe\",\"Arguments\":\"d:\\\\temp\\\\temp.txt\",\"WorkingDirectory\":\"c:\\\\windows\\\\\"}" },
+                new DashboardAction() { DashboardActionId = 9, DashboardActionTargetId = 1, Label = "Batch", BackgroundColor = Color.LavenderBlush, Icon = "Maps.png", ActionTypeName = "ShortDash.Plugins.Core.Windows.ExecuteProcessAction", Parameters = "{\"FileName\":\"test.batch\"}" },
+                new DashboardAction() { DashboardActionId = 10, DashboardActionTargetId = 1, Label = "Multi", Icon = "Mail.png", ActionTypeName = "Composite" },
+                new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Label = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
+                new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Label = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
+                new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Label = "Separator", ActionTypeName = "ShortDash.Server.Actions.DashSeparatorAction" },
             };
         }
 
@@ -64,7 +64,7 @@ namespace ShortDash.Server.Data
         {
             return new List<DashboardActionTarget>
             {
-                new DashboardActionTarget() { DashboardActionTargetId = 1, Title = "Main" },
+                new DashboardActionTarget() { DashboardActionTargetId = 1, Name = "Main" },
             };
         }
 
@@ -98,10 +98,10 @@ namespace ShortDash.Server.Data
         {
             return new List<Dashboard>
             {
-                new Dashboard { DashboardId = 1, Title = "Main" },
+                new Dashboard { DashboardId = 1, Name = "Main" },
                 // TODO: REMOVE DEBUG SEEDS
-                new Dashboard { DashboardId = 2, Title = "Dash 2" },
-                new Dashboard { DashboardId = 3, Title = "Dash 3" }
+                new Dashboard { DashboardId = 2, Name = "Dash 2" },
+                new Dashboard { DashboardId = 3, Name = "Dash 3" }
             };
         }
 

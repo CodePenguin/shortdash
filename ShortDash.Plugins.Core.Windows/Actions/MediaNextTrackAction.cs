@@ -5,6 +5,9 @@ namespace ShortDash.Plugins.Core.Windows
     [ShortDashAction(
         Title = "Next Track",
         Description = "Goes to the next track for the current system media.")]
+    [ShortDashActionDefaultSettings(
+        Label = "Next",
+        Icon = "oi-media-step-forward")]
     public class MediaNextTrackAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaNextTrackAction> logger;

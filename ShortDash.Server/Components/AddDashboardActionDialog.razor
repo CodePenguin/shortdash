@@ -4,7 +4,7 @@
             <InputSelect @bind-Value="Selected.Value" class="form-control" placeholder="Select an action...">
                 @foreach (var action in AvailableActions)
                 {
-                    <option value="@action.DashboardActionId">@action.Title</option>
+                    <option value="@action.DashboardActionId">@action.Label</option>
                 }
             </InputSelect>
         </EditForm>

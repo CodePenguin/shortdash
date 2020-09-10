@@ -12,6 +12,8 @@ namespace ShortDash.Server.Actions
         Title = "Switch to Dashboard",
         Description = "Navigates to a specific dashboard.",
         ParametersType = typeof(DashLinkProcessParameters))]
+    [ShortDashActionDefaultSettings(
+        Icon = "oi-grid-three-up")]
     public class DashLinkAction : IShortDashAction
     {
         private readonly NavigationManager navigationManager;

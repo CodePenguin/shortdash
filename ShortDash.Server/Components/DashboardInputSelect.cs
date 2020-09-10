@@ -50,7 +50,7 @@ namespace ShortDash.Server.Components
             Options.Clear();
             foreach (var dashboard in dashboards)
             {
-                Options.Add(new KeyValuePair<int, string>(dashboard.DashboardId, dashboard.Title));
+                Options.Add(new KeyValuePair<int, string>(dashboard.DashboardId, dashboard.Name));
             }
             Options.Sort((a, b) => a.Value.CompareTo(b.Value));
             if (string.IsNullOrWhiteSpace(CurrentValueAsString))
