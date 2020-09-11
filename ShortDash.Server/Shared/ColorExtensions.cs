@@ -18,11 +18,19 @@ namespace ShortDash.Server.Shared
             return null;
         }
 
+        public static double GetPerceivedBrightness(this Color color)
+        {
+            // http://alienryderflex.com/hsp.html
+            return Math.Sqrt(
+                0.299 * color.R * color.R +
+                0.587 * color.G * color.G +
+                0.114 * color.B * color.B);
+        }
+
         public static string TextClass(this Color color)
         {
-            const float minimumContrast = 0.5f;
-            var darkTextColor = Color.FromArgb(52, 58, 64);
-            return Math.Abs(color.GetBrightness() - darkTextColor.GetBrightness()) >= minimumContrast ? "dark" : "light";
+            const double threshold = 146.8;
+            return color.GetPerceivedBrightness() > threshold ? "dark" : "light";
         }
 
         public static string ToHtmlString(this Color color)
