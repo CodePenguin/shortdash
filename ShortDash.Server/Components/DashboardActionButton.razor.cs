@@ -12,8 +12,6 @@ namespace ShortDash.Server.Components
 {
     public partial class DashboardActionButton : ComponentBase
     {
-        private Dictionary<string, object> cellAttributes;
-
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
 
@@ -23,13 +21,21 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool ToggleState { get; set; }
 
+        protected Dictionary<string, object> CellAttributes { get; private set; } = new Dictionary<string, object>();
+        private string TextClass { get; set; }
+
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            cellAttributes = new Dictionary<string, object>();
+            CellAttributes.Clear();
             if (DashboardAction.BackgroundColor != null)
             {
-                cellAttributes.Add("style", "background-color: " + DashboardAction.BackgroundColor?.ToHtmlString());
+                CellAttributes.Add("style", "background-color: " + DashboardAction.BackgroundColor?.ToHtmlString());
+                TextClass = DashboardAction.BackgroundColor?.TextClass();
+            }
+            else
+            {
+                TextClass = "dark";
             }
         }
 

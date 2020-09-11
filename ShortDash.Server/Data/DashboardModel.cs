@@ -8,8 +8,19 @@ namespace ShortDash.Server.Data
 {
     public class Dashboard
     {
+        [NotMapped]
+        public Color? BackgroundColor { get; set; }
+
+        [Column("BackgroundColor")]
+        public string BackgroundColorHtmlValue
+        {
+            get => BackgroundColor?.ToHtmlString();
+            set => BackgroundColor = ColorExtensions.FromHtmlString(value);
+        }
+
         public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
         public int DashboardId { get; set; }
+        [Required]
         public string Name { get; set; }
     }
 
@@ -18,23 +29,13 @@ namespace ShortDash.Server.Data
         public string ActionTypeName { get; set; }
 
         [NotMapped]
-        public Color? BackgroundColor { get; set; } = Color.Black;
+        public Color? BackgroundColor { get; set; }
 
         [Column("BackgroundColor")]
         public string BackgroundColorHtmlValue
         {
             get => BackgroundColor?.ToHtmlString();
-            set
-            {
-                if (ColorExtensions.TryParse(value, out var color))
-                {
-                    BackgroundColor = color;
-                }
-                else
-                {
-                    BackgroundColor = null;
-                }
-            }
+            set => BackgroundColor = ColorExtensions.FromHtmlString(value);
         }
 
         public int DashboardActionId { get; set; }
@@ -55,6 +56,7 @@ namespace ShortDash.Server.Data
     public class DashboardActionTarget
     {
         public int DashboardActionTargetId { get; set; }
+        [Required]
         public string Name { get; set; }
     }
 

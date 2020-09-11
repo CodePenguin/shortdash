@@ -2,8 +2,6 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #000000;
-    color: #FFFFFF;
 }
 
 app {
@@ -12,7 +10,7 @@ app {
     flex-direction: column;
 }
 
-.main {
+.page {
     padding: 0.5rem;
 }
 
@@ -60,9 +58,16 @@ app {
 
 .dashboard {
     background-color: #000000;
+    height: 100%;
 }
 
-.dashboard .grid-icon-caption {
+.dashboard .btn-panel {
+    right: 0px;
+    left: auto;
+    margin: 0.5rem;
+}
+
+DEPRECATE.dashboard .grid-icon-caption {
     color: #FFFFFF;
 }
 
@@ -76,8 +81,16 @@ app {
     width: 4rem;
 }
 
-.grid-cell, .grid-cell a, .grid-cell a:hover, .grid-cell a:active, .grid-cell a:visited {
+DEPRECATE.grid-cell, DEPRECATE.grid-cell a, DEPRECATE.grid-cell a:hover, DEPRECATE.grid-cell a:active, DEPRECATE.grid-cell a:visited {
     color: #FFFFFF;
+}
+
+.text-dark .grid-cell, .text-dark .grid-cell a, .text-dark .grid-cell a:hover, .text-dark .grid-cell a:active, .text-dark .grid-cell a:visited {
+    color: #343A40;
+}
+
+.text-light .grid-cell, .text-light .grid-cell a, .text-light .grid-cell a:hover, .text-light .grid-cell a:active, .text-light .grid-cell a:visited {
+    color: #F8F9FA;
 }
 
 .grid-icon .rounded, .grid-icon.rounded {

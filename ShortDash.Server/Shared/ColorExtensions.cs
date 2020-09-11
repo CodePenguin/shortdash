@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System;
+using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace ShortDash.Server.Shared
@@ -6,6 +8,22 @@ namespace ShortDash.Server.Shared
     public static class ColorExtensions
     {
         private static Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static Color? FromHtmlString(string value)
+        {
+            if (TryParse(value, out var result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+        public static string TextClass(this Color color)
+        {
+            const float minimumContrast = 0.5f;
+            var darkTextColor = Color.FromArgb(52, 58, 64);
+            return Math.Abs(color.GetBrightness() - darkTextColor.GetBrightness()) >= minimumContrast ? "dark" : "light";
+        }
 
         public static string ToHtmlString(this Color color)
         {

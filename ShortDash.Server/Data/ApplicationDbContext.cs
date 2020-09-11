@@ -100,7 +100,7 @@ namespace ShortDash.Server.Data
             {
                 new Dashboard { DashboardId = 1, Name = "Main" },
                 // TODO: REMOVE DEBUG SEEDS
-                new Dashboard { DashboardId = 2, Name = "Dash 2" },
+                new Dashboard { DashboardId = 2, Name = "Dash 2", BackgroundColor = Color.PeachPuff },
                 new Dashboard { DashboardId = 3, Name = "Dash 3" }
             };
         }
