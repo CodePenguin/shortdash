@@ -1,6 +1,7 @@
 using Blazored.Modal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ using ShortDash.Core.Services;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
+using System.Linq;
 
 namespace ShortDash.Server
 {
@@ -26,6 +28,9 @@ namespace ShortDash.Server
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             dbContext.Database.Migrate();
+
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -44,6 +49,7 @@ namespace ShortDash.Server
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<TargetsHub>("/targetshub");
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
@@ -58,12 +64,18 @@ namespace ShortDash.Server
             });
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR();
             services.AddBlazoredModal();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
         }
     }
 }

@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:52523",
-      "sslPort": 44335
+      "applicationUrl": "http://localhost:58450",
+      "sslPort": 0
     }
   },
   "profiles": {
@@ -15,12 +15,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "ShortDash.Server": {
+    "ShortDash.Target": {
       "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5100",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:5000"
+      }
     }
   }
 }

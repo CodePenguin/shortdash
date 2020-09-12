@@ -1,0 +1,24 @@
+﻿@page "/"
+@using ShortDash.Target.Services
+
+@inject TargetHubService TargetHubService;
+
+<h1>ShortDash Target</h1>
+
+Welcome to your new ShortDash Target.
+
+<button @onclick="SendMessage">Send!</button>
+User: <input type="text" @bind-value="User" />
+Message: <input type="text" @bind-value="Message" />
+
+@code {
+    private string User { get; set; }
+    private string Message { get; set; }
+    private List<string> messages = new List<string>();
+
+    private void SendMessage()
+    {
+        TargetHubService.Send(User, Message);
+    }
+
+}
