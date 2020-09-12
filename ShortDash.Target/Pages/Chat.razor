@@ -18,6 +18,7 @@
 </div>
 <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
 <button @onclick="Refresh">Refresh</button>
+<button @onclick="Reconnect">Reconnect</button>
 
 @if (targetHubService.IsConnected())
 {
@@ -54,6 +55,8 @@ else
 
     protected override void OnInitialized()
     {
+        targetHubService.OnConnecting += TargetHubStatusChangeEvent;
+        targetHubService.OnClosed += TargetHubStatusChangeEvent;
         targetHubService.OnReceiveMessage += ReceivedMessageEvent;
         targetHubService.OnReconnected += TargetHubStatusChangeEvent;
         targetHubService.OnReconnecting += TargetHubStatusChangeEvent;
@@ -83,6 +86,13 @@ else
     public void TargetHubStatusChangeEvent(object sender, EventArgs args)
     {
         InvokeAsync(() => StateHasChanged());
+    }
+
+    private void Reconnect()
+    {
+        Console.WriteLine($"Attempting to reconnect...");
+        targetHubService.Reconnect();
+        StateHasChanged();
     }
 
     private void Refresh()

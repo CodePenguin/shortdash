@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -45,7 +46,8 @@ namespace ShortDash.Target
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton((serviceProvider) => new TargetHubService());
+            services.AddSingleton<TargetHubService>();
+            services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();
         }
     }
 }

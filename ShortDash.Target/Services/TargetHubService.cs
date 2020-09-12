@@ -15,10 +15,12 @@ namespace ShortDash.Target.Services
     {
         private HubConnection connection;
         private bool disposed;
+        private IRetryPolicy retryPolicy;
         private Timer timer;
 
-        public TargetHubService()
+        public TargetHubService(IRetryPolicy retryPolicy)
         {
+            this.retryPolicy = retryPolicy;
             Connect();
             CreateTimer();
         }
@@ -27,6 +29,10 @@ namespace ShortDash.Target.Services
         {
             Dispose(false);
         }
+
+        public event EventHandler OnClosed;
+
+        public event EventHandler OnConnecting;
 
         public event EventHandler<MessageArgs> OnReceiveMessage;
 
@@ -43,7 +49,18 @@ namespace ShortDash.Target.Services
         {
             timer = new Timer((state) =>
             {
-                Send("Bob", DateTime.Now.ToString());
+                if (!IsConnected())
+                {
+                    return;
+                }
+                try
+                {
+                    Send("Bob", DateTime.Now.ToString());
+                }
+                catch (Exception)
+                {
+                    // Do nothing
+                }
             }, null, 1000, 5000);
         }
 
@@ -56,6 +73,11 @@ namespace ShortDash.Target.Services
         public bool IsConnected()
         {
             return connection.State == HubConnectionState.Connected;
+        }
+
+        public Task Reconnect()
+        {
+            return connection.StartAsync();
         }
 
         public async void Send(string user, string message)
@@ -77,6 +99,13 @@ namespace ShortDash.Target.Services
             disposed = true;
         }
 
+        private Task Closed(Exception error)
+        {
+            Console.WriteLine("Connection Closed!");
+            OnClosed.Invoke(this, null);
+            return Task.CompletedTask;
+        }
+
         private Task Connect()
         {
             if (connection != null)
@@ -87,34 +116,37 @@ namespace ShortDash.Target.Services
 
             connection = new HubConnectionBuilder()
                 .WithUrl("http://172.16.0.159:5000/targetshub")
-                .WithAutomaticReconnect()
+                .WithAutomaticReconnect(retryPolicy)
                 .Build();
 
+            connection.Closed += Closed;
             connection.Reconnected += Reconnected;
             connection.Reconnecting += Reconnecting;
 
             connection.On<string, string>("ReceiveMessage", ReceivedMessage);
 
+            Console.WriteLine("Connecting...");
+            OnConnecting?.Invoke(this, null);
             return connection.StartAsync();
         }
 
         private void ReceivedMessage(string user, string message)
         {
             Console.WriteLine("Received Message from " + user + ":" + message);
-            OnReceiveMessage.Invoke(this, new MessageArgs { User = user, Message = message });
+            OnReceiveMessage?.Invoke(this, new MessageArgs { User = user, Message = message });
         }
 
         private Task Reconnected(string message)
         {
             Console.WriteLine("Reconnected!");
-            OnReconnected.Invoke(this, null);
+            OnReconnected?.Invoke(this, null);
             return Task.CompletedTask;
         }
 
         private Task Reconnecting(Exception error)
         {
             Console.WriteLine("Reconnecting...");
-            OnReconnecting.Invoke(this, null);
+            OnReconnecting?.Invoke(this, null);
             return Task.CompletedTask;
         }
     }
