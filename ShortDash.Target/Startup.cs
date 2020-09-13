@@ -46,8 +46,9 @@ namespace ShortDash.Target
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<TargetHubService>();
             services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();
+            services.AddSingleton<TargetHubClient>();
+            services.AddHostedService<TargetHubHostService>();
         }
     }
 }
