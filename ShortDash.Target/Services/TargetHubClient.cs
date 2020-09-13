@@ -28,8 +28,10 @@ namespace ShortDash.Target.Services
             this.retryPolicy = retryPolicy;
             this.actionService = actionService;
 
+            TargetId = "2";
+
             const string baseUrl = "http://172.16.0.159:5000";
-            var hubUrl = baseUrl + "/targetshub?targetId=2";
+            var hubUrl = baseUrl + "/targetshub?targetId=" + Uri.EscapeUriString(TargetId);
             connection = new HubConnectionBuilder()
                 .WithUrl(hubUrl)
                 .WithAutomaticReconnect(retryPolicy)
@@ -59,6 +61,10 @@ namespace ShortDash.Target.Services
         public event EventHandler OnReconnected;
 
         public event EventHandler OnReconnecting;
+
+        public DateTime LastConnectionAttemptDateTime { get; private set; }
+        public DateTime LastConnectionDateTime { get; private set; }
+        public string TargetId { get; set; }
 
         public async Task ConnectAsync(CancellationToken cancellationToken)
         {
@@ -165,12 +171,14 @@ namespace ShortDash.Target.Services
         private void Connected()
         {
             logger.LogDebug("Connected to server.");
+            LastConnectionDateTime = DateTime.Now;
             OnConnected?.Invoke(this, null);
         }
 
         private void Connecting()
         {
             logger.LogDebug("Connecting to server...");
+            LastConnectionAttemptDateTime = DateTime.Now;
             OnConnecting?.Invoke(this, null);
         }
 
@@ -190,6 +198,7 @@ namespace ShortDash.Target.Services
         private Task Reconnected(string message)
         {
             logger.LogDebug("Reconnected!");
+            LastConnectionDateTime = DateTime.Now;
             OnReconnected?.Invoke(this, null);
             return Task.CompletedTask;
         }
@@ -197,6 +206,7 @@ namespace ShortDash.Target.Services
         private Task Reconnecting(Exception error)
         {
             logger.LogDebug("Reconnecting...");
+            LastConnectionAttemptDateTime = DateTime.Now;
             OnReconnecting?.Invoke(this, null);
             return Task.CompletedTask;
         }

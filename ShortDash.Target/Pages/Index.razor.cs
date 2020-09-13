@@ -1,24 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
-using System.Timers;
 using ShortDash.Target.Services;
-using System.Collections.Generic;
 
 namespace ShortDash.Target.Pages
 {
     public partial class Index : ComponentBase, IDisposable
     {
-        private readonly List<string> messages = new List<string>();
-        private Timer timer;
         private bool wasDisposed;
+        public string ConnectionStatusClass => TargetHubClient.IsConnected() ? "success" : "danger";
         public bool IsConnected => TargetHubClient.IsConnected();
-        public DateTime LastConnection { get; set; }
-        public DateTime LastConnectionAttempt { get; set; }
-        public DateTime LastMessageReceived { get; set; }
-        public DateTime LastRefresh { get; set; }
-        public string MessageInput { get; set; }
-
-        public string UserInput { get; set; }
+        public DateTime LastConnection => TargetHubClient.LastConnectionDateTime;
+        public DateTime LastConnectionAttempt => TargetHubClient.LastConnectionAttemptDateTime;
+        private string TargetId => TargetHubClient.TargetId;
 
         [Inject]
         private TargetHubClient TargetHubClient { get; set; }
@@ -38,68 +31,23 @@ namespace ShortDash.Target.Pages
         {
             if (!wasDisposed && disposing)
             {
-                timer.Dispose();
-                TargetHubClient.OnReceiveMessage -= ReceivedMessageEvent;
+                TargetHubClient.OnConnected -= TargetHubStatusChangeEvent;
+                TargetHubClient.OnConnecting -= TargetHubStatusChangeEvent;
+                TargetHubClient.OnClosed -= TargetHubStatusChangeEvent;
+                TargetHubClient.OnReconnected -= TargetHubStatusChangeEvent;
+                TargetHubClient.OnReconnecting -= TargetHubStatusChangeEvent;
             }
             wasDisposed = true;
         }
 
         protected override void OnInitialized()
         {
-            TargetHubClient.OnConnected += ConnectedEvent;
-            TargetHubClient.OnConnecting += ConnectingEvent;
+            TargetHubClient.OnConnected += TargetHubStatusChangeEvent;
+            TargetHubClient.OnConnecting += TargetHubStatusChangeEvent;
             TargetHubClient.OnClosed += TargetHubStatusChangeEvent;
-            TargetHubClient.OnReceiveMessage += ReceivedMessageEvent;
             TargetHubClient.OnReconnected += TargetHubStatusChangeEvent;
-            TargetHubClient.OnReconnecting += ConnectingEvent;
-
-            timer = new Timer(1000);
-            timer.Elapsed += (sender, args) => InvokeAsync(Refresh);
-            timer.Enabled = false;
+            TargetHubClient.OnReconnecting += TargetHubStatusChangeEvent;
         }
-
-        private void ConnectedEvent(object sender, EventArgs args)
-        {
-            InvokeAsync(() =>
-            {
-                LastConnection = DateTime.Now;
-                StateHasChanged();
-            });
-        }
-
-        private void ConnectingEvent(object sender, EventArgs args)
-        {
-            InvokeAsync(() =>
-            {
-                LastConnectionAttempt = DateTime.Now;
-                StateHasChanged();
-            });
-        }
-
-        private void ReceivedMessage(string user, string message)
-        {
-            LastMessageReceived = DateTime.Now;
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
-            if (messages.Count > 10)
-            {
-                messages.Clear();
-            }
-            StateHasChanged();
-        }
-
-        private void ReceivedMessageEvent(object sender, MessageArgs args)
-        {
-            InvokeAsync(() => ReceivedMessage(args.User, args.Message));
-        }
-
-        private void Refresh()
-        {
-            LastRefresh = DateTime.Now;
-            StateHasChanged();
-        }
-
-        private void Send() => TargetHubClient.Send(UserInput, MessageInput);
 
         private void TargetHubStatusChangeEvent(object sender, EventArgs args)
         {
