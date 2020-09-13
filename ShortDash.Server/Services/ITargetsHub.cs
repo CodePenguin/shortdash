@@ -7,6 +7,14 @@ namespace ShortDash.Server.Services
     {
         Task ExecuteAction(string actionTypeName, string parameters, bool toggleState);
 
+        Task LogDebug(string category, string message, params object[] args);
+
+        Task LogError(string category, string message, params object[] args);
+
+        Task LogInformation(string category, string message, params object[] args);
+
+        Task LogWarning(string category, string message, params object[] args);
+
         Task ReceiveMessage(string user, string message);
     }
 }

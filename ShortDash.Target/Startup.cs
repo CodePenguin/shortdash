@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Target.Services;
+using ShortDash.Target.Shared;
 
 namespace ShortDash.Target
 {
@@ -48,7 +49,7 @@ namespace ShortDash.Target
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
+            services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
             services.AddSingleton<PluginService>();
             services.AddSingleton<ActionService>();
             services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();

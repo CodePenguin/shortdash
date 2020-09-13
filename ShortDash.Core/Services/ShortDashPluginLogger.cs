@@ -12,22 +12,22 @@ namespace ShortDash.Core.Services
             this.logger = logger;
         }
 
-        void IShortDashPluginLogger<T>.LogDebug(string message, params object[] args)
+        public virtual void LogDebug(string message, params object[] args)
         {
             logger.LogDebug(message, args);
         }
 
-        void IShortDashPluginLogger<T>.LogError(string message, params object[] args)
+        public virtual void LogError(string message, params object[] args)
         {
             logger.LogError(message, args);
         }
 
-        void IShortDashPluginLogger<T>.LogInformation(string message, params object[] args)
+        public virtual void LogInformation(string message, params object[] args)
         {
             logger.LogInformation(message, args);
         }
 
-        void IShortDashPluginLogger<T>.LogWarning(string message, params object[] args)
+        public virtual void LogWarning(string message, params object[] args)
         {
             logger.LogWarning(message, args);
         }

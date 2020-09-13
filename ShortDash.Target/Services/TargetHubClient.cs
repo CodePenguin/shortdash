@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Services;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,7 +21,6 @@ namespace ShortDash.Target.Services
         private bool connecting;
         private bool disposed;
         private ILogger<TargetHubClient> logger;
-        private Timer timer;
 
         public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, ActionService actionService)
         {
@@ -108,26 +106,6 @@ namespace ShortDash.Target.Services
             return connection.State;
         }
 
-        public void CreateTimer()
-        {
-            // TODO: Remove once testing is complete
-            timer = new Timer((state) =>
-            {
-                if (!IsConnected())
-                {
-                    return;
-                }
-                try
-                {
-                    Send("Bob", DateTime.Now.ToString());
-                }
-                catch (Exception)
-                {
-                    // Do nothing
-                }
-            }, null, 1000, 5000);
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -137,6 +115,26 @@ namespace ShortDash.Target.Services
         public bool IsConnected()
         {
             return connection.State == HubConnectionState.Connected;
+        }
+
+        public void LogDebug<T>(string message, params object[] args)
+        {
+            connection.SendAsync("LogDebug", typeof(T).FullName, message, args);
+        }
+
+        public void LogError<T>(string message, params object[] args)
+        {
+            connection.SendAsync("LogError", typeof(T).FullName, message, args);
+        }
+
+        public void LogInformation<T>(string message, params object[] args)
+        {
+            connection.SendAsync("LogInformation", typeof(T).FullName, message, args);
+        }
+
+        public void LogWarning<T>(string message, params object[] args)
+        {
+            connection.SendAsync("LogWarning", typeof(T).FullName, message, args);
         }
 
         public async void Send(string user, string message)
@@ -152,7 +150,6 @@ namespace ShortDash.Target.Services
         {
             if (!disposed && disposing)
             {
-                timer?.Dispose();
                 _ = connection.DisposeAsync();
             }
             disposed = true;
@@ -169,7 +166,6 @@ namespace ShortDash.Target.Services
         {
             logger.LogDebug("Connected to server.");
             OnConnected?.Invoke(this, null);
-            CreateTimer();
         }
 
         private void Connecting()

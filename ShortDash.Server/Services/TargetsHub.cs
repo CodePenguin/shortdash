@@ -11,10 +11,40 @@ namespace ShortDash.Server.Services
     public class TargetsHub : Hub<ITargetsHub>
     {
         private readonly ILogger<TargetsHub> logger;
+        private readonly ILoggerFactory loggerFactory;
 
-        public TargetsHub(ILogger<TargetsHub> logger)
+        public TargetsHub(ILogger<TargetsHub> logger, ILoggerFactory loggerFactory)
         {
             this.logger = logger;
+            this.loggerFactory = loggerFactory;
+        }
+
+        public Task LogDebug(string category, string message, params object[] args)
+        {
+            var targetLogger = CreateTargetLogger(category);
+            targetLogger.LogDebug(message, args);
+            return Task.CompletedTask;
+        }
+
+        public Task LogError(string category, string message, params object[] args)
+        {
+            var targetLogger = CreateTargetLogger(category);
+            targetLogger.LogError(message, args);
+            return Task.CompletedTask;
+        }
+
+        public Task LogInformation(string category, string message, params object[] args)
+        {
+            var targetLogger = CreateTargetLogger(category);
+            targetLogger.LogInformation(message, args);
+            return Task.CompletedTask;
+        }
+
+        public Task LogWarning(string category, string message, params object[] args)
+        {
+            var targetLogger = CreateTargetLogger(category);
+            targetLogger.LogWarning(message, args);
+            return Task.CompletedTask;
         }
 
         public override async Task OnConnectedAsync()
@@ -39,10 +69,16 @@ namespace ShortDash.Server.Services
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendMessage(string user, string message)
+        public Task SendMessage(string user, string message)
         {
             logger.LogDebug($"Received Message from {user}: {message}");
-            await Clients.All.ReceiveMessage(user, message);
+            return Clients.All.ReceiveMessage(user, message);
+        }
+
+        private ILogger CreateTargetLogger(string category)
+        {
+            var targetLogger = loggerFactory.CreateLogger("ShortDash.Target." + GetTargetId() + "." + category);
+            return targetLogger;
         }
 
         private string GetTargetId()
