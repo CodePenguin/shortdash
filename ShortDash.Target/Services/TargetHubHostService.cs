@@ -6,8 +6,8 @@ namespace ShortDash.Target.Services
 {
     public class TargetHubHostService : BackgroundService
     {
-        private CancellationTokenSource cancellationTokenSource;
-        private TargetHubClient targetHubClient;
+        private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly TargetHubClient targetHubClient;
 
         public TargetHubHostService(TargetHubClient targetHubClient)
         {

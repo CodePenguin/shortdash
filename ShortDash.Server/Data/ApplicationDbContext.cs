@@ -57,6 +57,7 @@ namespace ShortDash.Server.Data
                 new DashboardAction() { DashboardActionId = 11, DashboardActionTargetId = 1, Label = "Dash 2", BackgroundColor = Color.LightSeaGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":2}" },
                 new DashboardAction() { DashboardActionId = 12, DashboardActionTargetId = 1, Label = "Dash 3", BackgroundColor = Color.SpringGreen, Icon = "oi-grid-three-up", ActionTypeName = "ShortDash.Server.Actions.DashLinkAction", Parameters = "{\"DashboardId\":3}" },
                 new DashboardAction() { DashboardActionId = 13, DashboardActionTargetId = 1, Label = "Separator", ActionTypeName = "ShortDash.Server.Actions.DashSeparatorAction" },
+                new DashboardAction() { DashboardActionId = 14, DashboardActionTargetId = 2, Label = "Mute2", BackgroundColor = Color.CornflowerBlue, Icon = "oi-ban", ActionTypeName = "ShortDash.Plugins.Core.Windows.MediaMuteAction", Parameters = "{\"IsToggle\":true}" },
             };
         }
 
@@ -65,6 +66,7 @@ namespace ShortDash.Server.Data
             return new List<DashboardActionTarget>
             {
                 new DashboardActionTarget() { DashboardActionTargetId = 1, Name = "Main" },
+                new DashboardActionTarget() { DashboardActionTargetId = 2, Name = "Secondary" }
             };
         }
 

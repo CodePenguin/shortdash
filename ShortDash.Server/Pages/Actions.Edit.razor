@@ -22,6 +22,10 @@
                 <input type="text" class="form-control" value="@ActionAttribute.Title" disabled />
             </div>
         }
+        <div class="form-group disabled">
+            <label for="ActionTarget">Target</label>
+            <ActionTargetInputSelect @bind-Value="DashboardAction.DashboardActionTargetId" />
+        </div>
         <div class="form-group">
             <label for="ActionLabel">Label</label>
             <InputText @bind-Value="@DashboardAction.Label" class="form-control" id="ActionLabel" placeholder="Enter text to display" />

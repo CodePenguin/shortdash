@@ -43,11 +43,7 @@ namespace ShortDash.Server.Components
 
             IsExecuting = true;
             ToggleState = !IsToggle || !ToggleState;
-            var result = await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
-            if (result.Success)
-            {
-                ToggleState = result.ToggleState;
-            }
+            await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
             // Intentional delay so the execution indicator has time to display for super fast operations
             await Task.Delay(100);
             IsExecuting = false;

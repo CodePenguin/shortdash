@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
+using ShortDash.Core.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,18 +18,22 @@ namespace ShortDash.Target.Services
     {
         private readonly HubConnection connection;
         private readonly IRetryPolicy retryPolicy;
+        private ActionService actionService;
         private bool connecting;
         private bool disposed;
         private ILogger<TargetHubClient> logger;
         private Timer timer;
 
-        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy)
+        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, ActionService actionService)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
+            this.actionService = actionService;
 
+            const string baseUrl = "http://172.16.0.159:5000";
+            var hubUrl = baseUrl + "/targetshub?targetId=2";
             connection = new HubConnectionBuilder()
-                .WithUrl("http://172.16.0.159:5000/targetshub")
+                .WithUrl(hubUrl)
                 .WithAutomaticReconnect(retryPolicy)
                 .Build();
 
@@ -36,6 +42,7 @@ namespace ShortDash.Target.Services
             connection.Reconnecting += Reconnecting;
 
             connection.On<string, string>("ReceiveMessage", ReceivedMessage);
+            connection.On<string, string, bool>("ExecuteAction", ExecuteAction);
         }
 
         ~TargetHubClient()
@@ -153,7 +160,7 @@ namespace ShortDash.Target.Services
 
         private Task Closed(Exception error)
         {
-            Console.WriteLine("Connection Closed!");
+            logger.LogDebug("Connection Closed!");
             OnClosed?.Invoke(this, null);
             return Task.CompletedTask;
         }
@@ -171,22 +178,29 @@ namespace ShortDash.Target.Services
             OnConnecting?.Invoke(this, null);
         }
 
+        private async void ExecuteAction(string actionTypeName, string parameters, bool toggleState)
+        {
+            logger.LogDebug($"Received execute action request: {actionTypeName}");
+            var result = await actionService.Execute(actionTypeName, parameters, toggleState);
+            // TODO: Send the result back to the server
+        }
+
         private void ReceivedMessage(string user, string message)
         {
-            Console.WriteLine("Received Message from " + user + ":" + message);
+            logger.LogDebug($"Received Message from {user}: {message}");
             OnReceiveMessage?.Invoke(this, new MessageArgs { User = user, Message = message });
         }
 
         private Task Reconnected(string message)
         {
-            Console.WriteLine("Reconnected!");
+            logger.LogDebug("Reconnected!");
             OnReconnected?.Invoke(this, null);
             return Task.CompletedTask;
         }
 
         private Task Reconnecting(Exception error)
         {
-            Console.WriteLine("Reconnecting...");
+            logger.LogDebug("Reconnecting...");
             OnReconnecting?.Invoke(this, null);
             return Task.CompletedTask;
         }

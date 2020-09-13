@@ -43,6 +43,10 @@ namespace ShortDash.Core.Services
 
         private void LoadPlugins()
         {
+            if (!Directory.Exists(pluginBasePath))
+            {
+                return;
+            }
             var options = new EnumerationOptions
             {
                 IgnoreInaccessible = true,

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Server.Actions;
@@ -10,13 +11,22 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
-        public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider) : base(logger, pluginService, serviceProvider)
+        private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
+
+        public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider, IHubContext<TargetsHub, ITargetsHub> targetsHubContext) : base(logger, pluginService, serviceProvider)
         {
+            this.targetsHubContext = targetsHubContext;
         }
 
-        public Task<ActionResult> Execute(DashboardAction dashboardAction, bool toggleState)
+        public Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
-            return Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
+            // Handle non-targeted actions at the server
+            if (dashboardAction.DashboardActionTargetId <= 1)
+            {
+                return Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
+            }
+            // Forward targeted actions to the specific target
+            return targetsHubContext.Clients.Groups(dashboardAction.DashboardActionTargetId.ToString()).ExecuteAction(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
         }
 
         protected override void RegisterActions()

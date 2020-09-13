@@ -65,6 +65,11 @@ namespace ShortDash.Server.Services
                 .ToListAsync();
         }
 
+        public async Task<List<DashboardActionTarget>> GetDashboardActionTargetsAsync()
+        {
+            return await dbContext.DashboardActionTargets.ToListAsync();
+        }
+
         public async Task<Dashboard> GetDashboardAsync(int dashboardId)
         {
             return await dbContext.Dashboards
