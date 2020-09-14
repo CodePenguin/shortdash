@@ -65,7 +65,7 @@ namespace ShortDash.Server.Data
         {
             return new List<DashboardActionTarget>
             {
-                new DashboardActionTarget() { DashboardActionTargetId = 1, Name = "Main" },
+                new DashboardActionTarget() { DashboardActionTargetId = 1, Name = "Server" },
                 new DashboardActionTarget() { DashboardActionTargetId = 2, Name = "Secondary" }
             };
         }

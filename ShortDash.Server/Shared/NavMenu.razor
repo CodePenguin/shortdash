@@ -16,6 +16,11 @@
                     <span class="oi oi-puzzle-piece" aria-hidden="true"></span> Actions
                 </NavLink>
             </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">
+                    <span class="oi oi-target" aria-hidden="true"></span> Targets
+                </NavLink>
+            </li>
             @foreach (var dashboard in Dashboards)
             {
                 var link = $"dashboard/{dashboard.DashboardId}";

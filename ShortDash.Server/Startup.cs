@@ -62,6 +62,7 @@ namespace ShortDash.Server
             {
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();

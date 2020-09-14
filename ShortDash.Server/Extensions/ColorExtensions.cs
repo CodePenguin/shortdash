@@ -3,7 +3,7 @@ using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
-namespace ShortDash.Server.Shared
+namespace ShortDash.Server.Extensions
 {
     public static class ColorExtensions
     {

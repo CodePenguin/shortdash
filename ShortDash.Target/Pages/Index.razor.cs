@@ -11,6 +11,7 @@ namespace ShortDash.Target.Pages
         public bool IsConnected => TargetHubClient.IsConnected();
         public DateTime LastConnection => TargetHubClient.LastConnectionDateTime;
         public DateTime LastConnectionAttempt => TargetHubClient.LastConnectionAttemptDateTime;
+        private string ServerUrl => TargetHubClient.ServerUrl;
         private string TargetId => TargetHubClient.TargetId;
 
         [Inject]

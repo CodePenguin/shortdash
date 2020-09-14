@@ -5,9 +5,21 @@
         <div class="card-header text-center">
             <h5 class="card-text">ShortDash Target</h5>
         </div>
+        @if (string.IsNullOrEmpty(ServerUrl))
+        {
+            <div class="card-body bg-warning">
+                <p class="card-text">
+                    The connection to the ShortDash server has not been configured.<br />
+                    Update the TargetId and ServerUrl settings in the appsettings.json file and then restart the application.
+                </p>
+            </div>
+        }
         <div class="card-body">
             <p class="card-text">
-                Target ID: @TargetId
+                Server URL: @(!string.IsNullOrEmpty(TargetHubClient.ServerUrl) ? TargetHubClient.ServerUrl : "Not Configured")
+            </p>
+            <p class="card-text">
+                Target ID: @(!string.IsNullOrEmpty(TargetHubClient.TargetId) ? TargetHubClient.TargetId : "Not Configured")
             </p>
             <p class="card-text">
                 Last Connection: @DisplayDateTime(LastConnection)

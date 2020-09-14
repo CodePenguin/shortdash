@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Services;
+using ShortDash.Target.Shared;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,34 +17,24 @@ namespace ShortDash.Target.Services
 
     public class TargetHubClient : IDisposable
     {
-        private readonly HubConnection connection;
+        private readonly ConnectionSettings connectionSettings;
         private readonly IRetryPolicy retryPolicy;
         private ActionService actionService;
         private bool connecting;
+        private HubConnection connection;
         private bool disposed;
         private ILogger<TargetHubClient> logger;
 
-        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, ActionService actionService)
+        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, ActionService actionService, IConfiguration configuration)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
             this.actionService = actionService;
+            connectionSettings = new ConnectionSettings();
 
-            TargetId = "2";
+            configuration.GetSection(ConnectionSettings.Key).Bind(connectionSettings);
 
-            const string baseUrl = "http://172.16.0.159:5000";
-            var hubUrl = baseUrl + "/targetshub?targetId=" + Uri.EscapeUriString(TargetId);
-            connection = new HubConnectionBuilder()
-                .WithUrl(hubUrl)
-                .WithAutomaticReconnect(retryPolicy)
-                .Build();
-
-            connection.Closed += Closed;
-            connection.Reconnected += Reconnected;
-            connection.Reconnecting += Reconnecting;
-
-            connection.On<string, string>("ReceiveMessage", ReceivedMessage);
-            connection.On<string, string, bool>("ExecuteAction", ExecuteAction);
+            SetupConnection();
         }
 
         ~TargetHubClient()
@@ -63,12 +55,16 @@ namespace ShortDash.Target.Services
         public event EventHandler OnReconnecting;
 
         public DateTime LastConnectionAttemptDateTime { get; private set; }
+
         public DateTime LastConnectionDateTime { get; private set; }
-        public string TargetId { get; set; }
+
+        public string ServerUrl { get; private set; }
+
+        public string TargetId { get; private set; }
 
         public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            if (connecting)
+            if (connecting || connection == null)
             {
                 return;
             }
@@ -109,7 +105,7 @@ namespace ShortDash.Target.Services
 
         public HubConnectionState ConnectionStatus()
         {
-            return connection.State;
+            return connection?.State ?? HubConnectionState.Disconnected;
         }
 
         public void Dispose()
@@ -120,7 +116,7 @@ namespace ShortDash.Target.Services
 
         public bool IsConnected()
         {
-            return connection.State == HubConnectionState.Connected;
+            return connection?.State == HubConnectionState.Connected;
         }
 
         public void LogDebug<T>(string message, params object[] args)
@@ -152,6 +148,40 @@ namespace ShortDash.Target.Services
             await connection.SendAsync("SendMessage", user, message);
         }
 
+        public async void SetupConnection()
+        {
+            if (connection != null)
+            {
+                await connection.StopAsync();
+                await connection.DisposeAsync();
+            }
+
+            TargetId = connectionSettings?.TargetId;
+            ServerUrl = connectionSettings?.ServerUrl.Trim('/');
+
+            if (string.IsNullOrEmpty(TargetId) && string.IsNullOrEmpty(ServerUrl))
+            {
+                logger.LogDebug("Server connection has not been initialized.");
+                return;
+            }
+
+            logger.LogDebug("Server: " + ServerUrl);
+            logger.LogDebug("Target ID: " + TargetId);
+
+            var hubUrl = ServerUrl + "/targetshub?targetId=" + Uri.EscapeUriString(TargetId);
+            connection = new HubConnectionBuilder()
+                .WithUrl(hubUrl)
+                .WithAutomaticReconnect(retryPolicy)
+                .Build();
+
+            connection.Closed += Closed;
+            connection.Reconnected += Reconnected;
+            connection.Reconnecting += Reconnecting;
+
+            connection.On<string, string>("ReceiveMessage", ReceivedMessage);
+            connection.On<string, string, bool>("ExecuteAction", ExecuteAction);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed && disposing)
@@ -170,7 +200,7 @@ namespace ShortDash.Target.Services
 
         private void Connected()
         {
-            logger.LogDebug("Connected to server.");
+            logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
             OnConnected?.Invoke(this, null);
         }

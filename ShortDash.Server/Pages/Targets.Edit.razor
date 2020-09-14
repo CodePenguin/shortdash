@@ -1,0 +1,32 @@
+﻿@page "/targets/{DashboardActionTargetId:int}"
+@page "/targets/new"
+
+<div class="page">
+    @if (DashboardActionTarget.DashboardActionTargetId == 0)
+    {
+        <h3>New Target</h3>
+    }
+    else
+    {
+        <h3>@DashboardActionTarget.Name (@DashboardActionTargetId)</h3>
+    }
+
+    <EditForm Model="DashboardActionTarget">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label for="DashboardName">Name</label>
+            <InputText @bind-Value="DashboardActionTarget.Name" class="form-control" id="DashboardName" />
+            <ValidationMessage For="() => DashboardActionTarget.Name" />
+        </div>
+
+        @if (DashboardActionTargetId > 1)
+        {
+            <button class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+        }
+
+        <div class="float-right">
+            <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+            <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+        </div>
+    </EditForm>
+</div>

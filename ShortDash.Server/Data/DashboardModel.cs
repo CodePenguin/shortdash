@@ -1,4 +1,5 @@
-﻿using ShortDash.Server.Shared;
+﻿using ShortDash.Server.Extensions;
+using ShortDash.Server.Shared;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -20,6 +21,7 @@ namespace ShortDash.Server.Data
 
         public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
         public int DashboardId { get; set; }
+
         [Required]
         public string Name { get; set; }
     }
@@ -56,6 +58,7 @@ namespace ShortDash.Server.Data
     public class DashboardActionTarget
     {
         public int DashboardActionTargetId { get; set; }
+
         [Required]
         public string Name { get; set; }
     }

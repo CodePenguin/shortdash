@@ -22,6 +22,13 @@ namespace ShortDash.Server.Services
             return dashboardAction;
         }
 
+        public async Task<DashboardActionTarget> AddDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
+        {
+            dbContext.Add(dashboardActionTarget);
+            await dbContext.SaveChangesAsync();
+            return dashboardActionTarget;
+        }
+
         public async Task<Dashboard> AddDashboardAsync(Dashboard dashboard)
         {
             dbContext.Add(dashboard);
@@ -34,6 +41,13 @@ namespace ShortDash.Server.Services
             dbContext.Remove(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
+        }
+
+        public async Task<DashboardActionTarget> DeleteDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
+        {
+            dbContext.Remove(dashboardActionTarget);
+            await dbContext.SaveChangesAsync();
+            return dashboardActionTarget;
         }
 
         public async Task<Dashboard> DeleteDashboardAsync(Dashboard dashboard)
@@ -65,6 +79,13 @@ namespace ShortDash.Server.Services
                 .ToListAsync();
         }
 
+        public async Task<DashboardActionTarget> GetDashboardActionTargetAsync(int dashboardActionTargetId)
+        {
+            return await dbContext.DashboardActionTargets
+                .Where(a => a.DashboardActionTargetId == dashboardActionTargetId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<DashboardActionTarget>> GetDashboardActionTargetsAsync()
         {
             return await dbContext.DashboardActionTargets.ToListAsync();
@@ -90,6 +111,13 @@ namespace ShortDash.Server.Services
             dbContext.Update(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
+        }
+
+        public async Task<DashboardActionTarget> UpdateDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
+        {
+            dbContext.Update(dashboardActionTarget);
+            await dbContext.SaveChangesAsync();
+            return dashboardActionTarget;
         }
 
         public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard, List<DashboardCell> removalList = null)
