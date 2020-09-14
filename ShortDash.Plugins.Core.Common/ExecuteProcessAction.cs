@@ -2,10 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
-namespace ShortDash.Plugins.Core.Windows
+namespace ShortDash.Plugins.Core.Common
 {
     [ShortDashAction(
-        Title = "Execute Process (Windows)",
+        Title = "Execute Process",
         Description = "Execute processes, documents and links via the system shell.",
         ParametersType = typeof(ExecuteProcessParameters))]
     public class ExecuteProcessAction : IShortDashAction

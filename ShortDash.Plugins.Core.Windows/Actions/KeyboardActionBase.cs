@@ -14,6 +14,10 @@ namespace ShortDash.Plugins.Core.Windows
 
         protected static void PressKey(byte keyCode)
         {
+            if (!TargetEnvironment.IsWindows)
+            {
+                throw new PlatformNotSupportedException("This operation is only supported on Windows.");
+            }
             KeyboardEvent(keyCode, 0, KeyEventKeyExtendedKey, IntPtr.Zero);
             KeyboardEvent(keyCode, 0, KeyEventKeyUp, IntPtr.Zero);
         }
