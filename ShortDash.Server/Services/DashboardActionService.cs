@@ -31,6 +31,7 @@ namespace ShortDash.Server.Services
 
         protected override void RegisterActions()
         {
+            RegisterActionType(typeof(DashGroupAction));
             RegisterActionType(typeof(DashLinkAction));
             RegisterActionType(typeof(DashSeparatorAction));
             base.RegisterActions();

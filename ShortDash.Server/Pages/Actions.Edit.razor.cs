@@ -17,6 +17,8 @@ namespace ShortDash.Server.Pages
 {
     public partial class Actions_Edit : ComponentBase
     {
+        private DashGroupActionInputGrid subActionsInputGrid;
+
         [Parameter]
         public int DashboardActionId { get; set; }
 
@@ -105,13 +107,15 @@ namespace ShortDash.Server.Pages
                 DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
             }
 
+            subActionsInputGrid.GenerateChanges(DashboardAction, out var subActionRemovalList);
+
             if (DashboardAction.DashboardActionId == 0)
             {
                 await DashboardService.AddDashboardActionAsync(DashboardAction);
             }
             else
             {
-                await DashboardService.UpdateDashboardActionAsync(DashboardAction);
+                await DashboardService.UpdateDashboardActionAsync(DashboardAction, subActionRemovalList);
             }
 
             NavigationManagerService.NavigateTo($"/actions");

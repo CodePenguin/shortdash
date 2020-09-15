@@ -1,5 +1,6 @@
 ﻿@page "/actions/{DashboardActionId:int}"
 @page "/actions/new"
+@using ShortDash.Server.Actions
 
 <EditForm EditContext="@ActionEditContext" class="page">
     <DataAnnotationsValidator />
@@ -53,6 +54,11 @@
             <legend>Parameters</legend>
             <FormGenerator EditContext="@ParametersEditContext" FormElementType="typeof(ActionPropertyFormElement)"></FormGenerator>
         </fieldset>
+    }
+
+    @if (DashboardAction.ActionTypeName == typeof(DashGroupAction).FullName)
+    {
+        <DashGroupActionInputGrid @ref="subActionsInputGrid" DashboardAction="DashboardAction" DashboardService="DashboardService" />
     }
 
     @if (DashboardActionId != 0)

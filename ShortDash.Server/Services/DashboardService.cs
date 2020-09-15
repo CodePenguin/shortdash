@@ -68,6 +68,7 @@ namespace ShortDash.Server.Services
         {
             return await dbContext.DashboardActions
                 .Include(a => a.DashboardSubActionChildren)
+                    .ThenInclude(c => c.DashboardActionChild)
                 .Where(a => a.DashboardActionId == dashboardActionId)
                 .FirstOrDefaultAsync();
         }
@@ -106,8 +107,15 @@ namespace ShortDash.Server.Services
             return await dbContext.Dashboards.ToListAsync();
         }
 
-        public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction)
+        public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction, List<DashboardSubAction> subActionRemovalList = null)
         {
+            if (subActionRemovalList != null)
+            {
+                foreach (var subAction in subActionRemovalList)
+                {
+                    dbContext.Remove(subAction);
+                }
+            }
             dbContext.Update(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
@@ -120,11 +128,11 @@ namespace ShortDash.Server.Services
             return dashboardActionTarget;
         }
 
-        public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard, List<DashboardCell> removalList = null)
+        public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard, List<DashboardCell> cellRemovalList = null)
         {
-            if (removalList != null)
+            if (cellRemovalList != null)
             {
-                foreach (var cell in removalList)
+                foreach (var cell in cellRemovalList)
                 {
                     dbContext.Remove(cell);
                 }

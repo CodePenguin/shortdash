@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.CompilerServices;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,7 +23,7 @@ namespace ShortDash.Server.Components
         [Parameter]
         public string DescriptionFieldClasses { get; set; }
 
-        public string Id { get => ModelProperty.Name; }
+        public string Id => ModelProperty.Name;
 
         [Parameter]
         public string InputFieldClasses { get; set; }
@@ -33,12 +34,16 @@ namespace ShortDash.Server.Components
         [Parameter]
         public PropertyInfo ModelProperty { get; set; }
 
+        [Inject]
+        private ILogger<FormElementComponent> Logger { get; set; }
+
         public RenderFragment RenderComponent(PropertyInfo property) => builder =>
         {
             var componentType = GetInputType(property);
             if (componentType == null)
             {
-                throw new Exception($"No component found: {property.PropertyType}");
+                Logger.LogDebug($"Unhandled component mapping: {property.PropertyType}");
+                return;
             }
             var elementType = componentType;
             if (elementType.IsGenericTypeDefinition)

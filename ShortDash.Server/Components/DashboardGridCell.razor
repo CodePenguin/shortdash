@@ -10,16 +10,6 @@
     }
     @if (EditMode)
     {
-        <div class="edit-controls">
-            <a href="" class="move-cell-left" @onclick="MoveCellLeft" @onclick:preventDefault>
-                <span class="oi oi-arrow-circle-left"></span>
-            </a>
-            <a href="" class="move-cell-right" @onclick="MoveCellRight" @onclick:preventDefault>
-                <span class="oi oi-arrow-circle-right"></span>
-            </a>
-            <a href="" class="remove-cell" @onclick="RemoveCell" @onclick:preventDefault>
-                <span class="oi oi-circle-x"></span>
-            </a>
-        </div>
+        <DashboardGridCellEditControls TCellType="DashboardCell" Cell="Cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" />
     }
 </div>

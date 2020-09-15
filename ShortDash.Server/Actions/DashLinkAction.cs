@@ -11,7 +11,7 @@ namespace ShortDash.Server.Actions
     [ShortDashAction(
         Title = "Switch to Dashboard",
         Description = "Navigates to a specific dashboard.",
-        ParametersType = typeof(DashLinkProcessParameters))]
+        ParametersType = typeof(DashLinkParameters))]
     [ShortDashActionDefaultSettings(
         Icon = "oi-grid-three-up")]
     public class DashLinkAction : IShortDashAction
@@ -25,12 +25,12 @@ namespace ShortDash.Server.Actions
 
         public bool Execute(object parametersObject, ref bool toggleState)
         {
-            var parameters = parametersObject as DashLinkProcessParameters;
+            var parameters = parametersObject as DashLinkParameters;
             navigationManager.NavigateTo($"/dashboard/{parameters.DashboardId}");
             return true;
         }
 
-        private class DashLinkProcessParameters
+        private class DashLinkParameters
         {
             [Display(Name = "Dashboard")]
             [FormInput(Type = typeof(DashboardInputSelect))]
