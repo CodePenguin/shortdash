@@ -107,7 +107,11 @@ namespace ShortDash.Server.Pages
                 DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
             }
 
-            subActionsInputGrid.GenerateChanges(DashboardAction, out var subActionRemovalList);
+            List<DashboardSubAction> subActionRemovalList = null;
+            if (subActionsInputGrid != null)
+            {
+                subActionsInputGrid.GenerateChanges(DashboardAction, out subActionRemovalList);
+            }
 
             if (DashboardAction.DashboardActionId == 0)
             {

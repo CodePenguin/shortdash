@@ -68,7 +68,7 @@ namespace ShortDash.Server.Services
         {
             return await dbContext.DashboardActions
                 .Include(a => a.DashboardSubActionChildren)
-                    .ThenInclude(c => c.DashboardActionChild)
+                .ThenInclude(c => c.DashboardActionChild)
                 .Where(a => a.DashboardActionId == dashboardActionId)
                 .FirstOrDefaultAsync();
         }
@@ -97,6 +97,8 @@ namespace ShortDash.Server.Services
             return await dbContext.Dashboards
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
+                .ThenInclude(a => a.DashboardSubActionChildren)
+                .ThenInclude(sa => sa.DashboardActionChild)
                 .Where(d => d.DashboardId == dashboardId)
                 .OrderBy(d => d.Name)
                 .FirstOrDefaultAsync();

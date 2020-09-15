@@ -20,13 +20,17 @@ namespace ShortDash.Server.Services
 
         public Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
-            // Handle non-targeted actions at the server
-            if (dashboardAction.DashboardActionTargetId <= 1)
-            {
-                return Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
-            }
             // Forward targeted actions to the specific target
-            return targetsHubContext.Clients.Groups(dashboardAction.DashboardActionTargetId.ToString()).ExecuteAction(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
+            if (dashboardAction.DashboardActionTargetId > 1)
+            {
+                return targetsHubContext.Clients.Groups(dashboardAction.DashboardActionTargetId.ToString()).ExecuteAction(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
+            }
+            // Handle non-targeted actions at the server
+            if (dashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
+            {
+                return ExecuteGroupAction(dashboardAction);
+            }
+            return Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
         }
 
         protected override void RegisterActions()
@@ -35,6 +39,16 @@ namespace ShortDash.Server.Services
             RegisterActionType(typeof(DashLinkAction));
             RegisterActionType(typeof(DashSeparatorAction));
             base.RegisterActions();
+        }
+
+        private Task ExecuteGroupAction(DashboardAction dashboardAction)
+        {
+            foreach (var subAction in dashboardAction.DashboardSubActionChildren)
+            {
+                var toggleState = false;
+                Execute(subAction.DashboardActionChild, toggleState);
+            }
+            return Task.CompletedTask;
         }
     }
 }
