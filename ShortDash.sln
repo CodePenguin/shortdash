@@ -4,12 +4,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Server", "ShortDash.Server\ShortDash.Server.csproj", "{AC413473-A649-467C-9816-0AC68E2A3B82}"
+	ProjectSection(ProjectDependencies) = postProject
+		{514BF38F-F888-40B7-AB18-89A7F975AC1E} = {514BF38F-F888-40B7-AB18-89A7F975AC1E}
+		{422561B5-389F-44B6-9154-0C591430352D} = {422561B5-389F-44B6-9154-0C591430352D}
+		{4654F3DC-ED6E-4576-8C27-8ECEA127EECA} = {4654F3DC-ED6E-4576-8C27-8ECEA127EECA}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Core.Plugins", "ShortDash.Core.Plugins\ShortDash.Core.Plugins.csproj", "{514BF38F-F888-40B7-AB18-89A7F975AC1E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Core", "ShortDash.Core\ShortDash.Core.csproj", "{8D811E32-F52B-4ADF-A154-F8FAD8F75E81}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Plugins.Core.Windows", "ShortDash.Plugins.Core.Windows\ShortDash.Plugins.Core.Windows.csproj", "{4654F3DC-ED6E-4576-8C27-8ECEA127EECA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{514BF38F-F888-40B7-AB18-89A7F975AC1E} = {514BF38F-F888-40B7-AB18-89A7F975AC1E}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BE1B16B1-76CE-4BBB-81BC-7C6031AAF6D2}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,8 +27,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Plugins.Core.Common", "ShortDash.Plugins.Core.Common\ShortDash.Plugins.Core.Common.csproj", "{422561B5-389F-44B6-9154-0C591430352D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{514BF38F-F888-40B7-AB18-89A7F975AC1E} = {514BF38F-F888-40B7-AB18-89A7F975AC1E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortDash.Target", "ShortDash.Target\ShortDash.Target.csproj", "{BC9A91A1-51DD-4B58-810C-94489F3908E7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{514BF38F-F888-40B7-AB18-89A7F975AC1E} = {514BF38F-F888-40B7-AB18-89A7F975AC1E}
+		{422561B5-389F-44B6-9154-0C591430352D} = {422561B5-389F-44B6-9154-0C591430352D}
+		{4654F3DC-ED6E-4576-8C27-8ECEA127EECA} = {4654F3DC-ED6E-4576-8C27-8ECEA127EECA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
