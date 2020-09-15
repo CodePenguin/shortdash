@@ -348,7 +348,22 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
+# Visual Studio Code temporary files and build results
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
 
+# Local History for Visual Studio Code
+.history/
+
+# OS Specific files
+.DS_Store
+._*
+Thumbs.db
+[Dd]esktop.ini
 
 # Project specific
 hostsettings.json
