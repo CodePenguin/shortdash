@@ -6,6 +6,7 @@ using ShortDash.Server.Services;
 using ShortDash.Server.Shared;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,7 +51,8 @@ namespace ShortDash.Server.Components
 
         private bool HasIcon()
         {
-            return !string.IsNullOrWhiteSpace(DashboardAction.Icon) && DashboardAction.Icon.StartsWith("oi-");
+            var uri = new Uri(new Uri("http://localhost"), DashboardAction.Icon);
+            return !string.IsNullOrWhiteSpace(DashboardAction.Icon) && string.IsNullOrEmpty(Path.GetExtension(uri.LocalPath));
         }
 
         private bool HasImage()

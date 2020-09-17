@@ -111,9 +111,9 @@ DEPRECATE.grid-cell, DEPRECATE.grid-cell a, DEPRECATE.grid-cell a:hover, DEPRECA
     font-size: 1rem;
 }
 
-.grid-icon-content span.oi {
-    font-size: 2rem;
-    margin-top: 0.3rem;
+.grid-icon-content span.icon {
+    font-size: 2.5rem;
+    margin-top: 0.2rem;
 }
 
 .grid-icon-caption {

@@ -368,6 +368,7 @@ Thumbs.db
 # Project specific
 hostsettings.json
 **/wwwroot/assets/*
+**/wwwroot/lib/*
 Migrations/
 *.db
 *.db-shm
