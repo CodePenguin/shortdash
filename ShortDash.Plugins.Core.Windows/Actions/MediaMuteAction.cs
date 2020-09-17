@@ -7,7 +7,7 @@ namespace ShortDash.Plugins.Core.Windows
         Description = "Mutes the currently playing system media.")]
     [ShortDashActionDefaultSettings(
         Label = "Mute",
-        Icon = "oi-volume-off")]
+        Icon = "fas fa-volume-mute")]
     public class MediaMuteAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaMuteAction> logger;

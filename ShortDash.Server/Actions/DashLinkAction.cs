@@ -13,7 +13,7 @@ namespace ShortDash.Server.Actions
         Description = "Navigates to a specific dashboard.",
         ParametersType = typeof(DashLinkParameters))]
     [ShortDashActionDefaultSettings(
-        Icon = "oi-grid-three-up")]
+        Icon = "fas fa-grip-horizontal")]
     public class DashLinkAction : IShortDashAction
     {
         private readonly NavigationManager navigationManager;

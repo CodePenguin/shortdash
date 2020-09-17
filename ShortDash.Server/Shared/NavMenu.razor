@@ -8,17 +8,17 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                    <span class="fas fa-home" aria-hidden="true"></span> Home
                 </NavLink>
             </li>
             <li class="nav-item">
                 <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
-                    <span class="oi oi-puzzle-piece" aria-hidden="true"></span> Actions
+                    <span class="fas fa-puzzle-piece" aria-hidden="true"></span> Actions
                 </NavLink>
             </li>
             <li class="nav-item">
                 <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">
-                    <span class="oi oi-target" aria-hidden="true"></span> Targets
+                    <span class="fas fa-crosshairs" aria-hidden="true"></span> Targets
                 </NavLink>
             </li>
             @foreach (var dashboard in Dashboards)
@@ -26,13 +26,13 @@
                 var link = $"dashboard/{dashboard.DashboardId}";
                 <li class="nav-item">
                     <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                        <span class="oi oi-dashboard" aria-hidden="true"></span> @dashboard.Name
+                        <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
                     </NavLink>
                 </li>
             }
             <li class="nav-item">
                 <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
-                    <span class="oi oi-plus" aria-hidden="true"></span> New Dashboard
+                    <span class="fas fa-plus" aria-hidden="true"></span> New Dashboard
                 </a>
             </li>
         </ul>

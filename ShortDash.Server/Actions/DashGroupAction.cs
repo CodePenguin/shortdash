@@ -21,7 +21,7 @@ namespace ShortDash.Server.Actions
         Description = "Execute a group of actions.",
         ParametersType = typeof(DashGroupParameters))]
     [ShortDashActionDefaultSettings(
-        Icon = "oi-project")]
+        Icon = "fas fa-project-diagram")]
     public class DashGroupAction : IShortDashAction
     {
         public bool Execute(object parametersObject, ref bool toggleState)

@@ -7,7 +7,7 @@ namespace ShortDash.Plugins.Core.Windows
         Description = "Toggles the currently playing system media.")]
     [ShortDashActionDefaultSettings(
         Label = "Play/Pause",
-        Icon = "oi-media-play")]
+        Icon = "fas fa-play")]
     public class MediaPlayPauseAction : KeyboardActionBase
     {
         private readonly IShortDashPluginLogger<MediaPlayPauseAction> logger;
