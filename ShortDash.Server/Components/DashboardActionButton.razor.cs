@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -17,48 +18,69 @@ namespace ShortDash.Server.Components
         public DashboardAction DashboardAction { get; set; }
 
         [Parameter]
-        public bool IsExecuting { get; set; }
+        public bool EditMode { get; set; }
 
-        [Parameter]
-        public bool ToggleState { get; set; }
+        [CascadingParameter]
+        public IModalService ModalService { get; set; }
 
-        protected Dictionary<string, object> CellAttributes { get; private set; } = new Dictionary<string, object>();
-        private string TextClass { get; set; }
+        [Inject]
+        protected DashboardActionService DashboardActionService { get; set; }
+
+        private bool IsExecuting { get; set; } = false;
+        private bool IsToggle { get; set; } = false;
+        private bool ToggleState { get; set; } = false;
+
+        // TODO: Implement toggle functionality
+        protected async void ExecuteAction()
+        {
+            if (EditMode || IsExecuting)
+            {
+                return;
+            }
+
+            IsExecuting = true;
+            ToggleState = !IsToggle || !ToggleState;
+
+            if (DashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
+            {
+                await ExecuteDashGroupAction();
+            }
+            else
+            {
+                await DashboardActionService.Execute(DashboardAction, ToggleState);
+            }
+
+            // Intentional delay so the execution indicator has time to display for super fast operations
+            await Task.Delay(100);
+            IsExecuting = false;
+            StateHasChanged();
+        }
+
+        protected Task ExecuteDashGroupAction()
+        {
+            var actionType = DashboardActionService.FindActionType(typeof(DashGroupAction).FullName);
+            var parameters = DashboardActionService.GetActionParameters(actionType, DashboardAction.Parameters) as DashGroupParameters;
+            if (parameters.DashGroupType == DashGroupType.Folder)
+            {
+                return DashGroupActionDialog.ShowAsync(ModalService, DashboardAction);
+            }
+            else if (parameters.DashGroupType == DashGroupType.List)
+            {
+                return DashboardActionService.Execute(DashboardAction, ToggleState);
+            }
+            return Task.CompletedTask;
+        }
 
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            CellAttributes.Clear();
-            if (DashboardAction.BackgroundColor != null)
-            {
-                CellAttributes.Add("style", "background-color: " + DashboardAction.BackgroundColor?.ToHtmlString());
-                TextClass = DashboardAction.BackgroundColor?.TextClass();
-            }
-            else
-            {
-                TextClass = "dark";
-            }
+            IsExecuting = false;
+            ToggleState = false;
         }
 
-        private string GetActiveStateClass()
+        protected bool ShouldShowCaption()
         {
-            return ToggleState ? "active" : "";
-        }
-
-        private bool HasIcon()
-        {
-            return !string.IsNullOrWhiteSpace(DashboardAction.Icon) && DashboardAction.Icon.StartsWith("oi-");
-        }
-
-        private bool HasImage()
-        {
-            return !string.IsNullOrWhiteSpace(DashboardAction.Icon);
-        }
-
-        private bool IsExecutable(DashboardAction action)
-        {
-            var actionTypeName = action?.ActionTypeName;
-            return !string.IsNullOrWhiteSpace(actionTypeName) && actionTypeName != typeof(DashSeparatorAction).FullName;
+            return DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName || EditMode;
         }
     }
 }

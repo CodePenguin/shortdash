@@ -10,6 +10,12 @@ using System.Text.Json;
 
 namespace ShortDash.Server.Actions
 {
+    public enum DashGroupType
+    {
+        Folder = 1,
+        List = 2
+    }
+
     [ShortDashAction(
         Title = "Action Group",
         Description = "Execute a group of actions.",
@@ -20,11 +26,14 @@ namespace ShortDash.Server.Actions
     {
         public bool Execute(object parametersObject, ref bool toggleState)
         {
+            // Intentionally left blank as this type of action is handled in the DashboardActionService
             return true;
         }
+    }
 
-        private class DashGroupParameters
-        {
-        }
+    public class DashGroupParameters
+    {
+        [Display(Name = "Group Type")]
+        public DashGroupType DashGroupType { get; set; } = DashGroupType.Folder;
     }
 }

@@ -1,0 +1,33 @@
+﻿@if (!IsExecutable(DashboardAction))
+{
+    <div class="grid-icon">
+        <div class="grid-icon-content d-table-cell align-middle">
+            &nbsp;
+        </div>
+    </div>
+}
+else
+{
+    <div class="grid-icon rounded text-center text-@TextClass @GetActiveStateClass()" @attributes="CellAttributes">
+        <div class="grid-icon-content d-table-cell align-middle">
+            @if (HasIcon())
+            {
+                <span class="oi @DashboardAction.Icon"></span>
+            }
+            else if (HasImage())
+            {
+                <img src="/assets/@DashboardAction.Icon" alt="@DashboardAction.Label" class="rounded" />
+            }
+            else
+            {
+                <span>
+                    @DashboardAction.Label
+                </span>
+            }
+        </div>
+        @if (IsExecuting)
+        {
+            <div class="executing-indicator spinner-border text-warning" role="status"></div>
+        }
+    </div>
+}

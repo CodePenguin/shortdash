@@ -27,10 +27,15 @@ namespace ShortDash.Server.Extensions
                 0.114 * color.B * color.B);
         }
 
-        public static string TextClass(this Color color)
+        public static bool IsLight(this Color color)
         {
             const double threshold = 146.8;
-            return color.GetPerceivedBrightness() > threshold ? "dark" : "light";
+            return color.GetPerceivedBrightness() > threshold;
+        }
+
+        public static string TextClass(this Color color)
+        {
+            return color.IsLight() ? "dark" : "light";
         }
 
         public static string ToHtmlString(this Color color)

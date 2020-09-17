@@ -1,13 +1,5 @@
 ﻿<div class="grid-cell">
-    <a href="" @onclick="ExecuteAction" @onclick:preventDefault>
-        <DashboardActionButton DashboardAction="@Cell.DashboardAction" IsExecuting="IsExecuting" ToggleState="ToggleState" />
-    </a>
-    @if (ShouldShowCaption())
-    {
-        <div class="grid-icon-caption">
-            @Cell.DashboardAction.Label
-        </div>
-    }
+    <DashboardActionButton DashboardAction="@Cell.DashboardAction" EditMode="EditMode" />
     @if (EditMode)
     {
         <DashboardGridCellEditControls TCellType="DashboardCell" Cell="Cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" />

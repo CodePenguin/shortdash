@@ -20,7 +20,8 @@ namespace ShortDash.Server.Components
                     { typeof(bool).ToString(), typeof(InputCheckbox) },
                     { typeof(decimal).ToString(), typeof(InputNumber<>) },
                     { typeof(int).ToString(), typeof(InputNumber<>) },
-                    { typeof(Color).ToString(), typeof(InputColor) }
+                    { typeof(Color).ToString(), typeof(InputColor) },
+                    { typeof(Enum).ToString(), typeof(EnumInputSelect<>) }
                 };
         }
 

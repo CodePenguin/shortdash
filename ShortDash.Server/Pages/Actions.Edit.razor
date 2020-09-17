@@ -44,7 +44,10 @@
             <ValidationMessage For="() => DashboardAction.Icon" />
         </div>
         <div class="form-group">
-            <DashboardActionButton DashboardAction="DashboardAction" />
+            <label for="DashboardActionIcon">Preview</label>
+            <div class="grid-cell">
+                <DashboardActionIcon DashboardAction="DashboardAction" />
+            </div>
         </div>
     </fieldset>
 
@@ -58,7 +61,10 @@
 
     @if (DashboardAction.ActionTypeName == typeof(DashGroupAction).FullName)
     {
-        <DashGroupActionInputGrid @ref="subActionsInputGrid" DashboardAction="DashboardAction" DashboardService="DashboardService" />
+        <fieldset>
+            <legend>Actions</legend>
+            <DashGroupActionInputGrid @ref="subActionsInputGrid" DashboardAction="DashboardAction" DashboardService="DashboardService" />
+        </fieldset>
     }
 
     @if (DashboardActionId != 0)

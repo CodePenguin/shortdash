@@ -44,8 +44,7 @@ namespace ShortDash.Core.Services
             return Task.Run(() =>
             {
                 var action = GetAction(actionType);
-                var actionAttribute = GetActionAttribute(action.GetType());
-                var parametersObject = JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
+                var parametersObject = GetActionParameters(action.GetType(), parameters);
                 var success = action.Execute(parametersObject, ref toggleState);
                 return new ActionResult { Success = success, ToggleState = toggleState };
             });
@@ -100,6 +99,12 @@ namespace ShortDash.Core.Services
         {
             var actionType = FindActionType(actionTypeName);
             return GetActionDefaultSettingsAttribute(actionType);
+        }
+
+        public object GetActionParameters(Type actionType, string parameters)
+        {
+            var actionAttribute = GetActionAttribute(actionType);
+            return JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
         }
 
         public IList<Type> GetActionTypes()

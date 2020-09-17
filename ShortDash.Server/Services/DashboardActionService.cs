@@ -11,10 +11,12 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
+        private readonly ILogger<ActionService> logger;
         private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
 
         public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider, IHubContext<TargetsHub, ITargetsHub> targetsHubContext) : base(logger, pluginService, serviceProvider)
         {
+            this.logger = logger;
             this.targetsHubContext = targetsHubContext;
         }
 
@@ -23,6 +25,7 @@ namespace ShortDash.Server.Services
             // Forward targeted actions to the specific target
             if (dashboardAction.DashboardActionTargetId > 1)
             {
+                logger.LogDebug($"Forwarding action to Target {dashboardAction.DashboardActionTargetId}: {dashboardAction.ActionTypeName}");
                 return targetsHubContext.Clients.Groups(dashboardAction.DashboardActionTargetId.ToString()).ExecuteAction(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
             }
             // Handle non-targeted actions at the server
@@ -43,6 +46,7 @@ namespace ShortDash.Server.Services
 
         private Task ExecuteGroupAction(DashboardAction dashboardAction)
         {
+            logger.LogDebug($"Executing Group Action: {dashboardAction.Label}");
             foreach (var subAction in dashboardAction.DashboardSubActionChildren)
             {
                 var toggleState = false;

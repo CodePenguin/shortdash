@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -26,55 +27,19 @@ namespace ShortDash.Server.Components
         [Parameter]
         public EventCallback<DashboardCell> OnRemoveCell { get; set; }
 
-        [Inject]
-        protected DashboardActionService DashboardActionService { get; set; }
-
-        private bool IsExecuting { get; set; } = false;
-        private bool IsToggle { get; set; } = false;
-        private bool ToggleState { get; set; } = false;
-
-        // TODO: Implement toggle functionality
-        protected async void ExecuteAction()
-        {
-            if (EditMode || IsExecuting)
-            {
-                return;
-            }
-
-            IsExecuting = true;
-            ToggleState = !IsToggle || !ToggleState;
-            await DashboardActionService.Execute(Cell.DashboardAction, ToggleState);
-            // Intentional delay so the execution indicator has time to display for super fast operations
-            await Task.Delay(100);
-            IsExecuting = false;
-            StateHasChanged();
-        }
-
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            IsExecuting = false;
-            ToggleState = false;
-        }
-
-        private Task MoveCellLeft()
+        protected Task MoveCellLeft()
         {
             return OnMoveCellLeft.InvokeAsync(Cell);
         }
 
-        private Task MoveCellRight()
+        protected Task MoveCellRight()
         {
             return OnMoveCellRight.InvokeAsync(Cell);
         }
 
-        private Task RemoveCell()
+        protected Task RemoveCell()
         {
             return OnRemoveCell.InvokeAsync(Cell);
-        }
-
-        private bool ShouldShowCaption()
-        {
-            return Cell.DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName || EditMode;
         }
     }
 }

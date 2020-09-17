@@ -8,6 +8,7 @@ using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Dynamic;
 using System.Linq;
 using System.Text.Json;
@@ -135,7 +136,7 @@ namespace ShortDash.Server.Pages
 
         private void NewDashboardAction()
         {
-            DashboardAction = new DashboardAction { DashboardActionTargetId = 1 };
+            DashboardAction = new DashboardAction { DashboardActionTargetId = 1, BackgroundColor = Color.Black };
             ActionEditContext = new EditContext(DashboardAction);
 
             ActionAttribute = null;

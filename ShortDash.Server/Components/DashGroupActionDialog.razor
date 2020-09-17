@@ -1,0 +1,19 @@
+﻿<div class="modal-backdrop fade show" @onclick="CloseDialog"></div>
+<div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content text-@TextClass" style="background-color: @BackgroundColorCode">
+            <div class="modal-body">
+                <div class="grid container-fluid">
+                    <div class="row text-center">
+                        @foreach (var subAction in DashboardAction.DashboardSubActionChildren)
+                        {
+                            <div class="col py-3 px-3 flex-grow-0">
+                                <DashboardActionButton DashboardAction="@subAction.DashboardActionChild" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
