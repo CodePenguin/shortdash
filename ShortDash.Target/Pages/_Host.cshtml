@@ -31,6 +31,26 @@
         <a class="dismiss">🗙</a>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                var pending = false;
+                setInterval(function () {
+                    if (pending) return;
+                    pending = true;
+                    var http = new XMLHttpRequest();
+                    http.open("HEAD", "/");
+                    http.onreadystatechange = function () {
+                        if (this.readyState == this.DONE && this.status == 200) {
+                            document.location.reload();
+                        }
+                        pending = false;
+                    };
+                    http.send();
+                }, 5000);
+            }
+        });
+    </script>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
