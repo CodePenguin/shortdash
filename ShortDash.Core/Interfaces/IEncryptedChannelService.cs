@@ -4,7 +4,9 @@
     {
         void CloseChannel(string channelId);
 
-        string EncryptCommand(string channelId, string data);
+        string Encrypt(string channelId, string data);
+
+        string Encrypt(string channelId, object data);
 
         string ExportEncryptedKey(string channelId);
 
@@ -20,7 +22,9 @@
 
         void OpenChannel(string channelId, string receiverPublicKeyXml, string encryptedKey);
 
-        bool TryDecryptCommand(string channelId, string encryptedCommand, out string command);
+        bool TryDecrypt(string channelId, string encryptedPacket, out string data);
+
+        bool TryDecrypt<TDataType>(string channelId, string encryptedPacket, out TDataType data);
 
         public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse);
     }

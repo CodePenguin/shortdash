@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
+using ShortDash.Core.Models;
 using ShortDash.Core.Services;
 using System;
 using System.Collections.Concurrent;
@@ -13,7 +14,7 @@ namespace ShortDash.Server.Services
 {
     public class TargetsHub : Hub<ITargetsHub>
     {
-        private static ConcurrentDictionary<string, byte[]> challenges = new ConcurrentDictionary<string, byte[]>();
+        private static readonly IDictionary<string, byte[]> Challenges = new ConcurrentDictionary<string, byte[]>();
         private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<TargetsHub> logger;
@@ -45,7 +46,7 @@ namespace ShortDash.Server.Services
                 return;
             }
             // Verify challenge response
-            if (!challenges.TryGetValue(Context.ConnectionId, out var challenge))
+            if (!Challenges.TryGetValue(Context.ConnectionId, out var challenge))
             {
                 logger.LogError("Target Authentication failed: Unable to find previous challenge.");
                 return;
@@ -63,35 +64,28 @@ namespace ShortDash.Server.Services
             }
             // Target is authenticated so send the encrypted session key
             encryptedChannelService.OpenChannel(targetId, target.PublicKey);
+            await Groups.AddToGroupAsync(Context.ConnectionId, targetId);
             logger.LogDebug($"Sending session key to Target {targetId}.");
             await Clients.Caller.TargetAuthenticated(encryptedChannelService.ExportEncryptedKey(targetId));
         }
 
-        public Task LogDebug(string category, string message, params object[] args)
+        public Task Log(string encryptedParameters)
         {
-            var targetLogger = CreateTargetLogger(category);
-            targetLogger.LogDebug(message, args);
-            return Task.CompletedTask;
-        }
-
-        public Task LogError(string category, string message, params object[] args)
-        {
-            var targetLogger = CreateTargetLogger(category);
-            targetLogger.LogError(message, args);
-            return Task.CompletedTask;
-        }
-
-        public Task LogInformation(string category, string message, params object[] args)
-        {
-            var targetLogger = CreateTargetLogger(category);
-            targetLogger.LogInformation(message, args);
-            return Task.CompletedTask;
-        }
-
-        public Task LogWarning(string category, string message, params object[] args)
-        {
-            var targetLogger = CreateTargetLogger(category);
-            targetLogger.LogWarning(message, args);
+            if (!encryptedChannelService.TryDecrypt<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
+            {
+                return default;
+            }
+            var message = parameters.Message;
+            var targetLogger = CreateTargetLogger(parameters.Category);
+            switch (parameters.LogLevel)
+            {
+                case LogLevel.Trace: targetLogger.LogTrace(message); break;
+                case LogLevel.Debug: targetLogger.LogDebug(message); break;
+                case LogLevel.Information: targetLogger.LogInformation(message); break;
+                case LogLevel.Warning: targetLogger.LogWarning(message); break;
+                case LogLevel.Error: targetLogger.LogError(message); break;
+                case LogLevel.Critical: targetLogger.LogCritical(message); break;
+            }
             return Task.CompletedTask;
         }
 
@@ -108,7 +102,7 @@ namespace ShortDash.Server.Services
             logger.LogDebug($"Sending authentication request to Target {targetId}...");
             var isNewRegistration = string.IsNullOrEmpty(target.PublicKey);
             var challenge = encryptedChannelService.GenerateChallenge(target.PublicKey, out var rawChallenge);
-            challenges[Context.ConnectionId] = rawChallenge;
+            Challenges[Context.ConnectionId] = rawChallenge;
             await Clients.Caller.Authenticate(challenge, isNewRegistration ? encryptedChannelService.ExportPublicKey() : null);
         }
 

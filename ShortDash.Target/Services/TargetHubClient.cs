@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
+using ShortDash.Core.Models;
 using ShortDash.Core.Services;
 using ShortDash.Target.Shared;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -115,33 +117,34 @@ namespace ShortDash.Target.Services
             return connection?.State == HubConnectionState.Connected;
         }
 
+        public void LogCritical<T>(string message, params object[] args)
+        {
+            SendLog(LogLevel.Critical, typeof(T).FullName, message, args);
+        }
+
         public void LogDebug<T>(string message, params object[] args)
         {
-            connection.SendAsync("LogDebug", typeof(T).FullName, message, args);
+            SendLog(LogLevel.Debug, typeof(T).FullName, message, args);
         }
 
         public void LogError<T>(string message, params object[] args)
         {
-            connection.SendAsync("LogError", typeof(T).FullName, message, args);
+            SendLog(LogLevel.Error, typeof(T).FullName, message, args);
         }
 
         public void LogInformation<T>(string message, params object[] args)
         {
-            connection.SendAsync("LogInformation", typeof(T).FullName, message, args);
+            SendLog(LogLevel.Information, typeof(T).FullName, message, args);
+        }
+
+        public void LogTrace<T>(string message, params object[] args)
+        {
+            SendLog(LogLevel.Trace, typeof(T).FullName, message, args);
         }
 
         public void LogWarning<T>(string message, params object[] args)
         {
-            connection.SendAsync("LogWarning", typeof(T).FullName, message, args);
-        }
-
-        public async void Send(string user, string message)
-        {
-            if (!IsConnected())
-            {
-                return;
-            }
-            await connection.SendAsync("SendMessage", user, message);
+            SendLog(LogLevel.Warning, typeof(T).FullName, message, args);
         }
 
         public async void SetupConnection()
@@ -175,7 +178,7 @@ namespace ShortDash.Target.Services
             connection.Reconnecting += Reconnecting;
 
             connection.On<string, string>("Authenticate", Authenticate);
-            connection.On<string, string, bool>("ExecuteAction", ExecuteAction);
+            connection.On<string>("ExecuteAction", ExecuteAction);
             connection.On<string>("TargetAuthenticated", TargetAuthenticated);
         }
 
@@ -242,10 +245,31 @@ namespace ShortDash.Target.Services
             OnConnecting?.Invoke(this, null);
         }
 
-        private async void ExecuteAction(string actionTypeName, string parameters, bool toggleState)
+        private TParameterType DecryptParameters<TParameterType>(string encryptedParameters)
         {
-            logger.LogDebug($"Received execute action request: {actionTypeName}");
-            var result = await actionService.Execute(actionTypeName, parameters, toggleState);
+            if (!encryptedChannelService.TryDecrypt(serverChannelId, encryptedParameters, out var decryptedParameters))
+            {
+                return default;
+            }
+            return JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+        }
+
+        private string EncryptParameters(object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return encryptedChannelService.Encrypt(serverChannelId, data);
+        }
+
+        private async void ExecuteAction(string encryptedParameters)
+        {
+            var parameters = DecryptParameters<ExecuteActionParameters>(encryptedParameters);
+            logger.LogDebug($"Received execute action request: {parameters.ActionTypeName}");
+            if (parameters == null)
+            {
+                logger.LogError("Invalid ExecuteAction parameters");
+                return;
+            }
+            var result = await actionService.Execute(parameters.ActionTypeName, parameters.Parameters, parameters.ToggleState);
             // TODO: Send the result back to the server
         }
 
@@ -264,6 +288,18 @@ namespace ShortDash.Target.Services
             LastConnectionAttemptDateTime = DateTime.Now;
             OnReconnecting?.Invoke(this, null);
             return Task.CompletedTask;
+        }
+
+        private void SendLog(LogLevel logLevel, string categoryName, string message, object[] args)
+        {
+            var parameters = new LogParameters
+            {
+                LogLevel = logLevel,
+                Category = categoryName,
+                Message = string.Format(message, args),
+            };
+            var encryptedParameters = EncryptParameters(parameters);
+            connection.SendAsync("Log", encryptedParameters);
         }
 
         private void TargetAuthenticated(string encryptedKey)

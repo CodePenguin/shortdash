@@ -1,9 +1,10 @@
 ﻿using ShortDash.Core.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
+using System.Text.Json;
 
 namespace ShortDash.Core.Services
 {
@@ -11,7 +12,7 @@ namespace ShortDash.Core.Services
     {
         private const char CommandDelimiter = ':';
         private const string EncryptedChallengePrefix = "RSA:";
-        private readonly Dictionary<string, EncryptedChannel> channels = new Dictionary<string, EncryptedChannel>();
+        private readonly IDictionary<string, EncryptedChannel> channels = new ConcurrentDictionary<string, EncryptedChannel>();
         private readonly RSA rsa;
 
         protected EncryptedChannelService(IKeyStoreService keyStore)
@@ -31,12 +32,18 @@ namespace ShortDash.Core.Services
             channels.Remove(channelId);
         }
 
-        public string EncryptCommand(string channelId, string data)
+        public string Encrypt(string channelId, string data)
         {
             var channel = channels[channelId];
             var encryptedData = channel.Encrypt(data);
             var signature = RsaSign(encryptedData);
             return Convert.ToBase64String(encryptedData) + CommandDelimiter + Convert.ToBase64String(signature);
+        }
+
+        public string Encrypt(string channelId, object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return Encrypt(channelId, data);
         }
 
         public string ExportEncryptedKey(string channelId)
@@ -109,31 +116,41 @@ namespace ShortDash.Core.Services
             channels.Add(channelId, channel);
         }
 
-        public bool TryDecryptCommand(string channelId, string encryptedCommand, out string command)
+        public bool TryDecrypt(string channelId, string encryptedPacket, out string data)
         {
-            command = null;
+            data = null;
             try
             {
                 var channel = channels[channelId];
-                var commandParts = encryptedCommand.Split(CommandDelimiter);
-                if (commandParts.Length != 2)
+                var packetParts = encryptedPacket.Split(CommandDelimiter);
+                if (packetParts.Length != 2)
                 {
                     return false;
                 }
-                var encryptedData = Convert.FromBase64String(commandParts[0]);
-                var signature = Convert.FromBase64String(commandParts[1]);
+                var encryptedData = Convert.FromBase64String(packetParts[0]);
+                var signature = Convert.FromBase64String(packetParts[1]);
                 if (!channel.Verify(encryptedData, signature))
                 {
                     return false;
                 }
-                var data = channel.Decrypt(encryptedData);
-                command = data;
+                data = channel.Decrypt(encryptedData);
                 return true;
             }
             catch (CryptographicException)
             {
                 return false;
             }
+        }
+
+        public bool TryDecrypt<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
+        {
+            if (!TryDecrypt(channelId, encryptedParameters, out var decryptedParameters))
+            {
+                data = default;
+                return false;
+            }
+            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            return true;
         }
 
         public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse)
@@ -148,7 +165,7 @@ namespace ShortDash.Core.Services
             var isEncryptedChallenge = challenge.StartsWith(EncryptedChallengePrefix);
             if (isEncryptedChallenge)
             {
-                challenge = challenge.Substring(EncryptedChallengePrefix.Length, challenge.Length - EncryptedChallengePrefix.Length);
+                challenge = challenge[EncryptedChallengePrefix.Length..];
             }
             data = Convert.FromBase64String(challenge);
             return isEncryptedChallenge;

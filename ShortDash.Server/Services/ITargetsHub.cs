@@ -7,7 +7,7 @@ namespace ShortDash.Server.Services
     {
         Task Authenticate(string challenge, string publicKey);
 
-        Task ExecuteAction(string actionTypeName, string parameters, bool toggleState);
+        Task ExecuteAction(string encryptedParameters);
 
         Task LogDebug(string category, string message, params object[] args);
 
