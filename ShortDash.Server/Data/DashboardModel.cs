@@ -61,6 +61,8 @@ namespace ShortDash.Server.Data
 
         [Required]
         public string Name { get; set; }
+
+        public string PublicKey { get; set; }
     }
 
     public class DashboardCell

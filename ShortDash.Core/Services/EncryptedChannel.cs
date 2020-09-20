@@ -25,7 +25,7 @@ namespace ShortDash.Core.Services
         public string Decrypt(byte[] data)
         {
             using var memoryStream = new MemoryStream(data);
-            byte[] iv = new byte[16];
+            var iv = new byte[16];
             memoryStream.Read(iv, 0, aes.IV.Length);
             aes.IV = iv;
             using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);

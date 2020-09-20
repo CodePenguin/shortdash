@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Server.Components;
@@ -69,6 +70,8 @@ namespace ShortDash.Server
             services.AddBlazoredModal();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
+            services.AddTransient(typeof(IKeyStoreService<>), typeof(KeyStoreService<>));
+            services.AddSingleton(typeof(IEncryptedChannelService<TargetsHub>), typeof(TargetsHubEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));

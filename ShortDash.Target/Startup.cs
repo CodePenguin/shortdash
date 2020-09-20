@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Target.Services;
@@ -50,6 +51,8 @@ namespace ShortDash.Target
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
+            services.AddTransient(typeof(IKeyStoreService<>), typeof(KeyStoreService<>));
+            services.AddSingleton(typeof(IEncryptedChannelService<TargetHubClient>), typeof(TargetHubClientEncryptedChannelService));
             services.AddSingleton<PluginService>();
             services.AddSingleton<ActionService>();
             services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();

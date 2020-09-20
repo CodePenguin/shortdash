@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ShortDash.Core.Interfaces;
 using ShortDash.Core.Services;
 using ShortDash.Target.Shared;
 using System;
@@ -9,27 +10,27 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Target.Services
 {
-    public struct MessageArgs
-    {
-        public string Message;
-        public string User;
-    }
-
     public class TargetHubClient : IDisposable
     {
+        private readonly ActionService actionService;
         private readonly ConnectionSettings connectionSettings;
+        private readonly IEncryptedChannelService<TargetHubClient> encryptedChannelService;
+        private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
-        private ActionService actionService;
+        private readonly string serverChannelId = typeof(TargetHubClient).FullName;
+        private readonly IKeyStoreService serverKeyStore;
         private bool connecting;
         private HubConnection connection;
         private bool disposed;
-        private ILogger<TargetHubClient> logger;
+        private string pendingServerKey;
 
-        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, ActionService actionService, IConfiguration configuration)
+        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IEncryptedChannelService<TargetHubClient> encryptedChannelService, IKeyStoreService<TargetHubClient> serverKeyStore, ActionService actionService, IConfiguration configuration)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
+            this.encryptedChannelService = encryptedChannelService;
             this.actionService = actionService;
+            this.serverKeyStore = serverKeyStore;
             connectionSettings = new ConnectionSettings();
 
             configuration.GetSection(ConnectionSettings.Key).Bind(connectionSettings);
@@ -48,18 +49,13 @@ namespace ShortDash.Target.Services
 
         public event EventHandler OnConnecting;
 
-        public event EventHandler<MessageArgs> OnReceiveMessage;
-
         public event EventHandler OnReconnected;
 
         public event EventHandler OnReconnecting;
 
         public DateTime LastConnectionAttemptDateTime { get; private set; }
-
         public DateTime LastConnectionDateTime { get; private set; }
-
         public string ServerUrl { get; private set; }
-
         public string TargetId { get; private set; }
 
         public async Task ConnectAsync(CancellationToken cancellationToken)
@@ -178,8 +174,9 @@ namespace ShortDash.Target.Services
             connection.Reconnected += Reconnected;
             connection.Reconnecting += Reconnecting;
 
-            connection.On<string, string>("ReceiveMessage", ReceivedMessage);
+            connection.On<string, string>("Authenticate", Authenticate);
             connection.On<string, string, bool>("ExecuteAction", ExecuteAction);
+            connection.On<string>("TargetAuthenticated", TargetAuthenticated);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -189,6 +186,34 @@ namespace ShortDash.Target.Services
                 _ = connection.DisposeAsync();
             }
             disposed = true;
+        }
+
+        private void Authenticate(string challenge, string serverPublicKey)
+        {
+            logger.LogDebug("Received authentication request...");
+            var isNewRegistration = !string.IsNullOrEmpty(serverPublicKey);
+            if (!serverKeyStore.HasKey())
+            {
+                if (serverPublicKey == null)
+                {
+                    logger.LogWarning("The server expected this target to have been registered already.");
+                    return;
+                }
+                pendingServerKey = serverPublicKey;
+            }
+            else if (!string.IsNullOrEmpty(serverPublicKey))
+            {
+                logger.LogWarning("The server attempted to authenticate as new target.");
+                return;
+            }
+            var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverPublicKey ?? serverKeyStore.RetrieveKey());
+            if (string.IsNullOrEmpty(challengeResponse))
+            {
+                logger.LogError("The authentication request could not be verified.");
+                return;
+            }
+            logger.LogDebug("Sending authentication response...");
+            connection.SendAsync("Authenticate", challengeResponse, isNewRegistration ? encryptedChannelService.ExportPublicKey() : null);
         }
 
         private Task Closed(Exception error)
@@ -203,10 +228,15 @@ namespace ShortDash.Target.Services
             logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
             OnConnected?.Invoke(this, null);
+            if (!serverKeyStore.HasKey())
+            {
+                connection.SendAsync("Register", encryptedChannelService.ExportPublicKey());
+            }
         }
 
         private void Connecting()
         {
+            encryptedChannelService.CloseChannel(serverChannelId);
             logger.LogDebug("Connecting to server...");
             LastConnectionAttemptDateTime = DateTime.Now;
             OnConnecting?.Invoke(this, null);
@@ -219,12 +249,6 @@ namespace ShortDash.Target.Services
             // TODO: Send the result back to the server
         }
 
-        private void ReceivedMessage(string user, string message)
-        {
-            logger.LogDebug($"Received Message from {user}: {message}");
-            OnReceiveMessage?.Invoke(this, new MessageArgs { User = user, Message = message });
-        }
-
         private Task Reconnected(string message)
         {
             logger.LogDebug("Reconnected!");
@@ -235,10 +259,22 @@ namespace ShortDash.Target.Services
 
         private Task Reconnecting(Exception error)
         {
+            encryptedChannelService.CloseChannel(serverChannelId);
             logger.LogDebug("Reconnecting...");
             LastConnectionAttemptDateTime = DateTime.Now;
             OnReconnecting?.Invoke(this, null);
             return Task.CompletedTask;
+        }
+
+        private void TargetAuthenticated(string encryptedKey)
+        {
+            if (!string.IsNullOrEmpty(pendingServerKey))
+            {
+                serverKeyStore.StoreKey(pendingServerKey);
+                pendingServerKey = null;
+            }
+            logger.LogDebug("Received session key from server.");
+            encryptedChannelService.OpenChannel(serverChannelId, serverKeyStore.RetrieveKey(false), encryptedKey);
         }
     }
 }
