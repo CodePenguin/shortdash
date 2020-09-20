@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ShortDash.Core.Plugins" Version="0.0.8" />
+    <PackageReference Include="ShortDash.Core.Plugins" Version="0.0.9" />
   </ItemGroup>
 
 </Project>
