@@ -5,7 +5,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Version>0.0.1</Version>
     <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
-    <Authors>CodePenguin</Authors>
+    <Authors>David Lambert</Authors>
     <Company>ShortDash</Company>
     <RepositoryUrl>https://github.com/CodePenguin/shortdash</RepositoryUrl>
   </PropertyGroup>
