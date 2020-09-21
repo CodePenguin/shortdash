@@ -4,6 +4,13 @@
     <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>
     <h3>Actions</h3>
 
+    @if (DashboardActions.Count == 0)
+    {
+        <div class="alert alert-info">
+            <span class="fas fa-info-circle"></span> You do not have any actions yet.  Click "Add" to create a new one.
+        </div>
+    }
+
     <div class="grid container-fluid">
         <div class="row text-center">
             @foreach (var action in DashboardActions)

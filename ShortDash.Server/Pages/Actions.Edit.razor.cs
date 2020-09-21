@@ -31,6 +31,7 @@ namespace ShortDash.Server.Pages
         protected EditContext ActionEditContext { get; set; }
 
         protected DashboardAction DashboardAction { get; set; }
+        protected bool IsLoading => ActionEditContext == null;
 
         protected object Parameters { get; set; }
 
@@ -76,6 +77,8 @@ namespace ShortDash.Server.Pages
 
         protected override async Task OnParametersSetAsync()
         {
+            ActionEditContext = null;
+            ParametersEditContext = null;
             if (DashboardActionId > 0)
             {
                 await LoadDashboardAction();
@@ -84,6 +87,7 @@ namespace ShortDash.Server.Pages
             {
                 await Task.Run(() => NewDashboardAction());
             }
+            ActionEditContext = new EditContext(DashboardAction);
         }
 
         protected async void SaveChanges()
@@ -129,7 +133,6 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
-            ActionEditContext = new EditContext(DashboardAction);
 
             RefreshParameters();
         }
@@ -137,7 +140,6 @@ namespace ShortDash.Server.Pages
         private void NewDashboardAction()
         {
             DashboardAction = new DashboardAction { DashboardActionTargetId = DashboardActionTarget.ServerTargetId, BackgroundColor = Color.Black };
-            ActionEditContext = new EditContext(DashboardAction);
 
             ActionAttribute = null;
             Parameters = null;
