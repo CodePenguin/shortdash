@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services
@@ -32,7 +33,7 @@ namespace ShortDash.Server.Services
         {
             var targetId = GetTargetId();
             logger.LogDebug($"Received authentication response for Target {targetId}...");
-            var target = await dashboardService.GetDashboardActionTargetAsync(int.Parse(targetId));
+            var target = await dashboardService.GetDashboardActionTargetAsync(targetId);
             // Verify target is known
             if (target == null)
             {
@@ -93,7 +94,7 @@ namespace ShortDash.Server.Services
         {
             await base.OnConnectedAsync();
             var targetId = GetTargetId();
-            var target = (targetId == null) ? null : await dashboardService.GetDashboardActionTargetAsync(int.Parse(targetId));
+            var target = (targetId == null) ? null : await dashboardService.GetDashboardActionTargetAsync(targetId);
             if (target == null)
             {
                 logger.LogWarning($"Unknown target attempted connection.");
@@ -128,7 +129,7 @@ namespace ShortDash.Server.Services
         {
             var httpContext = Context.GetHttpContext();
             var targetId = httpContext.Request.Query["targetId"].FirstOrDefault();
-            return (targetId != null) && int.TryParse(targetId, out _) ? targetId : string.Empty;
+            return (targetId != null) && Regex.IsMatch(targetId, "[A-Z0-9]{6}") ? targetId : null;
         }
     }
 }

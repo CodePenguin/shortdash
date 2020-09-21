@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class ActionTargetInputSelect : InputBase<int>
+    public class ActionTargetInputSelect : InputBase<string>
     {
         [Parameter]
         public EventCallback<string> OptionSelected { get; set; }
@@ -18,7 +18,7 @@ namespace ShortDash.Server.Components
         [Inject]
         private DashboardService DashboardService { get; set; }
 
-        private List<KeyValuePair<int, string>> Options { get; } = new List<KeyValuePair<int, string>>();
+        private List<KeyValuePair<string, string>> Options { get; } = new List<KeyValuePair<string, string>>();
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
@@ -50,7 +50,7 @@ namespace ShortDash.Server.Components
             Options.Clear();
             foreach (var target in targets)
             {
-                Options.Add(new KeyValuePair<int, string>(target.DashboardActionTargetId, target.Name));
+                Options.Add(new KeyValuePair<string, string>(target.DashboardActionTargetId, target.Name));
             }
             Options.Sort((a, b) => a.Value.CompareTo(b.Value));
             if (string.IsNullOrWhiteSpace(CurrentValueAsString))
@@ -60,16 +60,16 @@ namespace ShortDash.Server.Components
             }
         }
 
-        protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
+        protected override bool TryParseValueFromString(string value, out string result, out string validationErrorMessage)
         {
-            if (!BindConverter.TryConvertToInt(value, CultureInfo.InvariantCulture, out var dashboardId) || Options.First(p => p.Key == dashboardId).Key == 0)
+            if (Options.FirstOrDefault(p => p.Key.Equals(value)).Equals(default(KeyValuePair<string, string>)))
             {
                 result = default;
                 validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";
                 return false;
             }
 
-            result = dashboardId;
+            result = value;
             validationErrorMessage = null;
             return true;
         }

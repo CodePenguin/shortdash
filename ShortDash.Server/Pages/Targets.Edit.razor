@@ -1,32 +1,46 @@
-﻿@page "/targets/{DashboardActionTargetId:int}"
+﻿@page "/targets/{DashboardActionTargetId}"
 @page "/targets/new"
 
 <div class="page">
-    @if (DashboardActionTarget.DashboardActionTargetId == 0)
+    @if (IsLoading)
     {
-        <h3>New Target</h3>
+        <PageLoadingComponent />
     }
     else
     {
-        <h3>@DashboardActionTarget.Name (@DashboardActionTargetId)</h3>
-    }
-
-    <EditForm Model="DashboardActionTarget">
-        <DataAnnotationsValidator />
-        <div class="form-group">
-            <label for="DashboardName">Name</label>
-            <InputText @bind-Value="DashboardActionTarget.Name" class="form-control" id="DashboardName" />
-            <ValidationMessage For="() => DashboardActionTarget.Name" />
-        </div>
-
-        @if (DashboardActionTargetId > 1)
+        @if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
         {
-            <button class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+            <h3>New Target</h3>
+        }
+        else
+        {
+            <h3>@DashboardActionTarget.Name</h3>
         }
 
-        <div class="float-right">
-            <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
-            <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
-        </div>
-    </EditForm>
+        <EditForm EditContext="TargetEditContext">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label for="DashboardName">Name</label>
+                <InputText @bind-Value="DashboardActionTarget.Name" class="form-control" id="DashboardName" />
+                <ValidationMessage For="() => DashboardActionTarget.Name" />
+            </div>
+            <div class="form-group disabled">
+                <label for="ActionType">Target ID</label>
+                @if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
+                {
+                    <div class="alert alert-info"><span class="fas fa-info-circle"></span> A Target ID will be generated once this target is saved.</div>
+                }
+                else
+                {
+                    <input type="text" class="form-control" value="@DashboardActionTarget.DashboardActionTargetId" disabled />
+                }
+            </div>
+            <button class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+
+            <div class="float-right">
+                <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+                <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+            </div>
+        </EditForm>
+    }
 </div>

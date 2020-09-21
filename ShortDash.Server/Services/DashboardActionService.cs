@@ -29,9 +29,9 @@ namespace ShortDash.Server.Services
         public Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
             // Forward targeted actions to the specific target
-            if (dashboardAction.DashboardActionTargetId > 1)
+            if (!dashboardAction.DashboardActionTargetId.Equals(DashboardActionTarget.ServerTargetId))
             {
-                var targetId = dashboardAction.DashboardActionTargetId.ToString();
+                var targetId = dashboardAction.DashboardActionTargetId;
                 logger.LogDebug($"Forwarding action to Target {targetId}: {dashboardAction.ActionTypeName}");
                 var parameters = new ExecuteActionParameters
                 {
@@ -61,7 +61,7 @@ namespace ShortDash.Server.Services
         private string EncryptParameters(string targetId, object parameters)
         {
             var data = JsonSerializer.Serialize(parameters);
-            return encryptedChannelService.Encrypt(targetId.ToString(), data);
+            return encryptedChannelService.Encrypt(targetId, data);
         }
 
         private Task ExecuteGroupAction(DashboardAction dashboardAction)

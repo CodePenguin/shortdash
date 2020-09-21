@@ -29,7 +29,7 @@ namespace ShortDash.Server.Pages
         {
             var list = await DashboardService.GetDashboardActionTargetsAsync();
             DashboardActionTargets.Clear();
-            DashboardActionTargets.AddRange(list.OrderBy(o => o.Name).ToList());
+            DashboardActionTargets.AddRange(list.Where(o => !o.DashboardActionTargetId.Equals(DashboardActionTarget.ServerTargetId)).OrderBy(o => o.Name).ToList());
         }
     }
 }

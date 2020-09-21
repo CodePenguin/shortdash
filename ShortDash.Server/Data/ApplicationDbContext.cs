@@ -32,7 +32,9 @@ namespace ShortDash.Server.Data
                 .HasForeignKey(f => f.DashboardActionChildId);
 
             modelBuilder.Entity<Dashboard>().HasData(SeedDashboards());
+
             modelBuilder.Entity<DashboardActionTarget>().HasData(SeedDashboardActionTargets());
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -40,7 +42,12 @@ namespace ShortDash.Server.Data
         {
             return new List<DashboardActionTarget>
             {
-                new DashboardActionTarget() { DashboardActionTargetId = 1, Name = "ShortDash Server" }
+                new DashboardActionTarget()
+                {
+                    DashboardActionTargetId = DashboardActionTarget.ServerTargetId,
+                    Name = "ShortDash Server",
+                    PublicKey = "----"
+                }
             };
         }
 
@@ -48,7 +55,11 @@ namespace ShortDash.Server.Data
         {
             return new List<Dashboard>
             {
-                new Dashboard { DashboardId = 1, Name = "Main" }
+                new Dashboard
+                {
+                    DashboardId = 1,
+                    Name = "Main"
+                }
             };
         }
     }

@@ -2,17 +2,38 @@
 
 <div class="page text-dark">
     <button @onclick="AddTarget" class="btn btn-outline-primary float-right">Add</button>
-    <h3>Actions</h3>
+    <h3><span class="fas fa-crosshairs"></span> Targets</h3>
 
-    <ul>
-        @foreach (var target in DashboardActionTargets)
-        {
-            var link = $"targets/{target.DashboardActionTargetId}";
-            <li>
-                <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                    @target.Name (@target.DashboardActionTargetId)
-                </NavLink>
-            </li>
-        }
-    </ul>
+    @if (DashboardActionTargets.Count == 0)
+    {
+        <div class="alert alert-info">
+            <span class="fas fa-info-circle"></span> You do not have any targets yet.  Click "Add" to create a new one.
+        </div>
+    }
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            @foreach (var target in DashboardActionTargets)
+            {
+                var link = $"targets/{target.DashboardActionTargetId}";
+                <div class="col-lg-3">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                                @target.Name
+                            </NavLink>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-text">
+                                Target ID: @target.DashboardActionTargetId
+                            </div>
+                            <div class="card-text">
+                                Last Connection: N/A
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>

@@ -136,7 +136,7 @@ namespace ShortDash.Server.Pages
 
         private void NewDashboardAction()
         {
-            DashboardAction = new DashboardAction { DashboardActionTargetId = 1, BackgroundColor = Color.Black };
+            DashboardAction = new DashboardAction { DashboardActionTargetId = DashboardActionTarget.ServerTargetId, BackgroundColor = Color.Black };
             ActionEditContext = new EditContext(DashboardAction);
 
             ActionAttribute = null;

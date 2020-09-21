@@ -42,7 +42,7 @@ namespace ShortDash.Server.Data
 
         public int DashboardActionId { get; set; }
         public virtual DashboardActionTarget DashboardActionTarget { get; set; }
-        public int DashboardActionTargetId { get; set; }
+        public string DashboardActionTargetId { get; set; }
         public virtual List<DashboardSubAction> DashboardSubActionChildren { get; set; } = new List<DashboardSubAction>();
 
         public virtual List<DashboardSubAction> DashboardSubActionParents { get; set; } = new List<DashboardSubAction>();
@@ -57,7 +57,9 @@ namespace ShortDash.Server.Data
 
     public class DashboardActionTarget
     {
-        public int DashboardActionTargetId { get; set; }
+        public const string ServerTargetId = "000000";
+
+        public string DashboardActionTargetId { get; set; }
 
         [Required]
         public string Name { get; set; }

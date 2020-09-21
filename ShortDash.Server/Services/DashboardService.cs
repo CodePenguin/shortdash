@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using ShortDash.Server.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +26,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardActionTarget> AddDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
+            dashboardActionTarget.DashboardActionTargetId = GenerateDashboardActionTargetId();
             dbContext.Add(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
             return dashboardActionTarget;
@@ -80,10 +83,10 @@ namespace ShortDash.Server.Services
                 .ToListAsync();
         }
 
-        public async Task<DashboardActionTarget> GetDashboardActionTargetAsync(int dashboardActionTargetId)
+        public async Task<DashboardActionTarget> GetDashboardActionTargetAsync(string dashboardActionTargetId)
         {
             return await dbContext.DashboardActionTargets
-                .Where(a => a.DashboardActionTargetId == dashboardActionTargetId)
+                .Where(t => t.DashboardActionTargetId == dashboardActionTargetId)
                 .FirstOrDefaultAsync();
         }
 
@@ -142,6 +145,28 @@ namespace ShortDash.Server.Services
             dbContext.Update(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
+        }
+
+        private string GenerateDashboardActionTargetId()
+        {
+            const string characterSpace = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var r = new Random();
+            var attempts = 1000;
+            while (attempts > 0)
+            {
+                var targetId = "";
+                for (var i = 0; i < 6; i++)
+                {
+                    targetId += characterSpace[r.Next(characterSpace.Length - 1)];
+                }
+                var target = dbContext.DashboardActionTargets.Where(t => t.DashboardActionTargetId == targetId).FirstOrDefault();
+                if (target == null)
+                {
+                    return targetId;
+                }
+                attempts -= 1;
+            }
+            throw new Exception("Failed to generate new Target ID");
         }
     }
 }

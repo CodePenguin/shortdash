@@ -160,7 +160,7 @@ namespace ShortDash.Target.Services
 
             if (string.IsNullOrEmpty(TargetId) && string.IsNullOrEmpty(ServerUrl))
             {
-                logger.LogDebug("Server connection has not been initialized.");
+                logger.LogWarning("Server connection has not been initialized.");
                 return;
             }
 
@@ -186,7 +186,7 @@ namespace ShortDash.Target.Services
         {
             if (!disposed && disposing)
             {
-                _ = connection.DisposeAsync();
+                _ = connection?.DisposeAsync();
             }
             disposed = true;
         }
