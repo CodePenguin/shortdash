@@ -32,14 +32,32 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <div id="components-reconnect-modal">
+        <div class="modal-backdrop fade show" data-backdrop="static"></div>
+        <div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <h3>Reconnecting...</h3>
+                        <div class="spinner-grow"></div>
+                        <div class="reconnect-datetime text-muted mt-2">
+                            Last retry: <span id="retryDateTime">Pending...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function (event) {
             Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
                 var pending = false;
-                setInterval(function () {
+                var retryConnection = function () {
                     if (pending) return;
                     pending = true;
+                    var retrySpan = document.getElementById("retryDateTime");
+                    retrySpan.innerText = (new Date()).toLocaleString();
                     var http = new XMLHttpRequest();
                     http.open("HEAD", "/");
                     http.onreadystatechange = function () {
@@ -49,7 +67,9 @@
                         pending = false;
                     };
                     http.send();
-                }, 5000);
+                };
+                retryConnection();
+                setInterval(retryConnection, 5000);
             }
         });
     </script>

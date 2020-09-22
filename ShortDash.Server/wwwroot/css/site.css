@@ -52,8 +52,19 @@ app {
     top: 0.5rem;
 }
 
-/* Dashboard Styles */
+#components-reconnect-modal,
+#components-reconnect-modal .reconnect-datetime {
+    display: none;
+}
 
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected,
+#components-reconnect-modal.components-reconnect-rejected .reconnect-datetime {
+    display: block;
+}
+
+/* Dashboard Styles */
 .dashboard {
     background-color: #000000;
     height: 100%;
