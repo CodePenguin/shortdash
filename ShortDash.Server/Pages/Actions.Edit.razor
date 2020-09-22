@@ -46,7 +46,12 @@
                 </div>
                 <div class="form-group">
                     <label for="Icon">Icon</label>
-                    <InputText @bind-Value="DashboardAction.Icon" class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
+                    <div class="input-group">
+                        <InputText @bind-Value="DashboardAction.Icon" class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" @onclick="SelectIcon" @onclick:preventDefault><span class="fas fa-search"></span></button>
+                        </div>
+                    </div>
                     <small>An optional image to be displayed for this action.</small>
                     <ValidationMessage For="() => DashboardAction.Icon" />
                 </div>

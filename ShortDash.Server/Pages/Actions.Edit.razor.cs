@@ -130,6 +130,17 @@ namespace ShortDash.Server.Pages
             NavigationManagerService.NavigateTo($"/actions");
         }
 
+        protected async void SelectIcon()
+        {
+            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.Icon, DashboardAction.BackgroundColor ?? Color.Black);
+            if (result.Cancelled)
+            {
+                return;
+            }
+            DashboardAction.Icon = (string)result.Data;
+            StateHasChanged();
+        }
+
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
