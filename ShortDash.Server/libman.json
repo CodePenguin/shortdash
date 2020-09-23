@@ -17,6 +17,13 @@
         "css/bootstrap.min.css",
         "js/bootstrap.min.js"
       ]
+    },
+    {
+      "library": "jsencrypt@2.3.1",
+      "destination": "wwwroot/lib/jsencrypt/",
+      "files": [
+        "jsencrypt.min.js"
+      ]
     }
   ]
 }

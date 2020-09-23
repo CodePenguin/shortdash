@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authentication;
 @using Microsoft.AspNetCore.Authentication.Cookies;
 @using Microsoft.AspNetCore.Http;
+@using System.Web;
 
 <div class="page">
     <h1>Hello, world!</h1>
@@ -18,7 +19,13 @@
         </Authorized>
         <NotAuthorized>
             Click login to authorize.
-            <a href="/login" target="_top">Login</a>
+            <a href="/login?AccessToken=@HttpUtility.UrlEncode(AccessToken)" target="_top">Login</a>
+            <input type="password" @bind-value="AccessToken" @bind-value:event="oninput" />
         </NotAuthorized>
     </AuthorizeView>
 </div>
+
+@code {
+
+    public string AccessToken { get; set; }
+}
