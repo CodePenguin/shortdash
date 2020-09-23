@@ -1,7 +1,24 @@
 ﻿@page "/"
 
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using Microsoft.AspNetCore.Http;
+
 <div class="page">
     <h1>Hello, world!</h1>
 
     Welcome to your new app.
+
+    <br />
+    <AuthorizeView>
+        <Authorized>
+            Congratulations @context.User.Identity.Name!
+            <a href="/logout" target="_top">Logout</a>
+        </Authorized>
+        <NotAuthorized>
+            Click login to authorize.
+            <a href="/login" target="_top">Login</a>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>

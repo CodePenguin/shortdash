@@ -11,30 +11,38 @@
                     <span class="fas fa-home" aria-hidden="true"></span> Home
                 </NavLink>
             </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
-                    <span class="fas fa-puzzle-piece" aria-hidden="true"></span> Actions
-                </NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">
-                    <span class="fas fa-crosshairs" aria-hidden="true"></span> Targets
-                </NavLink>
-            </li>
-            @foreach (var dashboard in Dashboards)
-            {
-                var link = $"dashboard/{dashboard.DashboardId}";
+            <AuthorizeView Policy="EditActions">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                        <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
+                    <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-puzzle-piece" aria-hidden="true"></span> Actions
                     </NavLink>
                 </li>
-            }
-            <li class="nav-item">
-                <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
-                    <span class="fas fa-plus" aria-hidden="true"></span> New Dashboard
-                </a>
-            </li>
+            </AuthorizeView>
+            <AuthorizeView Policy="EditTargets">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-crosshairs" aria-hidden="true"></span> Targets
+                    </NavLink>
+                </li>
+            </AuthorizeView>
+            <AuthorizeView Policy="ViewDashboards">
+                @foreach (var dashboard in Dashboards)
+                {
+                    var link = $"dashboard/{dashboard.DashboardId}";
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                            <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
+                        </NavLink>
+                    </li>
+                }
+            </AuthorizeView>
+            <AuthorizeView Policy="EditDashboards">
+                <li class="nav-item">
+                    <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
+                        <span class="fas fa-plus" aria-hidden="true"></span> New Dashboard
+                    </a>
+                </li>
+            </AuthorizeView>
         </ul>
     </div>
 </nav>

@@ -1,5 +1,7 @@
 ﻿@page "/actions/{DashboardActionId:int}"
 @page "/actions/new"
+@attribute [Authorize(Policy = "EditActions")]
+
 @using ShortDash.Server.Actions
 
 <div class="page">

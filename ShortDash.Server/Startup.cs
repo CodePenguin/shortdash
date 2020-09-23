@@ -1,6 +1,8 @@
 using Blazored.Modal;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +48,10 @@ namespace ShortDash.Server
 
             app.UseRouting();
 
+            app.UseCookiePolicy();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -64,10 +70,29 @@ namespace ShortDash.Server
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
+            });
+            services.AddAuthentication(
+                CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy("EditActions", policy => policy.RequireAuthenticatedUser());
+                config.AddPolicy("EditDashboards", policy => policy.RequireAuthenticatedUser());
+                config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
+                config.AddPolicy("EditTargets", policy => policy.RequireAuthenticatedUser());
+            });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();
             services.AddBlazoredModal();
+            services.AddHttpContextAccessor();
+            services.AddScoped<HttpContextAccessor>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddTransient(typeof(IKeyStoreService<>), typeof(KeyStoreService<>));
