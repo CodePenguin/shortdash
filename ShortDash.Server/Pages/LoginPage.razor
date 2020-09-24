@@ -2,6 +2,8 @@
 @using ShortDash.Core.Interfaces
 @using ShortDash.Server.Services
 @using System.Security.Cryptography
+@using System.ComponentModel.DataAnnotations
+
 @inject IJSRuntime JSRuntime;
 
 <h3>LoginPage</h3>
@@ -10,8 +12,21 @@
 @PublicKey
 </textarea>
 
-<input type="text" id="AccessTokenText" />
-<button @onclick="DecryptIt">Click</button>
+<input type="text" id="AccessTokenText" value="You can dance if you want to." />
+<button class="btn btn-secondary" @onclick="DecryptIt">Click</button>
+
+<CascadingSecureContext>
+    <EditForm EditContext="SecureEditContext">
+        <DataAnnotationsValidator />
+        <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
+        <ValidationMessage For="() => Model.SecureText" />
+        <button class="btn btn-primary" @onclick="SaveSecureChanges">Save</button>
+    </EditForm>
+</CascadingSecureContext>
+
+<p>
+    Secure Text: @Model.SecureText
+</p>
 
 <p>
     @CipherText
@@ -19,6 +34,10 @@
 
 <p>
     @Message
+</p>
+
+<p>
+    @OtopKey
 </p>
 
 @code {
@@ -34,7 +53,12 @@
 
     public string CipherText { get; set; } = "N/A";
 
+    public string OtopKey { get; set; }
+
     private string x;
+
+    protected LoginModel Model { get; set; }
+    protected EditContext SecureEditContext { get; set; }
 
     protected override void OnInitialized()
     {
@@ -45,10 +69,35 @@
         x = keyStore.RetrieveKey(false);
 
         PublicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
+
+        // var key = KeyGeneration.GenerateRandomKey(20);
+        // OtopKey = Base32Encoding.ToString(key);
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        Model = new LoginModel { SecureText = "All your base are belong to us" };
+        SecureEditContext = new EditContext(Model);
+        /*
+        using var rsa = RSA.Create();
+        rsa.FromXmlString(encryptedChannelService.ExportPublicKey());
+        var data = rsa.ExportSubjectPublicKeyInfo();
+
+        x = keyStore.RetrieveKey(false);
+
+        PublicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
+
+        var key = KeyGeneration.GenerateRandomKey(20);
+        OtopKey = Base32Encoding.ToString(key);
+        */
+
     }
 
     public async void DecryptIt()
     {
+        Console.WriteLine("DecryptIt");
+
         var value = await JSRuntime.InvokeAsync<string>("encrypt", PublicKey);
         CipherText = value;
 
@@ -58,7 +107,25 @@
         var message = System.Text.Encoding.UTF8.GetString(decryptedBytes);
 
         Message = message;
+
         StateHasChanged();
+    }
+
+    public void SaveSecureChanges()
+    {
+        Console.WriteLine("SaveSecureChanges");
+        if (!SecureEditContext.Validate())
+        {
+            Console.WriteLine("Failed Validation");
+            return;
+        }
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(Model));
+    }
+
+    public class LoginModel
+    {
+        [Required]
+        public string SecureText { get; set; }
     }
 
 }
