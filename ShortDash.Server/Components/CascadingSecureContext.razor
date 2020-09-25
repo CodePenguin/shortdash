@@ -1,5 +1,12 @@
 ﻿<CascadingValue Value="@ServerPublicKey" Name="ServerPublicKey">
     <CascadingValue Value="@ClientPublicKey" Name="ClientPublicKey">
-        @ChildContent
+        @if (!IsInitialized)
+        {
+            <PageLoadingComponent />
+        }
+        else
+        {
+            @ChildContent
+        }
     </CascadingValue>
 </CascadingValue>

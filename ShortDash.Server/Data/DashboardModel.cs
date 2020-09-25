@@ -7,6 +7,11 @@ using System.Drawing;
 
 namespace ShortDash.Server.Data
 {
+    public class AccessCode
+    {
+        public string SecureData { get; set; }
+    }
+
     public class Dashboard
     {
         [NotMapped]

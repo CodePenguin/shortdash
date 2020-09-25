@@ -8,21 +8,15 @@
 
 <h3>LoginPage</h3>
 
-<textarea rows="10">
-@PublicKey
-</textarea>
-
 <input type="text" id="AccessTokenText" value="You can dance if you want to." />
 <button class="btn btn-secondary" @onclick="DecryptIt">Click</button>
 
-<CascadingSecureContext>
-    <EditForm EditContext="SecureEditContext">
-        <DataAnnotationsValidator />
-        <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
-        <ValidationMessage For="() => Model.SecureText" />
-        <button class="btn btn-primary" @onclick="SaveSecureChanges">Save</button>
-    </EditForm>
-</CascadingSecureContext>
+<EditForm EditContext="SecureEditContext">
+    <DataAnnotationsValidator />
+    <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
+    <ValidationMessage For="() => Model.SecureText" />
+    <button class="btn btn-primary" @onclick="SaveSecureChanges">Save</button>
+</EditForm>
 
 <p>
     Secure Text: @Model.SecureText
@@ -47,31 +41,17 @@
     [Inject]
     public IKeyStoreService<TargetsHubEncryptedChannelService> keyStore { get; set; }
 
-    public string PublicKey { get; set; }
-
     public string Message { get; set; } = "N/A";
 
     public string CipherText { get; set; } = "N/A";
 
     public string OtopKey { get; set; }
 
-    private string x;
-
     protected LoginModel Model { get; set; }
     protected EditContext SecureEditContext { get; set; }
 
     protected override void OnInitialized()
     {
-        using var rsa = RSA.Create();
-        rsa.FromXmlString(encryptedChannelService.ExportPublicKey());
-        var data = rsa.ExportSubjectPublicKeyInfo();
-
-        x = keyStore.RetrieveKey(false);
-
-        PublicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
-
-        // var key = KeyGeneration.GenerateRandomKey(20);
-        // OtopKey = Base32Encoding.ToString(key);
 
     }
 
@@ -98,11 +78,14 @@
     {
         Console.WriteLine("DecryptIt");
 
-        var value = await JSRuntime.InvokeAsync<string>("encrypt", PublicKey);
-        CipherText = value;
-
         using var rsa = RSA.Create();
         rsa.FromXmlString(keyStore.RetrieveKey(false));
+        var data = rsa.ExportSubjectPublicKeyInfo();
+        var publicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
+
+        var value = await JSRuntime.InvokeAsync<string>("encrypt", publicKey);
+        CipherText = value;
+
         var decryptedBytes = rsa.Decrypt(Convert.FromBase64String(value), RSAEncryptionPadding.Pkcs1);
         var message = System.Text.Encoding.UTF8.GetString(decryptedBytes);
 

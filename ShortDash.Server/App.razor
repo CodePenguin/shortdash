@@ -1,22 +1,24 @@
 ﻿<CascadingAuthenticationState>
-    <CascadingBlazoredModal UseCustomLayout="true">
-        <Router AppAssembly="@typeof(Program).Assembly">
-            <Found Context="routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                    <NotAuthorized>
+    <CascadingSecureContext>
+        <CascadingBlazoredModal UseCustomLayout="true">
+            <Router AppAssembly="@typeof(Program).Assembly">
+                <Found Context="routeData">
+                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                        <NotAuthorized>
+                            <div class="page">
+                                <div class="alert alert-warning">It does not look like you can access this.</div>
+                            </div>
+                        </NotAuthorized>
+                    </AuthorizeRouteView>
+                </Found>
+                <NotFound>
+                    <LayoutView Layout="@typeof(MainLayout)">
                         <div class="page">
-                            <div class="alert alert-warning">It does not look like you can access this.</div>
+                            <div class="alert alert-warning">It does not look like there is anything here.</div>
                         </div>
-                    </NotAuthorized>
-                </AuthorizeRouteView>
-            </Found>
-            <NotFound>
-                <LayoutView Layout="@typeof(MainLayout)">
-                    <div class="page">
-                        <div class="alert alert-warning">It does not look like there is anything here.</div>
-                    </div>
-                </LayoutView>
-            </NotFound>
-        </Router>
-    </CascadingBlazoredModal>
+                    </LayoutView>
+                </NotFound>
+            </Router>
+        </CascadingBlazoredModal>
+    </CascadingSecureContext>
 </CascadingAuthenticationState>

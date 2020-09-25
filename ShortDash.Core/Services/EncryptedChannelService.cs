@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace ShortDash.Core.Services
@@ -110,9 +111,11 @@ namespace ShortDash.Core.Services
         public void OpenChannel(string channelId, string receiverPublicKeyXml, string encryptedKey)
         {
             var encryptedKeyBytes = Convert.FromBase64String(encryptedKey);
-            var decryptedKey = rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.Pkcs1);
+            var decryptedBytes = rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.Pkcs1);
+            var base64Key = Encoding.UTF8.GetString(decryptedBytes);
+            var keyBytes = Convert.FromBase64String(base64Key);
             var channel = new EncryptedChannel(receiverPublicKeyXml);
-            channel.ImportKey(decryptedKey);
+            channel.ImportKey(keyBytes);
             channels.Add(channelId, channel);
         }
 
