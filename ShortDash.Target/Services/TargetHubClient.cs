@@ -247,7 +247,7 @@ namespace ShortDash.Target.Services
 
         private TParameterType DecryptParameters<TParameterType>(string encryptedParameters)
         {
-            if (!encryptedChannelService.TryDecrypt(serverChannelId, encryptedParameters, out var decryptedParameters))
+            if (!encryptedChannelService.TryDecryptSigned(serverChannelId, encryptedParameters, out var decryptedParameters))
             {
                 return default;
             }
@@ -257,7 +257,7 @@ namespace ShortDash.Target.Services
         private string EncryptParameters(object parameters)
         {
             var data = JsonSerializer.Serialize(parameters);
-            return encryptedChannelService.Encrypt(serverChannelId, data);
+            return encryptedChannelService.EncryptSigned(serverChannelId, data);
         }
 
         private async void ExecuteAction(string encryptedParameters)

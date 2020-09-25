@@ -72,7 +72,7 @@ namespace ShortDash.Server.Services
 
         public Task Log(string encryptedParameters)
         {
-            if (!encryptedChannelService.TryDecrypt<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
+            if (!encryptedChannelService.TryDecryptSigned<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
             {
                 return default;
             }

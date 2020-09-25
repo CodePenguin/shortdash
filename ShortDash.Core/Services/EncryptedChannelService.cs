@@ -33,18 +33,31 @@ namespace ShortDash.Core.Services
             channels.Remove(channelId);
         }
 
+        public string Encrypt(string channelId, object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return Encrypt(channelId, data);
+        }
+
         public string Encrypt(string channelId, string data)
+        {
+            var channel = channels[channelId];
+            var encryptedData = channel.Encrypt(data);
+            return Convert.ToBase64String(encryptedData);
+        }
+
+        public string EncryptSigned(string channelId, object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return EncryptSigned(channelId, data);
+        }
+
+        public string EncryptSigned(string channelId, string data)
         {
             var channel = channels[channelId];
             var encryptedData = channel.Encrypt(data);
             var signature = RsaSign(encryptedData);
             return Convert.ToBase64String(encryptedData) + CommandDelimiter + Convert.ToBase64String(signature);
-        }
-
-        public string Encrypt(string channelId, object parameters)
-        {
-            var data = JsonSerializer.Serialize(parameters);
-            return Encrypt(channelId, data);
         }
 
         public string ExportEncryptedKey(string channelId)
@@ -125,6 +138,33 @@ namespace ShortDash.Core.Services
             try
             {
                 var channel = channels[channelId];
+                var encryptedData = Convert.FromBase64String(encryptedPacket);
+                data = channel.Decrypt(encryptedData);
+                return true;
+            }
+            catch (CryptographicException)
+            {
+                return false;
+            }
+        }
+
+        public bool TryDecryptSigned<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
+        {
+            if (!TryDecryptSigned(channelId, encryptedParameters, out var decryptedParameters))
+            {
+                data = default;
+                return false;
+            }
+            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            return true;
+        }
+
+        public bool TryDecryptSigned(string channelId, string encryptedPacket, out string data)
+        {
+            data = null;
+            try
+            {
+                var channel = channels[channelId];
                 var packetParts = encryptedPacket.Split(CommandDelimiter);
                 if (packetParts.Length != 2)
                 {
@@ -143,17 +183,6 @@ namespace ShortDash.Core.Services
             {
                 return false;
             }
-        }
-
-        public bool TryDecrypt<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
-        {
-            if (!TryDecrypt(channelId, encryptedParameters, out var decryptedParameters))
-            {
-                data = default;
-                return false;
-            }
-            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
-            return true;
         }
 
         public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse)

@@ -61,7 +61,7 @@ namespace ShortDash.Server.Services
         private string EncryptParameters(string targetId, object parameters)
         {
             var data = JsonSerializer.Serialize(parameters);
-            return encryptedChannelService.Encrypt(targetId, data);
+            return encryptedChannelService.EncryptSigned(targetId, data);
         }
 
         private Task ExecuteGroupAction(DashboardAction dashboardAction)
