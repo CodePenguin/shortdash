@@ -68,7 +68,7 @@ namespace ShortDash.Server.Components
         private async Task GetClientPublicKey()
         {
             Console.WriteLine("Getting public key");
-            var publicKey = await JSRuntime.InvokeAsync<string>("initSecureContext", ServerPublicKey);
+            var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
             var startingIndex = publicKey.IndexOf(PublicKeyPrefix) + PublicKeyPrefix.Length;
             var endingIndex = publicKey.IndexOf(PublicKeySuffix, startingIndex);
             publicKey = publicKey[startingIndex..endingIndex].Replace("\n", "");
@@ -94,9 +94,9 @@ namespace ShortDash.Server.Components
             Logger.LogDebug("Sending session key to client...");
             var encryptedKey = EncryptedChannelService.ExportEncryptedKey(channelId);
             Console.WriteLine("Encrypted Key: " + encryptedKey);
-            await JSRuntime.InvokeVoidAsync("initSecureContextSession", encryptedKey);
+            await JSRuntime.InvokeVoidAsync("secureContext.openChannel", GetServerPublicKey(), encryptedKey);
 
-            if (!EncryptedChannelService.TryDecrypt(channelId, "ZcpYERcwAuGhevN3qgWQHlLtK5fpKokMRw961ZkE1yI=", out var y)) y = "BAD!";
+            if (!EncryptedChannelService.TryDecrypt(channelId, "2TCTAGHiPES2hVG/cTVIgUOLgmTY7FNUyCSCD6iUutU=", out var y)) y = "BAD!";
             Console.WriteLine("Decrypted: " + y);
 
             IsInitialized = true;

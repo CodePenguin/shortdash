@@ -100,7 +100,7 @@ namespace ShortDash.Server.Components
             Logger.LogDebug("OnAfterRenderAsync for Input");
             if (firstRender)
             {
-                await JSRuntime.InvokeVoidAsync("initSecureInputText", UniqueId, objectReference, EncryptedCurrentValue());
+                await JSRuntime.InvokeVoidAsync("secureContext.initSecureInputText", UniqueId, objectReference, EncryptedCurrentValue());
             }
         }
 
