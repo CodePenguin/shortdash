@@ -21,7 +21,7 @@ namespace ShortDash.Server.Services
         private readonly ILogger<TargetsHub> logger;
         private readonly ILoggerFactory loggerFactory;
 
-        public TargetsHub(ILogger<TargetsHub> logger, ILoggerFactory loggerFactory, IEncryptedChannelService<TargetsHub> encryptedChannelService, DashboardService dashboardService)
+        public TargetsHub(ILogger<TargetsHub> logger, ILoggerFactory loggerFactory, IEncryptedChannelService encryptedChannelService, DashboardService dashboardService)
         {
             this.logger = logger;
             this.loggerFactory = loggerFactory;
@@ -72,7 +72,7 @@ namespace ShortDash.Server.Services
 
         public Task Log(string encryptedParameters)
         {
-            if (!encryptedChannelService.TryDecryptSigned<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
+            if (!encryptedChannelService.TryDecryptVerify<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
             {
                 return default;
             }

@@ -1,12 +1,10 @@
-﻿<CascadingValue Value="@ServerPublicKey" Name="ServerPublicKey">
-    <CascadingValue Value="@ClientPublicKey" Name="ClientPublicKey">
-        @if (!IsInitialized)
-        {
-            <PageLoadingComponent />
-        }
-        else
-        {
-            @ChildContent
-        }
-    </CascadingValue>
+﻿<CascadingValue Value="@this" Name="SecureContext">
+    @if (!IsInitialized)
+    {
+        <PageLoadingComponent />
+    }
+    else
+    {
+        @ChildContent
+    }
 </CascadingValue>

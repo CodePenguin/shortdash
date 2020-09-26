@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace ShortDash.Core.Services
 {
-    public abstract class EncryptedChannelService<T> : IEncryptedChannelService<T>
+    public abstract class EncryptedChannelService : IEncryptedChannelService
     {
         private const char CommandDelimiter = ':';
         private const string EncryptedChallengePrefix = "RSA:";
@@ -19,7 +19,7 @@ namespace ShortDash.Core.Services
         protected EncryptedChannelService(IKeyStoreService keyStore)
         {
             rsa = RSA.Create();
-            rsa.FromXmlString(keyStore.RetrieveKey());
+            rsa.FromXmlString(keyStore.RetrieveKey(KeyPurpose));
         }
 
         ~EncryptedChannelService()
@@ -27,6 +27,8 @@ namespace ShortDash.Core.Services
             rsa.Dispose();
             channels.Clear();
         }
+
+        protected abstract string KeyPurpose { get; }
 
         public void CloseChannel(string channelId)
         {
@@ -148,18 +150,7 @@ namespace ShortDash.Core.Services
             }
         }
 
-        public bool TryDecryptSigned<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
-        {
-            if (!TryDecryptSigned(channelId, encryptedParameters, out var decryptedParameters))
-            {
-                data = default;
-                return false;
-            }
-            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
-            return true;
-        }
-
-        public bool TryDecryptSigned(string channelId, string encryptedPacket, out string data)
+        public bool TryDecryptVerify(string channelId, string encryptedPacket, out string data)
         {
             data = null;
             try
@@ -183,6 +174,17 @@ namespace ShortDash.Core.Services
             {
                 return false;
             }
+        }
+
+        public bool TryDecryptVerify<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
+        {
+            if (!TryDecryptVerify(channelId, encryptedParameters, out var decryptedParameters))
+            {
+                data = default;
+                return false;
+            }
+            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            return true;
         }
 
         public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse)

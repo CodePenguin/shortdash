@@ -6,10 +6,12 @@ using ShortDash.Core.Services;
 
 namespace ShortDash.Server.Services
 {
-    public class TargetsHubEncryptedChannelService : EncryptedChannelService<TargetsHub>
+    public class TargetsHubEncryptedChannelService : EncryptedChannelService
     {
-        public TargetsHubEncryptedChannelService(IKeyStoreService<TargetsHubEncryptedChannelService> keyStore) : base(keyStore)
+        public TargetsHubEncryptedChannelService(IKeyStoreService keyStore) : base(keyStore)
         {
         }
+
+        protected override string KeyPurpose => typeof(TargetsHubEncryptedChannelService).FullName;
     }
 }

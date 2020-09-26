@@ -14,12 +14,12 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
-        private readonly IEncryptedChannelService<TargetsHub> encryptedChannelService;
+        private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<ActionService> logger;
         private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
 
         public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider,
-            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService<TargetsHub> encryptedChannelService) : base(logger, pluginService, serviceProvider)
+            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService encryptedChannelService) : base(logger, pluginService, serviceProvider)
         {
             this.logger = logger;
             this.targetsHubContext = targetsHubContext;

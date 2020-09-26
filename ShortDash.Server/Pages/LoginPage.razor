@@ -1,52 +1,23 @@
 ﻿@page "/loginpage"
 @using ShortDash.Core.Interfaces
 @using ShortDash.Server.Services
-@using System.Security.Cryptography
 @using System.ComponentModel.DataAnnotations
 
 @inject IJSRuntime JSRuntime;
 
 <h3>LoginPage</h3>
 
-<input type="text" id="AccessTokenText" value="You can dance if you want to." />
-<button class="btn btn-secondary" @onclick="DecryptIt">Click</button>
-
 <EditForm EditContext="SecureEditContext">
     <DataAnnotationsValidator />
+    <InputText placeholder="Put insecure stuff here..." @bind-Value="Model.InsecureText" />
+    <ValidationMessage For="() => Model.InsecureText" />
+
     <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
     <ValidationMessage For="() => Model.SecureText" />
     <button class="btn btn-primary" @onclick="SaveSecureChanges">Save</button>
 </EditForm>
 
-<p>
-    Secure Text: @Model.SecureText
-</p>
-
-<p>
-    @CipherText
-</p>
-
-<p>
-    @Message
-</p>
-
-<p>
-    @OtopKey
-</p>
-
 @code {
-    [Inject]
-    public IEncryptedChannelService<TargetsHub> encryptedChannelService { get; set; }
-
-    [Inject]
-    public IKeyStoreService<TargetsHubEncryptedChannelService> keyStore { get; set; }
-
-    public string Message { get; set; } = "N/A";
-
-    public string CipherText { get; set; } = "N/A";
-
-    public string OtopKey { get; set; }
-
     protected LoginModel Model { get; set; }
     protected EditContext SecureEditContext { get; set; }
 
@@ -59,39 +30,6 @@
     {
         Model = new LoginModel { SecureText = "All your base are belong to us" };
         SecureEditContext = new EditContext(Model);
-        /*
-        using var rsa = RSA.Create();
-        rsa.FromXmlString(encryptedChannelService.ExportPublicKey());
-        var data = rsa.ExportSubjectPublicKeyInfo();
-
-        x = keyStore.RetrieveKey(false);
-
-        PublicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
-
-        var key = KeyGeneration.GenerateRandomKey(20);
-        OtopKey = Base32Encoding.ToString(key);
-        */
-
-    }
-
-    public async void DecryptIt()
-    {
-        Console.WriteLine("DecryptIt");
-
-        using var rsa = RSA.Create();
-        rsa.FromXmlString(keyStore.RetrieveKey(false));
-        var data = rsa.ExportSubjectPublicKeyInfo();
-        var publicKey = "-----BEGIN PUBLIC KEY-----\n" + Convert.ToBase64String(data) + "\n-----END PUBLIC KEY-----";
-
-        var value = await JSRuntime.InvokeAsync<string>("encrypt", publicKey);
-        CipherText = value;
-
-        var decryptedBytes = rsa.Decrypt(Convert.FromBase64String(value), RSAEncryptionPadding.Pkcs1);
-        var message = System.Text.Encoding.UTF8.GetString(decryptedBytes);
-
-        Message = message;
-
-        StateHasChanged();
     }
 
     public void SaveSecureChanges()
@@ -109,6 +47,9 @@
     {
         [Required]
         public string SecureText { get; set; }
+
+        [Required]
+        public string InsecureText { get; set; }
     }
 
 }

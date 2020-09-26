@@ -16,23 +16,24 @@ namespace ShortDash.Target.Services
     {
         private readonly ActionService actionService;
         private readonly ConnectionSettings connectionSettings;
-        private readonly IEncryptedChannelService<TargetHubClient> encryptedChannelService;
+        private readonly IEncryptedChannelService encryptedChannelService;
+        private readonly string keyPurpose = typeof(TargetHubClient).FullName;
+        private readonly IKeyStoreService keyStore;
         private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
         private readonly string serverChannelId = typeof(TargetHubClient).FullName;
-        private readonly IKeyStoreService serverKeyStore;
         private bool connecting;
         private HubConnection connection;
         private bool disposed;
         private string pendingServerKey;
 
-        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IEncryptedChannelService<TargetHubClient> encryptedChannelService, IKeyStoreService<TargetHubClient> serverKeyStore, ActionService actionService, IConfiguration configuration)
+        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IEncryptedChannelService encryptedChannelService, IKeyStoreService keyStore, ActionService actionService, IConfiguration configuration)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
             this.encryptedChannelService = encryptedChannelService;
             this.actionService = actionService;
-            this.serverKeyStore = serverKeyStore;
+            this.keyStore = keyStore;
             connectionSettings = new ConnectionSettings();
 
             configuration.GetSection(ConnectionSettings.Key).Bind(connectionSettings);
@@ -195,7 +196,7 @@ namespace ShortDash.Target.Services
         {
             logger.LogDebug("Received authentication request...");
             var isNewRegistration = !string.IsNullOrEmpty(serverPublicKey);
-            if (!serverKeyStore.HasKey())
+            if (!keyStore.HasKey(keyPurpose))
             {
                 if (serverPublicKey == null)
                 {
@@ -209,7 +210,7 @@ namespace ShortDash.Target.Services
                 logger.LogWarning("The server attempted to authenticate as new target.");
                 return;
             }
-            var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverPublicKey ?? serverKeyStore.RetrieveKey());
+            var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverPublicKey ?? keyStore.RetrieveKey(keyPurpose));
             if (string.IsNullOrEmpty(challengeResponse))
             {
                 logger.LogError("The authentication request could not be verified.");
@@ -231,7 +232,7 @@ namespace ShortDash.Target.Services
             logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
             OnConnected?.Invoke(this, null);
-            if (!serverKeyStore.HasKey())
+            if (!keyStore.HasKey(keyPurpose))
             {
                 connection.SendAsync("Register", encryptedChannelService.ExportPublicKey());
             }
@@ -247,7 +248,7 @@ namespace ShortDash.Target.Services
 
         private TParameterType DecryptParameters<TParameterType>(string encryptedParameters)
         {
-            if (!encryptedChannelService.TryDecryptSigned(serverChannelId, encryptedParameters, out var decryptedParameters))
+            if (!encryptedChannelService.TryDecryptVerify(serverChannelId, encryptedParameters, out var decryptedParameters))
             {
                 return default;
             }
@@ -306,11 +307,11 @@ namespace ShortDash.Target.Services
         {
             if (!string.IsNullOrEmpty(pendingServerKey))
             {
-                serverKeyStore.StoreKey(pendingServerKey);
+                keyStore.StoreKey(keyPurpose, pendingServerKey);
                 pendingServerKey = null;
             }
             logger.LogDebug("Received session key from server.");
-            encryptedChannelService.OpenChannel(serverChannelId, serverKeyStore.RetrieveKey(false), encryptedKey);
+            encryptedChannelService.OpenChannel(serverChannelId, keyStore.RetrieveKey(keyPurpose, false), encryptedKey);
         }
     }
 }

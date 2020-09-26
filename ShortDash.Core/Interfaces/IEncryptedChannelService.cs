@@ -28,14 +28,10 @@
 
         bool TryDecrypt(string channelId, string encryptedPacket, out string data);
 
-        bool TryDecryptSigned<TDataType>(string channelId, string encryptedPacket, out TDataType data);
+        bool TryDecryptVerify(string channelId, string encryptedPacket, out string data);
 
-        bool TryDecryptSigned(string channelId, string encryptedPacket, out string data);
+        bool TryDecryptVerify<TDataType>(string channelId, string encryptedPacket, out TDataType data);
 
         public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse);
-    }
-
-    public interface IEncryptedChannelService<T> : IEncryptedChannelService
-    {
     }
 }

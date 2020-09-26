@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public partial class CascadingSecureContext : ComponentBase, IDisposable
+    public sealed partial class CascadingSecureContext : ComponentBase, ISecureContext, IDisposable
     {
         private const string PublicKeyPrefix = "-----BEGIN PUBLIC KEY-----\n";
 
@@ -28,7 +28,7 @@ namespace ShortDash.Server.Components
         protected string ClientPublicKey { get; private set; }
 
         [Inject]
-        protected IEncryptedChannelService<TargetsHub> EncryptedChannelService { get; set; }
+        protected IEncryptedChannelService EncryptedChannelService { get; set; }
 
         protected bool IsInitialized { get; private set; }
 
@@ -36,16 +36,27 @@ namespace ShortDash.Server.Components
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IKeyStoreService<TargetsHubEncryptedChannelService> KeyStore { get; set; }
-
-        [Inject]
         protected ILogger<CascadingSecureContext> Logger { get; set; }
 
         protected string ServerPublicKey { get; private set; }
 
+        public string Decrypt(string value)
+        {
+            if (!EncryptedChannelService.TryDecrypt(channelId, value, out var decrypted))
+            {
+                return "";
+            }
+            return decrypted;
+        }
+
         public void Dispose()
         {
             EncryptedChannelService.CloseChannel(channelId);
+        }
+
+        public string Encrypt(string value)
+        {
+            return EncryptedChannelService.Encrypt(channelId, value);
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -67,7 +78,6 @@ namespace ShortDash.Server.Components
 
         private async Task GetClientPublicKey()
         {
-            Console.WriteLine("Getting public key");
             var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
             var startingIndex = publicKey.IndexOf(PublicKeyPrefix) + PublicKeyPrefix.Length;
             var endingIndex = publicKey.IndexOf(PublicKeySuffix, startingIndex);
@@ -89,16 +99,11 @@ namespace ShortDash.Server.Components
 
         private async Task InitializeEncryptedChannel()
         {
-            Logger.LogDebug("Initializing encrypted channel...");
+            Logger.LogDebug("Retrieving client public key...");
             await GetClientPublicKey();
             Logger.LogDebug("Sending session key to client...");
             var encryptedKey = EncryptedChannelService.ExportEncryptedKey(channelId);
-            Console.WriteLine("Encrypted Key: " + encryptedKey);
             await JSRuntime.InvokeVoidAsync("secureContext.openChannel", GetServerPublicKey(), encryptedKey);
-
-            if (!EncryptedChannelService.TryDecrypt(channelId, "2TCTAGHiPES2hVG/cTVIgUOLgmTY7FNUyCSCD6iUutU=", out var y)) y = "BAD!";
-            Console.WriteLine("Decrypted: " + y);
-
             IsInitialized = true;
         }
     }

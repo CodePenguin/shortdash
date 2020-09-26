@@ -95,8 +95,8 @@ namespace ShortDash.Server
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
-            services.AddTransient(typeof(IKeyStoreService<>), typeof(KeyStoreService<>));
-            services.AddSingleton(typeof(IEncryptedChannelService<TargetsHub>), typeof(TargetsHubEncryptedChannelService));
+            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
+            services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetsHubEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
