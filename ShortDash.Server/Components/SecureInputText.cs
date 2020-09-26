@@ -16,8 +16,6 @@ namespace ShortDash.Server.Components
     {
         private DotNetObjectReference<SecureInputText> objectReference;
 
-        protected string InputType => "text";
-
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
@@ -37,8 +35,11 @@ namespace ShortDash.Server.Components
             base.BuildRenderTree(builder);
             builder.OpenElement(0, "input");
             builder.AddAttribute(1, "id", UniqueId);
-            builder.AddMultipleAttributes(2, AdditionalAttributes);
-            builder.AddAttribute(3, "type", "text");
+            if (!AdditionalAttributes.ContainsKey("type"))
+            {
+                builder.AddAttribute(2, "type", "text");
+            }
+            builder.AddMultipleAttributes(3, AdditionalAttributes);
             builder.CloseElement();
         }
 

@@ -9,12 +9,29 @@
 
 <EditForm EditContext="SecureEditContext">
     <DataAnnotationsValidator />
-    <InputText placeholder="Put insecure stuff here..." @bind-Value="Model.InsecureText" />
-    <ValidationMessage For="() => Model.InsecureText" />
+    <ValidationSummary />
+    <div class="input-group">
+        <InputText placeholder="Put insecure stuff here..." @bind-Value="Model.InsecureText" />
+        <ValidationMessage For="() => Model.InsecureText" />
+    </div>
 
-    <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
-    <ValidationMessage For="() => Model.SecureText" />
+    <div class="input-group">
+        <SecureInputText placeholder="Put secure stuff here..." @bind-Value="Model.SecureText" />
+        <ValidationMessage For="() => Model.SecureText" />
+    </div>
     <button class="btn btn-primary" @onclick="SaveSecureChanges">Save</button>
+
+    <p>
+        <SecureText Value="@Model.SecureText" class="bg-warning" />
+    </p>
+
+    <p>
+        <SecureInputText type="password" placeholder="Password..." @bind-Value="Model.Password" />
+    </p>
+
+    <p>
+        <SecureText Value="@Model.Password" class="bg-warning" />
+    </p>
 </EditForm>
 
 @code {
@@ -50,6 +67,9 @@
 
         [Required]
         public string InsecureText { get; set; }
+
+        [Required]
+        public string Password { get; set; }
     }
 
 }

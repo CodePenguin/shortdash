@@ -96,6 +96,11 @@
             var inputText = document.getElementById(id);
             inputText.value = this.decrypt(encryptedValue);
         },
+
+        setSecureControlText: function (id, encryptedValue) {
+            var control = document.getElementById(id);
+            control.innerText = this.decrypt(encryptedValue);
+        }
     };
 })();
 window.secureContext = secureContext;
