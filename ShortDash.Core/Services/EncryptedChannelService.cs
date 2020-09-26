@@ -1,4 +1,5 @@
-﻿using ShortDash.Core.Interfaces;
+﻿using ShortDash.Core.Extensions;
+using ShortDash.Core.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace ShortDash.Core.Services
         protected EncryptedChannelService(IKeyStoreService keyStore)
         {
             rsa = RSA.Create();
-            rsa.FromXmlString(keyStore.RetrieveKey(KeyPurpose));
+            rsa.ImportPrivateKey(keyStore.RetrieveKey(KeyPurpose));
         }
 
         ~EncryptedChannelService()
@@ -70,7 +71,7 @@ namespace ShortDash.Core.Services
 
         public string ExportPublicKey()
         {
-            return rsa.ToXmlString(false);
+            return rsa.ExportPublicKey();
         }
 
         public string GenerateChallenge(string publicKey, out byte[] rawChallenge)
@@ -83,7 +84,7 @@ namespace ShortDash.Core.Services
             {
                 // If the public key is known, generate a specific challenge for that key
                 using var challengeRsa = RSA.Create();
-                challengeRsa.FromXmlString(publicKey);
+                challengeRsa.ImportPublicKey(publicKey);
                 challenge = challengeRsa.Encrypt(rawChallenge, RSAEncryptionPadding.Pkcs1);
             }
             else
@@ -102,7 +103,7 @@ namespace ShortDash.Core.Services
                 var isEncryptedChallenge = IsEncryptedChallenge(challenge, out var data);
                 var decryptedChallenge = isEncryptedChallenge ? rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1) : data;
                 using var challengeRsa = RSA.Create();
-                challengeRsa.FromXmlString(publicKey);
+                challengeRsa.ImportPublicKey(publicKey);
                 var challengeResponse = challengeRsa.Encrypt(decryptedChallenge, RSAEncryptionPadding.Pkcs1);
                 return Convert.ToBase64String(challengeResponse);
             }
@@ -112,9 +113,9 @@ namespace ShortDash.Core.Services
             }
         }
 
-        public void ImportPrivateKey(string privateKeyXml)
+        public void ImportPrivateKey(string privateKey)
         {
-            rsa.FromXmlString(privateKeyXml);
+            rsa.ImportPrivateKey(privateKey);
         }
 
         public void OpenChannel(string channelId, string receiverPublicKeyXml)

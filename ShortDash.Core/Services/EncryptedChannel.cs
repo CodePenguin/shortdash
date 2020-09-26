@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShortDash.Core.Extensions;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,11 +11,11 @@ namespace ShortDash.Core.Services
         private readonly Aes aes;
         private readonly RSA rsa;
 
-        public EncryptedChannel(string receiverPublicKeyXml)
+        public EncryptedChannel(string receiverPublicKey)
         {
             aes = Aes.Create();
             rsa = RSA.Create();
-            rsa.FromXmlString(receiverPublicKeyXml);
+            rsa.ImportPublicKey(receiverPublicKey);
         }
 
         ~EncryptedChannel()

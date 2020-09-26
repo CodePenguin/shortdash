@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Services;
 using ShortDash.Server.Services;
@@ -16,10 +17,6 @@ namespace ShortDash.Server.Components
 {
     public sealed partial class CascadingSecureContext : ComponentBase, ISecureContext, IDisposable
     {
-        private const string PublicKeyPrefix = "-----BEGIN PUBLIC KEY-----\n";
-
-        private const string PublicKeySuffix = "\n-----END PUBLIC KEY-----";
-
         private string channelId;
 
         [Parameter]
@@ -79,22 +76,12 @@ namespace ShortDash.Server.Components
         private async Task GetClientPublicKey()
         {
             var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
-            var startingIndex = publicKey.IndexOf(PublicKeyPrefix) + PublicKeyPrefix.Length;
-            var endingIndex = publicKey.IndexOf(PublicKeySuffix, startingIndex);
-            publicKey = publicKey[startingIndex..endingIndex].Replace("\n", "");
-            var publicKeyBytes = Convert.FromBase64String(publicKey);
-            using var rsa = RSA.Create();
-            rsa.ImportSubjectPublicKeyInfo(publicKeyBytes, out _);
-            EncryptedChannelService.OpenChannel(channelId, rsa.ToXmlString(false));
+            EncryptedChannelService.OpenChannel(channelId, publicKey);
         }
 
         private string GetServerPublicKey()
         {
-            // Convert all Keys to PEM?
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(EncryptedChannelService.ExportPublicKey());
-            var key = rsa.ExportSubjectPublicKeyInfo();
-            return PublicKeyPrefix + Convert.ToBase64String(key) + PublicKeySuffix;
+            return EncryptedChannelService.ExportPublicKey();
         }
 
         private async Task InitializeEncryptedChannel()

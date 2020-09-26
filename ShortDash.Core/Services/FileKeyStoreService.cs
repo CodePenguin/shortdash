@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using ShortDash.Core.Extensions;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -41,7 +42,7 @@ namespace ShortDash.Core.Services
         private string GenerateNewKey(string purpose)
         {
             var rsa = RSA.Create();
-            var key = rsa.ToXmlString(true);
+            var key = rsa.ExportPrivateKey();
             StoreKey(purpose, key);
             return key;
         }
