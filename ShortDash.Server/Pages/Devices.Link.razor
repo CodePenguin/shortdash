@@ -1,0 +1,39 @@
+﻿@page "/devices/link"
+@attribute [Authorize(Policy = "LinkDevices")]
+
+<div class="page container">
+    <div class="card">
+        <div class="card-header">
+            Link Device
+        </div>
+        <div class="card-body">
+            @if (Linking)
+            {
+                <div class="card-text">
+                    <h5 class="alert alert-info"><span class="fas fa-wifi"></span> Navigate to ShortDash on your other device and enter the code below.</h5>
+                </div>
+
+                <div class="card-text text-center">
+                    <h1><SecureText Value="@DeviceLinkCodeDisplay()"></SecureText></h1>
+                    <h6><a href="@DeviceLinkUrl">@DeviceLinkUrl</a></h6>
+                </div>
+            }
+            @if (Linked)
+            {
+                <div class="card-text">
+                    <h3 class="alert alert-success"><span class="fas fa-check"></span> The device has been linked!</h3>
+                </div>
+            }
+        </div>
+        <div class="card-footer text-right">
+            <button class="btn btn-secondary" @onclick="Cancel">@(Linked ? "Back" : "Cancel")</button>
+            <button class="btn btn-primary" @onclick="StartLinking" disabled="@Linking">
+                @if (Linking)
+                {
+                    <span class="spinner-border spinner-border-sm"></span>
+                }
+                Link
+            </button>
+        </div>
+    </div>
+</div>

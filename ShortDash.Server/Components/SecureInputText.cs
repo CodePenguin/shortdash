@@ -35,7 +35,7 @@ namespace ShortDash.Server.Components
             base.BuildRenderTree(builder);
             builder.OpenElement(0, "input");
             builder.AddAttribute(1, "id", UniqueId);
-            if (!AdditionalAttributes.ContainsKey("type"))
+            if (AdditionalAttributes != null && !AdditionalAttributes.ContainsKey("type"))
             {
                 builder.AddAttribute(2, "type", "text");
             }

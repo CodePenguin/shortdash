@@ -22,6 +22,8 @@ namespace ShortDash.Server.Components
         [Parameter]
         public RenderFragment ChildContent { get; set; }
 
+        public string ReceiverId { get; private set; }
+
         protected string ClientPublicKey { get; private set; }
 
         [Inject]
@@ -76,7 +78,8 @@ namespace ShortDash.Server.Components
         private async Task GetClientPublicKey()
         {
             var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
-            EncryptedChannelService.OpenChannel(channelId, publicKey);
+            channelId = EncryptedChannelService.OpenChannel(publicKey);
+            ReceiverId = EncryptedChannelService.ReceiverId(channelId);
         }
 
         private string GetServerPublicKey()

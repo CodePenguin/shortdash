@@ -21,6 +21,10 @@
             Click login to authorize.
             <a href="/login?AccessToken=@HttpUtility.UrlEncode(AccessToken)" target="_top">Login</a>
             <input type="password" @bind-value="AccessToken" @bind-value:event="oninput" />
+
+            <br /><br />
+
+            <DeviceLinkPanel />
         </NotAuthorized>
     </AuthorizeView>
 </div>

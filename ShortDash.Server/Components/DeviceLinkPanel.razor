@@ -1,0 +1,25 @@
+﻿<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Link a device
+        </div>
+        <div class="card-body">
+            <EditForm EditContext="DeviceLinkEditContext">
+                <div class="form-group">
+                    <label for="DeviceCode">Device Code</label>
+                    <SecureInputText type="number" class="input-control" placeholder="Enter Device Code here" @bind-Value="@Model.DeviceLinkCode"></SecureInputText>
+                    <ValidationMessage For="() => Model.DeviceLinkCode" />
+                </div>
+
+                <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                <button class="btn btn-primary" @onclick="StartLinking" disabled="@Linking">
+                    @if (Linking)
+                    {
+                        <span class="spinner-border spinner-border-sm"></span>
+                    }
+                    Link
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>

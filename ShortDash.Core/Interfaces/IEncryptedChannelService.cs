@@ -22,9 +22,11 @@
 
         void ImportPrivateKey(string privateKeyXml);
 
-        void OpenChannel(string channelId, string receiverPublicKeyXml);
+        string OpenChannel(string receiverPublicKeyXml);
 
-        void OpenChannel(string channelId, string receiverPublicKeyXml, string encryptedKey);
+        string OpenChannel(string receiverPublicKeyXml, string encryptedKey);
+
+        public string ReceiverId(string channelId);
 
         bool TryDecrypt(string channelId, string encryptedPacket, out string data);
 

@@ -113,18 +113,25 @@ namespace ShortDash.Core.Services
             }
         }
 
+        public string GenerateUniqueChannelId()
+        {
+            return Guid.NewGuid().ToString("N");
+        }
+
         public void ImportPrivateKey(string privateKey)
         {
             rsa.ImportPrivateKey(privateKey);
         }
 
-        public void OpenChannel(string channelId, string receiverPublicKeyXml)
+        public string OpenChannel(string receiverPublicKey)
         {
-            var channel = new EncryptedChannel(receiverPublicKeyXml);
+            var channel = new EncryptedChannel(receiverPublicKey);
+            var channelId = GenerateUniqueChannelId();
             channels.Add(channelId, channel);
+            return channelId;
         }
 
-        public void OpenChannel(string channelId, string receiverPublicKeyXml, string encryptedKey)
+        public string OpenChannel(string receiverPublicKeyXml, string encryptedKey)
         {
             var encryptedKeyBytes = Convert.FromBase64String(encryptedKey);
             var decryptedBytes = rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.Pkcs1);
@@ -132,7 +139,15 @@ namespace ShortDash.Core.Services
             var keyBytes = Convert.FromBase64String(base64Key);
             var channel = new EncryptedChannel(receiverPublicKeyXml);
             channel.ImportKey(keyBytes);
+            var channelId = GenerateUniqueChannelId();
             channels.Add(channelId, channel);
+            return channelId;
+        }
+
+        public string ReceiverId(string channelId)
+        {
+            var channel = channels[channelId];
+            return channel.ReceiverId;
         }
 
         public bool TryDecrypt(string channelId, string encryptedPacket, out string data)

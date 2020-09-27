@@ -6,6 +6,9 @@ using ShortDash.Core.Models;
 using ShortDash.Core.Services;
 using ShortDash.Target.Shared;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,11 +24,11 @@ namespace ShortDash.Target.Services
         private readonly IKeyStoreService keyStore;
         private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
-        private readonly string serverChannelId = typeof(TargetHubClient).FullName;
         private bool connecting;
         private HubConnection connection;
         private bool disposed;
         private string pendingServerKey;
+        private string serverChannelId;
 
         public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IEncryptedChannelService encryptedChannelService, IKeyStoreService keyStore, ActionService actionService, IConfiguration configuration)
         {
@@ -84,8 +87,9 @@ namespace ShortDash.Target.Services
                     {
                         return;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError("Connection attempt failed: " + ex.Message);
                         retryContext.PreviousRetryCount += 1;
                         var retryDelay = retryPolicy.NextRetryDelay(retryContext);
                         if (retryDelay == null)
@@ -240,7 +244,11 @@ namespace ShortDash.Target.Services
 
         private void Connecting()
         {
-            encryptedChannelService.CloseChannel(serverChannelId);
+            if (serverChannelId != null)
+            {
+                encryptedChannelService.CloseChannel(serverChannelId);
+                serverChannelId = null;
+            }
             logger.LogDebug("Connecting to server...");
             LastConnectionAttemptDateTime = DateTime.Now;
             OnConnecting?.Invoke(this, null);
@@ -285,6 +293,7 @@ namespace ShortDash.Target.Services
         private Task Reconnecting(Exception error)
         {
             encryptedChannelService.CloseChannel(serverChannelId);
+            serverChannelId = null;
             logger.LogDebug("Reconnecting...");
             LastConnectionAttemptDateTime = DateTime.Now;
             OnReconnecting?.Invoke(this, null);
@@ -311,7 +320,7 @@ namespace ShortDash.Target.Services
                 pendingServerKey = null;
             }
             logger.LogDebug("Received session key from server.");
-            encryptedChannelService.OpenChannel(serverChannelId, keyStore.RetrieveKey(keyPurpose, false), encryptedKey);
+            serverChannelId = encryptedChannelService.OpenChannel(keyStore.RetrieveKey(keyPurpose, false), encryptedKey);
         }
     }
 }

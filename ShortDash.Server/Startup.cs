@@ -2,6 +2,7 @@ using Blazored.Modal;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,8 @@ namespace ShortDash.Server
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<TargetsHub>("/targetshub");
+                endpoints.MapHub<DevicesHub>(DevicesHub.HubUrl);
+                endpoints.MapHub<TargetsHub>(TargetsHub.HubUrl);
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
@@ -85,6 +87,7 @@ namespace ShortDash.Server
                 config.AddPolicy("EditDashboards", policy => policy.RequireAuthenticatedUser());
                 config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
                 config.AddPolicy("EditTargets", policy => policy.RequireAuthenticatedUser());
+                config.AddPolicy("LinkDevices", policy => policy.RequireAuthenticatedUser());
             });
 
             services.AddRazorPages();
@@ -92,6 +95,7 @@ namespace ShortDash.Server
             services.AddSignalR();
             services.AddBlazoredModal();
             services.AddHttpContextAccessor();
+            services.AddSingleton(typeof(IServerAddressesFeature), typeof(ServerAddressesFeature));
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();

@@ -15,7 +15,10 @@ namespace ShortDash.Server.Services
 {
     public class TargetsHub : Hub<ITargetsHub>
     {
+        public const string HubUrl = "/targetshub";
+
         private static readonly IDictionary<string, byte[]> Challenges = new ConcurrentDictionary<string, byte[]>();
+        private static readonly IDictionary<string, string> Channels = new ConcurrentDictionary<string, string>();
         private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<TargetsHub> logger;
@@ -64,15 +67,17 @@ namespace ShortDash.Server.Services
                 await dashboardService.UpdateDashboardActionTargetAsync(target);
             }
             // Target is authenticated so send the encrypted session key
-            encryptedChannelService.OpenChannel(targetId, target.PublicKey);
+            var channelId = encryptedChannelService.OpenChannel(target.PublicKey);
+            Channels[targetId] = channelId;
             await Groups.AddToGroupAsync(Context.ConnectionId, targetId);
             logger.LogDebug($"Sending session key to Target {targetId}.");
-            await Clients.Caller.TargetAuthenticated(encryptedChannelService.ExportEncryptedKey(targetId));
+            await Clients.Caller.TargetAuthenticated(encryptedChannelService.ExportEncryptedKey(channelId));
         }
 
         public Task Log(string encryptedParameters)
         {
-            if (!encryptedChannelService.TryDecryptVerify<LogParameters>(GetTargetId(), encryptedParameters, out var parameters))
+            var channelId = GetChannelId();
+            if (channelId == null || !encryptedChannelService.TryDecryptVerify<LogParameters>(channelId, encryptedParameters, out var parameters))
             {
                 return default;
             }
@@ -114,7 +119,8 @@ namespace ShortDash.Server.Services
             {
                 logger.LogDebug($"Target {targetId} has disconnected.");
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, targetId);
-                encryptedChannelService.CloseChannel(targetId);
+                encryptedChannelService.CloseChannel(GetChannelId());
+                Channels.Remove(targetId);
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -123,6 +129,12 @@ namespace ShortDash.Server.Services
         {
             var targetLogger = loggerFactory.CreateLogger("ShortDash.Target." + GetTargetId() + "." + category);
             return targetLogger;
+        }
+
+        private string GetChannelId()
+        {
+            var targetId = GetTargetId();
+            return (!string.IsNullOrWhiteSpace(targetId) && Channels.TryGetValue(targetId, out var channelId)) ? channelId : null;
         }
 
         private string GetTargetId()
