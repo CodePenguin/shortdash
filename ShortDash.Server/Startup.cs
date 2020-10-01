@@ -96,7 +96,6 @@ namespace ShortDash.Server
             services.AddBlazoredModal();
             services.AddHttpContextAccessor();
             services.AddSingleton(typeof(IServerAddressesFeature), typeof(ServerAddressesFeature));
-            services.AddScoped<HttpContextAccessor>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));

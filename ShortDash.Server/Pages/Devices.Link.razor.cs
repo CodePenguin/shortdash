@@ -24,9 +24,6 @@ namespace ShortDash.Server.Pages
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
-        [Inject]
-        protected IServerAddressesFeature ServerAddressesFeature { get; set; }
-
         public async void Dispose()
         {
             await StopLinking();
@@ -50,16 +47,11 @@ namespace ShortDash.Server.Pages
             return string.Join(" ", from Match m in Regex.Matches(DeviceLinkCode, @"\d{1,3}") select m.Value);
         }
 
-        protected async void LinkDevice(string encryptedParameters)
+        protected async void DeviceLinked(string encryptedParameters)
         {
             var decryptedParameters = encryptedParameters; // TODO: DECRYPT THIS
             var parameters = JsonSerializer.Deserialize<LinkDeviceParameters>(decryptedParameters);
-            if (parameters.DeviceLinkCode != DeviceLinkCode)
-            {
-                return;
-            }
-            Console.WriteLine($"LinkDevice: {parameters.DeviceId} - {parameters.DeviceLinkCode}");
-            await connection.SendAsync("DeviceLinked", encryptedParameters);
+            Console.WriteLine($"DeviceLinked: {parameters.DeviceId} - {parameters.DeviceLinkCode}");
             Linked = true;
             await StopLinking();
             StateHasChanged();
@@ -82,9 +74,17 @@ namespace ShortDash.Server.Pages
                 .WithUrl(NavigationManager.ToAbsoluteUri(DevicesHub.HubUrl))
                 .Build();
 
-            connection.On<string>("LinkDevice", LinkDevice);
+            connection.On<string>("DeviceLinked", DeviceLinked);
 
             await connection.StartAsync();
+
+            var request = new LinkDeviceRequest
+            {
+                DeviceLinkCode = DeviceLinkCode
+            };
+            var data = JsonSerializer.Serialize(request);
+            var encryptedData = data; // TODO: ENCRYPT THIS
+            await connection.SendAsync("LinkDeviceInfo", encryptedData);
         }
 
         protected async Task StopLinking()

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
 {
@@ -16,7 +17,11 @@ namespace ShortDash.Server.Pages
     {
         public async Task<IActionResult> OnGetAsync(string accessToken)
         {
-            string returnUrl = Url.Content("~/");
+            if (accessToken == null)
+            {
+                return LocalRedirect("~/");
+            }
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, accessToken),
@@ -32,7 +37,7 @@ namespace ShortDash.Server.Pages
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
-            return LocalRedirect(returnUrl);
+            return LocalRedirect("~/");
         }
     }
 }

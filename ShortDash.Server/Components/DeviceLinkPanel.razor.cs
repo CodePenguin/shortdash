@@ -20,6 +20,7 @@ namespace ShortDash.Server.Components
         protected HubConnection connection;
 
         protected EditContext DeviceLinkEditContext { get; set; }
+
         protected bool Linking { get; set; }
 
         [Inject]
@@ -55,8 +56,7 @@ namespace ShortDash.Server.Components
             var decryptedParameters = encryptedParameters; // TODO: DECRYPT THIS
             var parameters = JsonSerializer.Deserialize<LinkDeviceParameters>(decryptedParameters);
             Console.WriteLine($"DeviceLinked: {parameters.DeviceId} - {parameters.DeviceLinkCode}");
-            var accessToken = parameters.DeviceId;
-            NavigationManager.NavigateTo("/login?AccessToken=" + HttpUtility.UrlEncode(accessToken), true);
+            NavigationManager.NavigateTo("/login?accessToken=" + parameters.DeviceId, true);
         }
 
         protected override Task OnParametersSetAsync()
