@@ -57,7 +57,6 @@ namespace ShortDash.Server
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<DevicesHub>(DevicesHub.HubUrl);
                 endpoints.MapHub<TargetsHub>(TargetsHub.HubUrl);
                 endpoints.MapFallbackToPage("/_Host");
             });
@@ -98,6 +97,7 @@ namespace ShortDash.Server
             services.AddSingleton(typeof(IServerAddressesFeature), typeof(ServerAddressesFeature));
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
+            services.AddSingleton<DeviceLinkService>();
             services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetsHubEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();

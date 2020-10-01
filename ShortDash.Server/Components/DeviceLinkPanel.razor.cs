@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -17,9 +15,10 @@ namespace ShortDash.Server.Components
 {
     public sealed partial class DeviceLinkPanel : ComponentBase, IDisposable
     {
-        protected HubConnection connection;
-
         protected EditContext DeviceLinkEditContext { get; set; }
+
+        [Inject]
+        protected DeviceLinkService DeviceLinkService { get; set; }
 
         protected bool Linking { get; set; }
 
@@ -34,16 +33,16 @@ namespace ShortDash.Server.Components
         [CascadingParameter(Name = "SecureContext")]
         protected ISecureContext SecureContext { get; set; }
 
-        public async void Dispose()
+        public void Dispose()
         {
-            await StopLinking();
+            StopLinking();
         }
 
-        protected async void Cancel()
+        protected void Cancel()
         {
             if (Linking)
             {
-                await StopLinking();
+                StopLinking();
             }
             else
             {
@@ -51,18 +50,9 @@ namespace ShortDash.Server.Components
             }
         }
 
-        protected void DeviceLinked(string encryptedParameters)
-        {
-            var decryptedParameters = encryptedParameters; // TODO: DECRYPT THIS
-            var parameters = JsonSerializer.Deserialize<LinkDeviceParameters>(decryptedParameters);
-            Console.WriteLine($"DeviceLinked: {parameters.DeviceId} - {parameters.DeviceLinkCode}");
-            NavigationManager.NavigateTo("/login?accessToken=" + parameters.DeviceId, true);
-        }
-
         protected override Task OnParametersSetAsync()
         {
             Linking = false;
-            connection = null;
             Model = new DeviceLinkModel();
             DeviceLinkEditContext = new EditContext(Model);
             return base.OnParametersSetAsync();
@@ -74,39 +64,31 @@ namespace ShortDash.Server.Components
             {
                 return;
             }
-            Model.DeviceLinkCode = Model.DeviceLinkCode.Replace(" ", "").Trim();
+            var deviceLinkCode = Model.DeviceLinkCode.Replace(" ", "").Trim();
+            var deviceId = SecureContext.ReceiverId;
 
             Linking = true;
 
-            connection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri(DevicesHub.HubUrl))
-                .Build();
-
-            connection.On<string>("DeviceLinked", DeviceLinked);
-
-            await connection.StartAsync();
-
             Logger.LogDebug("Linking Device: {0}", Model.DeviceLinkCode);
-            var parameters = new LinkDeviceParameters
+            var accessToken = await DeviceLinkService.LinkDevice(Model.DeviceLinkCode, SecureContext.ReceiverId);
+
+            if (accessToken == null)
             {
-                DeviceId = SecureContext.ReceiverId,
-                DeviceLinkCode = Model.DeviceLinkCode
-            };
-            var serialized = JsonSerializer.Serialize(parameters);
-            var encryptedParameters = serialized; // TODO: ENCRYPT THIS!!!
-            await connection.SendAsync("LinkDevice", encryptedParameters);
+                // TODO: Show error
+                StopLinking();
+            }
+
+            Logger.LogDebug($"Device Linked: {deviceLinkCode} - {deviceId}");
+            NavigationManager.NavigateTo("/login?accessToken=" + accessToken, true);
         }
 
-        protected async Task StopLinking()
+        protected void StopLinking()
         {
-            if (!Linking || connection == null)
+            if (!Linking)
             {
                 return;
             }
             Linking = false;
-            await connection.StopAsync();
-            await connection.DisposeAsync();
-            connection = null;
         }
 
         protected class DeviceLinkModel

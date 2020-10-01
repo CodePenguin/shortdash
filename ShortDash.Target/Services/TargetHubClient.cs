@@ -227,7 +227,7 @@ namespace ShortDash.Target.Services
         private Task Closed(Exception error)
         {
             logger.LogDebug("Connection Closed!");
-            OnClosed?.Invoke(this, null);
+            OnClosed?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
@@ -235,7 +235,7 @@ namespace ShortDash.Target.Services
         {
             logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
-            OnConnected?.Invoke(this, null);
+            OnConnected?.Invoke(this, EventArgs.Empty);
             if (!keyStore.HasKey(keyPurpose))
             {
                 connection.SendAsync("Register", encryptedChannelService.ExportPublicKey());
@@ -251,7 +251,7 @@ namespace ShortDash.Target.Services
             }
             logger.LogDebug("Connecting to server...");
             LastConnectionAttemptDateTime = DateTime.Now;
-            OnConnecting?.Invoke(this, null);
+            OnConnecting?.Invoke(this, EventArgs.Empty);
         }
 
         private TParameterType DecryptParameters<TParameterType>(string encryptedParameters)
@@ -286,7 +286,7 @@ namespace ShortDash.Target.Services
         {
             logger.LogDebug("Reconnected!");
             LastConnectionDateTime = DateTime.Now;
-            OnReconnected?.Invoke(this, null);
+            OnReconnected?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
@@ -296,7 +296,7 @@ namespace ShortDash.Target.Services
             serverChannelId = null;
             logger.LogDebug("Reconnecting...");
             LastConnectionAttemptDateTime = DateTime.Now;
-            OnReconnecting?.Invoke(this, null);
+            OnReconnecting?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
