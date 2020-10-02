@@ -1,9 +1,12 @@
 ﻿using ShortDash.Server.Extensions;
 using ShortDash.Server.Shared;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
 
 namespace ShortDash.Server.Data
 {
@@ -80,6 +83,43 @@ namespace ShortDash.Server.Data
         public int DashboardCellId { get; set; }
         public int DashboardId { get; set; }
         public int Sequence { get; set; }
+    }
+
+    public class DashboardDevice
+    {
+        public string Claims { get; set; }
+        public string DashboardDeviceId { get; set; }
+        public DateTime LastSeenDateTime { get; set; }
+        public DateTime LinkedDateTime { get; set; }
+
+        public Claim[] GetClaimsArray()
+        {
+            if (string.IsNullOrEmpty(Claims))
+            {
+                return Array.Empty<Claim>();
+            }
+            var pairs = Claims.Split(';');
+            var list = new List<Claim>();
+            foreach (var pair in pairs)
+            {
+                var data = pair.Split('=');
+                if (data.Length == 2)
+                {
+                    list.Add(new Claim(data[0], data[1]));
+                }
+            }
+            return list.ToArray();
+        }
+
+        public void SetClaimsArray(IEnumerable<Claim> values)
+        {
+            var list = new List<string>();
+            foreach (var claim in values)
+            {
+                list.Add(claim.Type + '=' + claim.Value);
+            }
+            Claims = string.Join(';', list.ToArray());
+        }
     }
 
     public class DashboardSubAction

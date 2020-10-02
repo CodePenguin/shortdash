@@ -16,6 +16,13 @@
         <Authorized>
             Congratulations @context.User.Identity.Name!
             <a href="/logout" target="_top">Logout</a>
+
+            <ul>
+                @foreach (var claim in context.User.Claims)
+                {
+                    <li>@claim.Type: @claim.Value</li>
+                }
+            </ul>
         </Authorized>
         <NotAuthorized>
             Click login to authorize.

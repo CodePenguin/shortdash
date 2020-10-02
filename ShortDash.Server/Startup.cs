@@ -82,11 +82,13 @@ namespace ShortDash.Server
 
             services.AddAuthorization(config =>
             {
-                config.AddPolicy("EditActions", policy => policy.RequireAuthenticatedUser());
-                config.AddPolicy("EditDashboards", policy => policy.RequireAuthenticatedUser());
+                // Administrator Actions
+                config.AddPolicy("EditActions", policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("EditDashboards", policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("EditTargets", policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("LinkDevices", policy => policy.RequireRole("Administrator"));
+                // Specific Actions
                 config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
-                config.AddPolicy("EditTargets", policy => policy.RequireAuthenticatedUser());
-                config.AddPolicy("LinkDevices", policy => policy.RequireAuthenticatedUser());
             });
 
             services.AddRazorPages();
@@ -97,9 +99,9 @@ namespace ShortDash.Server
             services.AddSingleton(typeof(IServerAddressesFeature), typeof(ServerAddressesFeature));
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
-            services.AddSingleton<DeviceLinkService>();
+            services.AddScoped<DeviceLinkService>();
             services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
-            services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetsHubEncryptedChannelService));
+            services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));

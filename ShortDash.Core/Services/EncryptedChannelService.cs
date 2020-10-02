@@ -123,6 +123,21 @@ namespace ShortDash.Core.Services
             rsa.ImportPrivateKey(privateKey);
         }
 
+        public string LocalEncryptSigned(string data)
+        {
+            using var aes = Aes.Create();
+            var encryptedKey = rsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
+            var encryptedData = aes.Encrypt(data);
+            var signature = RsaSign(encryptedData);
+            return Convert.ToBase64String(encryptedKey) + CommandDelimiter + Convert.ToBase64String(encryptedData) + CommandDelimiter + Convert.ToBase64String(signature);
+        }
+
+        public string LocalEncryptSigned(object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return LocalEncryptSigned(data);
+        }
+
         public string OpenChannel(string receiverPublicKey)
         {
             var channel = new EncryptedChannel(receiverPublicKey);
@@ -195,6 +210,46 @@ namespace ShortDash.Core.Services
         public bool TryDecryptVerify<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
         {
             if (!TryDecryptVerify(channelId, encryptedParameters, out var decryptedParameters))
+            {
+                data = default;
+                return false;
+            }
+            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            return true;
+        }
+
+        public bool TryLocalDecryptVerify(string encryptedPacket, out string data)
+        {
+            data = null;
+            try
+            {
+                var packetParts = encryptedPacket.Split(CommandDelimiter);
+                if (packetParts.Length != 3)
+                {
+                    return false;
+                }
+                var encryptedKey = Convert.FromBase64String(packetParts[0]);
+                var encryptedData = Convert.FromBase64String(packetParts[1]);
+                var signature = Convert.FromBase64String(packetParts[2]);
+                if (!rsa.VerifyData(encryptedData, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+                {
+                    return false;
+                }
+                var decryptedKey = rsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
+                using var aes = Aes.Create();
+                aes.Key = decryptedKey;
+                data = aes.Decrypt(encryptedData);
+                return true;
+            }
+            catch (CryptographicException)
+            {
+                return false;
+            }
+        }
+
+        public bool TryLocalDecryptVerify<TParameterType>(string encryptedParameters, out TParameterType data)
+        {
+            if (!TryLocalDecryptVerify(encryptedParameters, out var decryptedParameters))
             {
                 data = default;
                 return false;

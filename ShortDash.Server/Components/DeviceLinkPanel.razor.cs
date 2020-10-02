@@ -79,7 +79,7 @@ namespace ShortDash.Server.Components
             }
 
             Logger.LogDebug($"Device Linked: {deviceLinkCode} - {deviceId}");
-            NavigationManager.NavigateTo("/login?accessToken=" + accessToken, true);
+            NavigationManager.NavigateTo("/login?accessToken=" + HttpUtility.UrlEncode(accessToken), true);
         }
 
         protected void StopLinking()

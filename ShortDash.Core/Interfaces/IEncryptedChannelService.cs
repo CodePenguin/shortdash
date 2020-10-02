@@ -16,11 +16,15 @@
 
         string ExportPublicKey();
 
-        public string GenerateChallenge(string publicKey, out byte[] rawChallenge);
+        string GenerateChallenge(string publicKey, out byte[] rawChallenge);
 
-        public string GenerateChallengeResponse(string challenge, string publicKey);
+        string GenerateChallengeResponse(string challenge, string publicKey);
 
         void ImportPrivateKey(string privateKeyXml);
+
+        string LocalEncryptSigned(string data);
+
+        string LocalEncryptSigned(object parameters);
 
         string OpenChannel(string receiverPublicKeyXml);
 
@@ -34,6 +38,10 @@
 
         bool TryDecryptVerify<TDataType>(string channelId, string encryptedPacket, out TDataType data);
 
-        public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse);
+        bool TryLocalDecryptVerify<TParameterType>(string encryptedParameters, out TParameterType data);
+
+        bool TryLocalDecryptVerify(string encryptedPacket, out string data);
+
+        bool VerifyChallengeResponse(byte[] challenge, string challengeResponse);
     }
 }

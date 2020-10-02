@@ -1,6 +1,5 @@
 ﻿using ShortDash.Core.Extensions;
 using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -28,28 +27,12 @@ namespace ShortDash.Core.Services
 
         public string Decrypt(byte[] data)
         {
-            using var memoryStream = new MemoryStream(data);
-            var iv = new byte[16];
-            memoryStream.Read(iv, 0, aes.IV.Length);
-            aes.IV = iv;
-            using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-            using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
-            using var streamReader = new StreamReader(cryptoStream);
-            return streamReader.ReadToEnd();
+            return aes.Decrypt(data);
         }
 
         public byte[] Encrypt(string data)
         {
-            aes.GenerateIV();
-            using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-            using var memoryStream = new MemoryStream();
-            memoryStream.Write(aes.IV);
-            using var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
-            using (var streamWriter = new StreamWriter(cryptoStream))
-            {
-                streamWriter.Write(data);
-            }
-            return memoryStream.ToArray();
+            return aes.Encrypt(data);
         }
 
         public string ExportEncryptedKey()
