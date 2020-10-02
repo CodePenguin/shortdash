@@ -92,6 +92,7 @@ namespace ShortDash.Server.Data
         public string DashboardDeviceId { get; set; }
         public DateTime LastSeenDateTime { get; set; }
         public DateTime LinkedDateTime { get; set; }
+        public string Name { get; set; }
 
         public List<DeviceClaim> GetClaimsList()
         {

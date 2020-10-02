@@ -6,6 +6,7 @@ using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace ShortDash.Server.Services
             this.encryptedChannelService = encryptedChannelService;
         }
 
-        public event EventHandler<DeviceLinkedEventArgs> OnDeviceLinked;
+        public static event EventHandler<DeviceLinkedEventArgs> OnDeviceLinked;
 
         public void AddRequest(LinkDeviceRequest request)
         {
@@ -54,7 +55,7 @@ namespace ShortDash.Server.Services
             });
         }
 
-        public async Task<string> LinkDevice(string deviceLinkCode, string deviceId)
+        public async Task<string> LinkDevice(string deviceLinkCode, string deviceName, string deviceId)
         {
             var claims = new List<DeviceClaim>();
             logger.LogDebug("Received LinkDevice message - {0} - {1}", deviceLinkCode, deviceId);
@@ -83,6 +84,7 @@ namespace ShortDash.Server.Services
             }
 
             dashboardDevice.DashboardDeviceId = deviceId;
+            dashboardDevice.Name = deviceName;
             dashboardDevice.SetClaimsList(claims);
             dashboardDevice.LastSeenDateTime = DateTime.Now;
 

@@ -7,19 +7,19 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShortDash.Server.Pages
 {
     public sealed partial class Devices_Link : ComponentBase, IDisposable
     {
-        private const int DeviceLinkCodeLength = 9;
+        private const int DeviceLinkCodeLength = 6;
         protected string DeviceLinkCode { get; set; }
 
         [Inject]
         protected DeviceLinkService DeviceLinkService { get; set; }
 
         protected string DeviceLinkUrl { get; set; }
-        protected bool Linked { get; set; }
         protected bool Linking { get; set; }
 
         [Inject]
@@ -50,15 +50,17 @@ namespace ShortDash.Server.Pages
 
         protected void DeviceLinked(string deviceLinkCode, string deviceId)
         {
-            Console.WriteLine($"DeviceLinked: {deviceLinkCode} - {deviceId}");
-            Linked = true;
+            if (!deviceLinkCode.Equals(DeviceLinkCode))
+            {
+                return;
+            }
             StopLinking();
-            StateHasChanged();
+            NavigationManager.NavigateTo("/devices/" + HttpUtility.UrlEncode(deviceId) + "?linked=1");
         }
 
         protected void DeviceLinkedEvent(object sender, DeviceLinkedEventArgs eventArgs)
         {
-            InvokeAsync(() => DeviceLinked(eventArgs.DeviceId, eventArgs.DeviceLinkCode));
+            InvokeAsync(() => DeviceLinked(eventArgs.DeviceLinkCode, eventArgs.DeviceId));
         }
 
         protected override Task OnParametersSetAsync()

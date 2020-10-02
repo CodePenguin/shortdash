@@ -18,6 +18,13 @@
                     </NavLink>
                 </li>
             </AuthorizeView>
+            <AuthorizeView Policy="EditDevices">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="devices" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-mobile-alt" aria-hidden="true"></span> Devices
+                    </NavLink>
+                </li>
+            </AuthorizeView>
             <AuthorizeView Policy="EditTargets">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">

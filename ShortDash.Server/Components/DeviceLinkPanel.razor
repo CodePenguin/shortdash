@@ -5,6 +5,12 @@
         </div>
         <div class="card-body">
             <EditForm EditContext="DeviceLinkEditContext">
+                <DataAnnotationsValidator />
+
+                @if (ShowRetryMessage)
+                {
+                    <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
+                }
                 <div class="form-group">
                     <label for="DeviceCode">Device Code</label>
                     <SecureInputText type="number" class="input-control" placeholder="Enter Device Code here" @bind-Value="@Model.DeviceLinkCode"></SecureInputText>

@@ -86,7 +86,7 @@ namespace ShortDash.Server
                 config.AddPolicy("EditActions", policy => policy.RequireRole("Administrator"));
                 config.AddPolicy("EditDashboards", policy => policy.RequireRole("Administrator"));
                 config.AddPolicy("EditTargets", policy => policy.RequireRole("Administrator"));
-                config.AddPolicy("LinkDevices", policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("EditDevices", policy => policy.RequireRole("Administrator"));
                 // Specific Actions
                 config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
             });

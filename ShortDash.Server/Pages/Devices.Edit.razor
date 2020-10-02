@@ -1,0 +1,39 @@
+﻿@page "/devices/{DashboardDeviceId}"
+@attribute [Authorize(Policy = "EditDevices")]
+
+<div class="page">
+    @if (IsLoading)
+    {
+        <PageLoadingComponent />
+    }
+    else if (DashboardDevice == null)
+    {
+        <h3 class="alert alert-danger">Opps, this device does not seem to exist anymore.</h3>
+    }
+    else
+    {
+        <h3>@DashboardDevice.Name</h3>
+
+        @if (SuccessfullyLinked)
+        {
+            <div class="card-text">
+                <h3 class="alert alert-success"><span class="fas fa-check"></span> The device has been linked!</h3>
+            </div>
+        }
+
+        <EditForm EditContext="DeviceEditContext">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label for="DashboardName">Name</label>
+                <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardName" />
+                <ValidationMessage For="() => DashboardDevice.Name" />
+            </div>
+            <button class="btn btn-outline-danger float-left" @onclick="ConfirmUnlink">Unlink</button>
+
+            <div class="float-right">
+                <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+                <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+            </div>
+        </EditForm>
+    }
+</div>

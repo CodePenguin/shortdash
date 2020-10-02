@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ShortDash.Core.Extensions
 
 <div class="container col-lg-4">
     <div class="card">
@@ -25,7 +26,7 @@
                 Last Connection: @DisplayDateTime(LastConnection)
             </p>
             <p class="card-text">
-                Last Connection Attempt: @DisplayDateTime(LastConnectionAttempt)
+                Last Connection Attempt: @LastConnectionAttempt.ToDisplayString()
             </p>
         </div>
         <div class="card-footer text-light bg-@ConnectionStatusClass">

@@ -81,6 +81,13 @@ namespace ShortDash.Server.Services
             return dashboardCell;
         }
 
+        public async Task<DashboardDevice> DeleteDashboardDeviceAsync(DashboardDevice dashboardDevice)
+        {
+            dbContext.Remove(dashboardDevice);
+            await dbContext.SaveChangesAsync();
+            return dashboardDevice;
+        }
+
         public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
             return await dbContext.DashboardActions
@@ -126,6 +133,11 @@ namespace ShortDash.Server.Services
             return await dbContext.DashboardDevices
                 .Where(d => d.DashboardDeviceId == dashboardDeviceId)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<DashboardDevice>> GetDashboardDevicesAsync()
+        {
+            return await dbContext.DashboardDevices.ToListAsync();
         }
 
         public async Task<List<Dashboard>> GetDashboardsAsync()

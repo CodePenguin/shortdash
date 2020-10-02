@@ -17,11 +17,6 @@ namespace ShortDash.Target.Pages
         [Inject]
         private TargetHubClient TargetHubClient { get; set; }
 
-        public string DisplayDateTime(DateTime value)
-        {
-            return (value.Ticks == 0) ? "N/A" : value.ToString();
-        }
-
         public void Dispose()
         {
             Dispose(true);

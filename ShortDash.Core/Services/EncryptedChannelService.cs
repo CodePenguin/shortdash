@@ -186,6 +186,10 @@ namespace ShortDash.Core.Services
             data = null;
             try
             {
+                if (encryptedPacket == null)
+                {
+                    return false;
+                }
                 var channel = channels[channelId];
                 var packetParts = encryptedPacket.Split(CommandDelimiter);
                 if (packetParts.Length != 2)
@@ -223,6 +227,10 @@ namespace ShortDash.Core.Services
             data = null;
             try
             {
+                if (encryptedPacket == null)
+                {
+                    return false;
+                }
                 var packetParts = encryptedPacket.Split(CommandDelimiter);
                 if (packetParts.Length != 3)
                 {
