@@ -6,7 +6,6 @@ using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -38,17 +37,34 @@ namespace ShortDash.Server.Services
             Requests.TryRemove(request.DeviceLinkCode, out _);
         }
 
+        public async void DeviceLinked(LinkDeviceResponse response)
+        {
+            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(response.DeviceId);
+            if (dashboardDevice == null)
+            {
+                return;
+            }
+            dashboardDevice.LinkedDateTime = DateTime.Now;
+            await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
+
+            OnDeviceLinked?.Invoke(this, new DeviceLinkedEventArgs()
+            {
+                DeviceId = response.DeviceId,
+                DeviceLinkCode = response.DeviceLinkCode
+            });
+        }
+
         public async Task<string> LinkDevice(string deviceLinkCode, string deviceId)
         {
-            var claims = new List<Claim>();
+            var claims = new List<DeviceClaim>();
             logger.LogDebug("Received LinkDevice message - {0} - {1}", deviceLinkCode, deviceId);
             if (Requests.TryRemove(deviceLinkCode, out var request))
             {
-                claims.AddRange(request.Claims ?? Array.Empty<Claim>());
+                claims.AddRange(request.Claims);
             }
             else if (IsValidAdminDeviceLinkCode(deviceLinkCode))
             {
-                claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+                claims.Add(new DeviceClaim(ClaimTypes.Role, "Administrator"));
             }
             else
             {
@@ -67,7 +83,7 @@ namespace ShortDash.Server.Services
             }
 
             dashboardDevice.DashboardDeviceId = deviceId;
-            dashboardDevice.SetClaimsArray(claims);
+            dashboardDevice.SetClaimsList(claims);
             dashboardDevice.LastSeenDateTime = DateTime.Now;
 
             if (isNewDevice)
@@ -78,21 +94,46 @@ namespace ShortDash.Server.Services
             {
                 dashboardDevice = await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
             }
-            return GenerateAccessToken(dashboardDevice);
+            return GenerateAccessToken(deviceLinkCode, dashboardDevice);
         }
 
-        public void SendDeviceLinkedNotification(string deviceLinkCode, string deviceId)
+        public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)
         {
-            OnDeviceLinked?.Invoke(this, new DeviceLinkedEventArgs()
+            logger.LogDebug("Validating access token...");
+            var validToken = encryptedChannelService.TryLocalDecryptVerify<LinkDeviceResponse>(accessToken, out var response);
+            if (!validToken)
             {
-                DeviceId = deviceId,
-                DeviceLinkCode = deviceLinkCode
-            });
+                logger.LogDebug("Access token could be decrypted and verified.");
+                return null;
+            }
+
+            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(response.DeviceId);
+            if (dashboardDevice == null)
+            {
+                logger.LogDebug($"Device not found: {response.DeviceId}");
+                return null;
+            }
+
+            var responseClaimText = JsonSerializer.Serialize(response.Claims);
+            if (!dashboardDevice.Claims.Equals(responseClaimText))
+            {
+                logger.LogDebug("Claims in access token did not match.");
+                return null;
+            }
+
+            logger.LogDebug("Access token was valid.");
+            return response;
         }
 
-        private string GenerateAccessToken(DashboardDevice dashboardDevice)
+        private string GenerateAccessToken(string deviceLinkCode, DashboardDevice dashboardDevice)
         {
-            return encryptedChannelService.LocalEncryptSigned(dashboardDevice);
+            var response = new LinkDeviceResponse
+            {
+                Claims = dashboardDevice.GetClaimsList(),
+                DeviceId = dashboardDevice.DashboardDeviceId,
+                DeviceLinkCode = deviceLinkCode
+            };
+            return encryptedChannelService.LocalEncryptSigned(response);
         }
 
         private bool IsValidAdminDeviceLinkCode(string deviceLinkCode)

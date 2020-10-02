@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace ShortDash.Server.Data
 {
@@ -92,33 +93,16 @@ namespace ShortDash.Server.Data
         public DateTime LastSeenDateTime { get; set; }
         public DateTime LinkedDateTime { get; set; }
 
-        public Claim[] GetClaimsArray()
+        public List<DeviceClaim> GetClaimsList()
         {
-            if (string.IsNullOrEmpty(Claims))
-            {
-                return Array.Empty<Claim>();
-            }
-            var pairs = Claims.Split(';');
-            var list = new List<Claim>();
-            foreach (var pair in pairs)
-            {
-                var data = pair.Split('=');
-                if (data.Length == 2)
-                {
-                    list.Add(new Claim(data[0], data[1]));
-                }
-            }
-            return list.ToArray();
+            return JsonSerializer.Deserialize<List<DeviceClaim>>(Claims);
         }
 
-        public void SetClaimsArray(IEnumerable<Claim> values)
+        public void SetClaimsList(IEnumerable<DeviceClaim> values)
         {
-            var list = new List<string>();
-            foreach (var claim in values)
-            {
-                list.Add(claim.Type + '=' + claim.Value);
-            }
-            Claims = string.Join(';', list.ToArray());
+            var list = new List<DeviceClaim>();
+            list.AddRange(values);
+            Claims = JsonSerializer.Serialize(list);
         }
     }
 

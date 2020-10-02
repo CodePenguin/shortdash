@@ -30,27 +30,19 @@ namespace ShortDash.Server.Pages
 
         public async Task<IActionResult> OnGetAsync(string accessToken)
         {
-            // TODO: NEED TO CALL THE DEVICE LINK SERVICE HERE TO DO THE VALIDATION AND NOTIFICATION!!!!
-            if (accessToken == null || !encryptedChannelService.TryLocalDecryptVerify<DashboardDevice>(accessToken, out var tokenDevice))
+            var response = await deviceLinkService.ValidateAccessToken(accessToken);
+            if (response == null)
             {
                 return LocalRedirect("~/");
             }
-
-            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(tokenDevice.DashboardDeviceId);
-            if (dashboardDevice == null)
-            {
-                return LocalRedirect("~/");
-            }
-
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, dashboardDevice.DashboardDeviceId)
+                new Claim(ClaimTypes.Name, response.DeviceId)
             };
-            foreach (var claim in dashboardDevice.GetClaimsArray())
+            foreach (var claim in response.Claims)
             {
-                claims.Add(claim);
+                claims.Add(new Claim(claim.Type, claim.Value));
             }
-
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
             {
@@ -61,6 +53,7 @@ namespace ShortDash.Server.Pages
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
+            deviceLinkService.DeviceLinked(response);
             return LocalRedirect("~/");
         }
     }
