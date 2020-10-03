@@ -23,7 +23,7 @@
                 Target ID: @(!string.IsNullOrEmpty(TargetHubClient.TargetId) ? TargetHubClient.TargetId : "Not Configured")
             </p>
             <p class="card-text">
-                Last Connection: @DisplayDateTime(LastConnection)
+                Last Connection: @LastConnection.ToDisplayString();
             </p>
             <p class="card-text">
                 Last Connection Attempt: @LastConnectionAttempt.ToDisplayString()

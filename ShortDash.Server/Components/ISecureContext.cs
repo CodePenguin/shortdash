@@ -12,5 +12,9 @@ namespace ShortDash.Server.Components
         string Decrypt(string value);
 
         string Encrypt(string value);
+
+        string GenerateChallenge(out string rawChallenge);
+
+        bool VerifyChallengeResponse(string rawChallenge, string challengeResponse);
     }
 }

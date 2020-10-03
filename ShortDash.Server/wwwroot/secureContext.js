@@ -55,6 +55,16 @@
 
     // Public functions
     return {
+        challenge: function (base64data) {
+            console.log("Challenge: ", base64data);
+            base64data = base64data.substring(4);
+            var decryptedChallenge = _.rsaDecrypt(base64data);
+            console.log("Decrypted: ", decryptedChallenge);
+            var encryptedChallenge = _.rsaEncrypt(decryptedChallenge);
+            console.log("encryptedChallenge: ", encryptedChallenge);
+            return encryptedChallenge;
+        },
+
         decrypt: function (base64data) {
             var data = CryptoJS.enc.Base64.parse(base64data);
             var key = _.getSessionkey();

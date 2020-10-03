@@ -39,7 +39,13 @@ namespace ShortDash.Server.Services
                     Parameters = dashboardAction.Parameters,
                     ToggleState = toggleState
                 };
-                var encryptedParameters = EncryptParameters(targetId, parameters);
+                var channelId = encryptedChannelService.GetChannelId(targetId);
+                if (channelId == null)
+                {
+                    // TODO: Handle target is not connected scenario
+                    return Task.CompletedTask;
+                }
+                var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, parameters);
                 return targetsHubContext.Clients.Groups(targetId).ExecuteAction(encryptedParameters);
             }
             // Handle non-targeted actions at the server
@@ -56,12 +62,6 @@ namespace ShortDash.Server.Services
             RegisterActionType(typeof(DashLinkAction));
             RegisterActionType(typeof(DashSeparatorAction));
             base.RegisterActions();
-        }
-
-        private string EncryptParameters(string targetId, object parameters)
-        {
-            var data = JsonSerializer.Serialize(parameters);
-            return encryptedChannelService.EncryptSigned(targetId, data);
         }
 
         private Task ExecuteGroupAction(DashboardAction dashboardAction)

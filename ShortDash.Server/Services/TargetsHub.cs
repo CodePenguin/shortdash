@@ -17,8 +17,7 @@ namespace ShortDash.Server.Services
     {
         public const string HubUrl = "/targetshub";
 
-        private static readonly IDictionary<string, byte[]> Challenges = new ConcurrentDictionary<string, byte[]>();
-        private static readonly IDictionary<string, string> Channels = new ConcurrentDictionary<string, string>();
+        private static readonly IDictionary<string, string> Challenges = new ConcurrentDictionary<string, string>();
         private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<TargetsHub> logger;
@@ -68,7 +67,7 @@ namespace ShortDash.Server.Services
             }
             // Target is authenticated so send the encrypted session key
             var channelId = encryptedChannelService.OpenChannel(target.PublicKey);
-            Channels[targetId] = channelId;
+            encryptedChannelService.RegisterChannelAlias(channelId, targetId);
             await Groups.AddToGroupAsync(Context.ConnectionId, targetId);
             logger.LogDebug($"Sending session key to Target {targetId}.");
             await Clients.Caller.TargetAuthenticated(encryptedChannelService.ExportEncryptedKey(channelId));
@@ -120,7 +119,6 @@ namespace ShortDash.Server.Services
                 logger.LogDebug($"Target {targetId} has disconnected.");
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, targetId);
                 encryptedChannelService.CloseChannel(GetChannelId());
-                Channels.Remove(targetId);
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -134,7 +132,7 @@ namespace ShortDash.Server.Services
         private string GetChannelId()
         {
             var targetId = GetTargetId();
-            return (!string.IsNullOrWhiteSpace(targetId) && Channels.TryGetValue(targetId, out var channelId)) ? channelId : null;
+            return encryptedChannelService.GetChannelId(targetId);
         }
 
         private string GetTargetId()

@@ -41,6 +41,11 @@ namespace ShortDash.Core.Services
             return Convert.ToBase64String(rsa.Encrypt(keyData, RSAEncryptionPadding.Pkcs1));
         }
 
+        public string ExportPublicKey()
+        {
+            return rsa.ExportPublicKey();
+        }
+
         public void ImportKey(byte[] key)
         {
             aes.Key = key;

@@ -24,8 +24,6 @@ namespace ShortDash.Server.Components
 
         public string ReceiverId { get; private set; }
 
-        protected string ClientPublicKey { get; private set; }
-
         [Inject]
         protected IEncryptedChannelService EncryptedChannelService { get; set; }
 
@@ -36,8 +34,6 @@ namespace ShortDash.Server.Components
 
         [Inject]
         protected ILogger<CascadingSecureContext> Logger { get; set; }
-
-        protected string ServerPublicKey { get; private set; }
 
         public string Decrypt(string value)
         {
@@ -58,6 +54,16 @@ namespace ShortDash.Server.Components
             return EncryptedChannelService.Encrypt(channelId, value);
         }
 
+        public string GenerateChallenge(out string rawChallenge)
+        {
+            return EncryptedChannelService.GenerateChallenge(EncryptedChannelService.ExportPublicKey(channelId), out rawChallenge);
+        }
+
+        public bool VerifyChallengeResponse(string rawChallenge, string challengeResponse)
+        {
+            return EncryptedChannelService.VerifyChallengeResponse(rawChallenge, challengeResponse);
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -72,7 +78,6 @@ namespace ShortDash.Server.Components
         {
             base.OnInitialized();
             channelId = Guid.NewGuid().ToString();
-            ServerPublicKey = GetServerPublicKey();
         }
 
         private async Task GetClientPublicKey()

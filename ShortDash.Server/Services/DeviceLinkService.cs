@@ -55,6 +55,16 @@ namespace ShortDash.Server.Services
             });
         }
 
+        public async Task<string> GenerateSyncToken(string deviceId)
+        {
+            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(deviceId);
+            if (dashboardDevice == null)
+            {
+                return null;
+            }
+            return GenerateAccessToken(dashboardDevice.DashboardDeviceId, dashboardDevice, true);
+        }
+
         public async Task<string> LinkDevice(string deviceLinkCode, string deviceName, string deviceId)
         {
             var claims = new List<DeviceClaim>();
@@ -96,7 +106,7 @@ namespace ShortDash.Server.Services
             {
                 dashboardDevice = await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
             }
-            return GenerateAccessToken(deviceLinkCode, dashboardDevice);
+            return GenerateAccessToken(deviceLinkCode, dashboardDevice, false);
         }
 
         public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)
@@ -127,10 +137,11 @@ namespace ShortDash.Server.Services
             return response;
         }
 
-        private string GenerateAccessToken(string deviceLinkCode, DashboardDevice dashboardDevice)
+        private string GenerateAccessToken(string deviceLinkCode, DashboardDevice dashboardDevice, bool allowSync)
         {
             var response = new LinkDeviceResponse
             {
+                AllowSync = allowSync,
                 Claims = dashboardDevice.GetClaimsList(),
                 DeviceId = dashboardDevice.DashboardDeviceId,
                 DeviceLinkCode = deviceLinkCode

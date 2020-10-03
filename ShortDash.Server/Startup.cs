@@ -2,7 +2,6 @@ using Blazored.Modal;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -76,9 +75,11 @@ namespace ShortDash.Server
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
-            services.AddAuthentication(
-                CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.EventsType = typeof(AuthenticationEvents);
+                });
 
             services.AddAuthorization(config =>
             {
@@ -96,14 +97,14 @@ namespace ShortDash.Server
             services.AddSignalR();
             services.AddBlazoredModal();
             services.AddHttpContextAccessor();
-            services.AddSingleton(typeof(IServerAddressesFeature), typeof(ServerAddressesFeature));
+            services.AddScoped<AuthenticationEvents>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddScoped<DeviceLinkService>();
-            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
+            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
             services.AddResponseCompression(opts =>
             {
