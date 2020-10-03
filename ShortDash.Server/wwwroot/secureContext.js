@@ -100,7 +100,15 @@
         setSecureControlText: function (id, encryptedValue) {
             var control = document.getElementById(id);
             control.innerText = this.decrypt(encryptedValue);
-        }
+        },
+
+        setSecureQRCode: function (id, encryptedValue, width, height) {
+            new QRCode(document.getElementById(id), {
+                text: this.decrypt(encryptedValue),
+                width: width,
+                height: height
+            });
+        },
     };
 })();
 window.secureContext = secureContext;

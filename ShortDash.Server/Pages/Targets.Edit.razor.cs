@@ -32,11 +32,11 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
         {
-            NavigationManagerService.NavigateTo("/targets");
+            NavigationManager.NavigateTo("/targets");
         }
 
         protected async void ConfirmDelete()
@@ -51,7 +51,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardActionTargetAsync(DashboardActionTarget);
-            NavigationManagerService.NavigateTo("/targets");
+            NavigationManager.NavigateTo("/targets");
         }
 
         protected override async Task OnParametersSetAsync()
@@ -61,7 +61,7 @@ namespace ShortDash.Server.Pages
             {
                 if (DashboardActionTargetId == DashboardActionTarget.ServerTargetId)
                 {
-                    NavigationManagerService.NavigateTo("/targets");
+                    NavigationManager.NavigateTo("/targets");
                     return;
                 }
 
@@ -89,7 +89,7 @@ namespace ShortDash.Server.Pages
             {
                 await DashboardService.UpdateDashboardActionTargetAsync(DashboardActionTarget);
             }
-            NavigationManagerService.NavigateTo("/targets");
+            NavigationManager.NavigateTo("/targets");
         }
 
         private async Task LoadDashboardActionTarget()

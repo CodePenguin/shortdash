@@ -18,11 +18,11 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void LinkDevice()
         {
-            NavigationManagerService.NavigateTo($"/devices/link");
+            NavigationManager.NavigateTo($"/devices/link");
         }
 
         protected override async Task OnParametersSetAsync()

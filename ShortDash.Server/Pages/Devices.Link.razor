@@ -17,6 +17,9 @@
                     <h1><SecureText Value="@DeviceLinkCodeDisplay()"></SecureText></h1>
                     <h6><a href="@DeviceLinkUrl">@DeviceLinkUrl</a></h6>
                 </div>
+                <div class="card-text text-center">
+                    <SecureQrCode class="qrcode" Value="@DeviceLinkSecureUrl" />
+                </div>
             }
         </div>
         <div class="card-footer text-right">

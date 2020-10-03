@@ -31,6 +31,13 @@
       "files": [
         "crypto-js.min.js"
       ]
+    },
+    {
+      "library": "qrcodejs@1.0.0",
+      "destination": "wwwroot/lib/qrcodejs/",
+      "files": [
+        "qrcode.min.js"
+      ]
     }
   ]
 }

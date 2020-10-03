@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
@@ -16,10 +17,16 @@ namespace ShortDash.Server.Pages
         private const int DeviceLinkCodeLength = 6;
         protected string DeviceLinkCode { get; set; }
 
+        protected string DeviceLinkSecureUrl { get; set; }
+
         [Inject]
         protected DeviceLinkService DeviceLinkService { get; set; }
 
         protected string DeviceLinkUrl { get; set; }
+
+        [Inject]
+        protected IEncryptedChannelService EncryptedChannelService { get; set; }
+
         protected bool Linking { get; set; }
 
         [Inject]
@@ -74,7 +81,7 @@ namespace ShortDash.Server.Pages
         {
             var baseCode = Math.Abs(Guid.NewGuid().ToString().GetHashCode() % Math.Pow(10, DeviceLinkCodeLength));
             DeviceLinkCode = baseCode.ToString().PadLeft(DeviceLinkCodeLength, '1');
-            Linking = true;
+            DeviceLinkSecureUrl = NavigationManager.ToAbsoluteUri("/?c=" + HttpUtility.UrlEncode(DeviceLinkCode)).ToString();
 
             DeviceLinkService.OnDeviceLinked += DeviceLinkedEvent;
 
@@ -83,6 +90,8 @@ namespace ShortDash.Server.Pages
                 DeviceLinkCode = DeviceLinkCode
             };
             DeviceLinkService.AddRequest(request);
+
+            Linking = true;
         }
 
         protected void StopLinking()

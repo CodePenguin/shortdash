@@ -39,11 +39,11 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
         {
-            NavigationManagerService.NavigateTo("/devices");
+            NavigationManager.NavigateTo("/devices");
         }
 
         protected async void ConfirmUnlink()
@@ -58,7 +58,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardDeviceAsync(DashboardDevice);
-            NavigationManagerService.NavigateTo("/devices");
+            NavigationManager.NavigateTo("/devices");
         }
 
         protected override async Task OnParametersSetAsync()
@@ -68,7 +68,7 @@ namespace ShortDash.Server.Pages
 
             DeviceEditContext = new EditContext(DashboardDevice);
 
-            var uri = NavigationManagerService.ToAbsoluteUri(NavigationManagerService.Uri);
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
             QueryHelpers.ParseQuery(uri.Query).TryGetValue("linked", out var linkedValue);
             SuccessfullyLinked = !string.IsNullOrWhiteSpace(linkedValue);
         }
@@ -82,7 +82,7 @@ namespace ShortDash.Server.Pages
 
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);
 
-            NavigationManagerService.NavigateTo("/devices");
+            NavigationManager.NavigateTo("/devices");
         }
 
         private async Task LoadDashboardDevice()

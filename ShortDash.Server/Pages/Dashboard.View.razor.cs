@@ -33,7 +33,7 @@ namespace ShortDash.Server.Pages
         private List<DashboardCell> DashboardCells { get; } = new List<DashboardCell>();
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
         {
@@ -53,7 +53,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardAsync(Dashboard);
-            NavigationManagerService.NavigateTo($"/");
+            NavigationManager.NavigateTo($"/");
         }
 
         protected void LoadDashboardCells()

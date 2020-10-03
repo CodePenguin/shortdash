@@ -16,11 +16,11 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void AddAction()
         {
-            NavigationManagerService.NavigateTo($"/actions/new");
+            NavigationManager.NavigateTo($"/actions/new");
         }
 
         protected override async Task OnParametersSetAsync()
