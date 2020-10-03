@@ -17,14 +17,10 @@ namespace ShortDash.Server.Pages
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly DashboardService dashboardService;
         private readonly DeviceLinkService deviceLinkService;
-        private readonly IEncryptedChannelService encryptedChannelService;
 
-        public LoginModel(DashboardService dashboardService, IEncryptedChannelService encryptedChannelService, DeviceLinkService deviceLinkService)
+        public LoginModel(DeviceLinkService deviceLinkService)
         {
-            this.dashboardService = dashboardService;
-            this.encryptedChannelService = encryptedChannelService;
             this.deviceLinkService = deviceLinkService;
         }
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using ShortDash.Core.Interfaces;
+using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
@@ -15,6 +17,7 @@ namespace ShortDash.Server.Pages
     public sealed partial class Devices_Link : ComponentBase, IDisposable
     {
         private const int DeviceLinkCodeLength = 6;
+        public List<DeviceClaim> Claims { get; private set; } = new List<DeviceClaim>();
         protected string DeviceLinkCode { get; set; }
 
         protected string DeviceLinkSecureUrl { get; set; }
@@ -85,10 +88,8 @@ namespace ShortDash.Server.Pages
 
             DeviceLinkService.OnDeviceLinked += DeviceLinkedEvent;
 
-            var request = new LinkDeviceRequest
-            {
-                DeviceLinkCode = DeviceLinkCode
-            };
+            var request = new LinkDeviceRequest { DeviceLinkCode = DeviceLinkCode };
+            request.Claims.AddRange(Claims);
             DeviceLinkService.AddRequest(request);
 
             Linking = true;

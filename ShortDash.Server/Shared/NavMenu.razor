@@ -35,12 +35,15 @@
             <AuthorizeView Policy="ViewDashboards">
                 @foreach (var dashboard in Dashboards)
                 {
-                    var link = $"dashboard/{dashboard.DashboardId}";
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                            <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
-                        </NavLink>
-                    </li>
+                    if (CanAccessDashboard(dashboard.DashboardId))
+                    {
+                        var link = $"dashboard/{dashboard.DashboardId}";
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                                <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
+                            </NavLink>
+                        </li>
+                    }
                 }
             </AuthorizeView>
             <AuthorizeView Policy="EditDashboards">

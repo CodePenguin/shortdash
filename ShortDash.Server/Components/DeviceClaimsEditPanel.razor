@@ -1,0 +1,23 @@
+﻿@if (IsLoading)
+{
+    <PageLoadingComponent />
+}
+else
+{
+    <EditForm EditContext="ClaimsEditContext">
+        <div class="form-group form-check">
+            <InputCheckbox class="form-check-input" @bind-Value="Model.IsAdministrator" />
+            <label class="form-check-label">Administrator</label>
+        </div>
+        <fieldset disabled="@Model.IsAdministrator">
+            <legend>View Dashboards</legend>
+            @foreach (var dashboard in Dashboards)
+            {
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" checked="@Model.DashboardAccess[dashboard.DashboardId]" @onchange="(c) => ToggleDashboardAccess(dashboard.DashboardId)" />
+                    <label class="form-check-label">@dashboard.Name</label>
+                </div>
+            }
+        </fieldset>
+    </EditForm>
+}

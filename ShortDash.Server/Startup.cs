@@ -83,10 +83,10 @@ namespace ShortDash.Server
             services.AddAuthorization(config =>
             {
                 // Administrator Actions
-                config.AddPolicy("EditActions", policy => policy.RequireRole("Administrator"));
-                config.AddPolicy("EditDashboards", policy => policy.RequireRole("Administrator"));
-                config.AddPolicy("EditTargets", policy => policy.RequireRole("Administrator"));
-                config.AddPolicy("EditDevices", policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("EditActions", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditDashboards", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditTargets", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditDevices", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
                 // Specific Actions
                 config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
             });

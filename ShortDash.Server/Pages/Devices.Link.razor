@@ -21,6 +21,10 @@
                     <SecureQrCode class="qrcode" Value="@DeviceLinkSecureUrl" />
                 </div>
             }
+            else
+            {
+                <DeviceClaimsEditPanel Claims="Claims" />
+            }
         </div>
         <div class="card-footer text-right">
             <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>

@@ -65,7 +65,7 @@ namespace ShortDash.Server.Services
             }
             else if (IsValidAdminDeviceLinkCode(deviceLinkCode))
             {
-                claims.Add(new DeviceClaim(ClaimTypes.Role, "Administrator"));
+                claims.Add(new DeviceClaim(ClaimTypes.Role, DeviceClaimTypes.AdministratorRole));
             }
             else
             {

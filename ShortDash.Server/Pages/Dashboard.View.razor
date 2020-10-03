@@ -3,9 +3,11 @@
 @attribute [Authorize(Policy = "ViewDashboards")]
 
 <CascadingValue Value="DashboardService">
-    @if (Dashboard == null)
+    @if (Dashboard == null || !CanView)
     {
-        <h3 class="alert alert-danger">Opps, this dashboard does not seem to exist anymore.</h3>
+        <div class="page">
+            <h3 class="alert alert-danger">This device does not have access to this dashboard.</h3>
+        </div>
     }
     else
     {

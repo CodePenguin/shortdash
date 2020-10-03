@@ -1,11 +1,14 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Shared
@@ -13,6 +16,9 @@ namespace ShortDash.Server.Shared
     public partial class NavMenu : ComponentBase
     {
         private bool collapseNavMenu = true;
+
+        [CascadingParameter]
+        public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [CascadingParameter]
         public IModalService ModalService { get; set; }
@@ -27,14 +33,22 @@ namespace ShortDash.Server.Shared
 
         private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-        protected async void LoadDashboards()
+        private ClaimsPrincipal User { get; set; }
+
+        protected bool CanAccessDashboard(int dashboardId)
+        {
+            return User.CanAccessDashboard(dashboardId);
+        }
+
+        protected async Task LoadDashboards()
         {
             Dashboards = await DashboardService.GetDashboardsAsync();
         }
 
-        protected override void OnParametersSet()
+        protected async override Task OnParametersSetAsync()
         {
-            LoadDashboards();
+            User = (await AuthenticationStateTask).User;
+            await LoadDashboards();
         }
 
         protected async void ShowAddDashboardDialog()
@@ -46,7 +60,7 @@ namespace ShortDash.Server.Shared
             }
             var dashboard = new Dashboard { Name = result.Data.ToString() };
             await DashboardService.AddDashboardAsync(dashboard);
-            LoadDashboards();
+            await LoadDashboards();
             StateHasChanged();
             NavigationManager.NavigateTo($"/dashboard/{dashboard.DashboardId}");
         }
