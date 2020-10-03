@@ -7,7 +7,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services
@@ -67,7 +66,7 @@ namespace ShortDash.Server.Services
 
         public async Task<string> LinkDevice(string deviceLinkCode, string deviceName, string deviceId)
         {
-            var claims = new List<DeviceClaim>();
+            var claims = new DeviceClaims();
             logger.LogDebug("Received LinkDevice message - {0} - {1}", deviceLinkCode, deviceId);
             if (Requests.TryRemove(deviceLinkCode, out var request))
             {
@@ -126,8 +125,7 @@ namespace ShortDash.Server.Services
                 return null;
             }
 
-            var responseClaimText = JsonSerializer.Serialize(response.Claims);
-            if (!dashboardDevice.Claims.Equals(responseClaimText))
+            if (!dashboardDevice.GetClaimsList().Equals(response.Claims))
             {
                 logger.LogDebug("Claims in access token did not match.");
                 return null;
@@ -141,7 +139,6 @@ namespace ShortDash.Server.Services
         {
             var response = new LinkDeviceResponse
             {
-                AllowSync = allowSync,
                 Claims = dashboardDevice.GetClaimsList(),
                 DeviceId = dashboardDevice.DashboardDeviceId,
                 DeviceLinkCode = deviceLinkCode

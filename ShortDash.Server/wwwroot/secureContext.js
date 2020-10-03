@@ -14,7 +14,7 @@
         },
 
         getSessionkey: function () {
-            var key = localStorage.getItem("SecureContextSessionKey");
+            var key = sessionStorage.getItem("SecureContextSessionKey");
             return CryptoJS.enc.Base64.parse(key);
         },
 
@@ -36,7 +36,7 @@
 
         setSessionKey: function (encryptedKey) {
             var key = this.rsaDecrypt(encryptedKey);
-            localStorage.setItem("SecureContextSessionKey", key);
+            sessionStorage.setItem("SecureContextSessionKey", key);
         },
 
         setServerPublicKey: function (publicKey) {

@@ -1,9 +1,9 @@
 ﻿<div class="container">
-    <div class="card">
+    <div class="card w-25">
         <div class="card-header">
             Link a device
         </div>
-        <div class="card-body">
+        <div class="card-body text-center">
             <EditForm EditContext="DeviceLinkEditContext">
                 <DataAnnotationsValidator />
 
@@ -12,8 +12,7 @@
                     <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
                 }
                 <div class="form-group">
-                    <label for="DeviceCode">Device Code</label>
-                    <SecureInputText type="number" class="input-control" placeholder="Enter Device Code here" @bind-Value="@Model.DeviceLinkCode"></SecureInputText>
+                    <SecureInputText type="number" class="input-control" placeholder="Enter Device Code" @bind-Value="@Model.DeviceLinkCode"></SecureInputText>
                     <ValidationMessage For="() => Model.DeviceLinkCode" />
                 </div>
 

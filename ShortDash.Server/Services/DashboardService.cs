@@ -25,7 +25,7 @@ namespace ShortDash.Server.Services
 
         public static bool ValidateDeviceSync(string value)
         {
-            return value.Equals(DeviceSyncValue);
+            return DeviceSyncValue.Equals(value);
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)

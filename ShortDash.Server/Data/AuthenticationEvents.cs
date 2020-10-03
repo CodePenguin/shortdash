@@ -4,6 +4,7 @@ using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Data
@@ -20,24 +21,39 @@ namespace ShortDash.Server.Data
         public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
         {
             var user = context.Principal;
+            var requestPath = context.HttpContext.Request.Path.ToString();
             var lastDeviceSyncValue = (from c in user.Claims where c.Type == DeviceClaimTypes.LastDeviceSync select c.Value).FirstOrDefault();
-            if (string.IsNullOrEmpty(lastDeviceSyncValue) || !DashboardService.ValidateDeviceSync(lastDeviceSyncValue))
+            if (requestPath.StartsWith("/_blazor") || DashboardService.ValidateDeviceSync(lastDeviceSyncValue))
             {
-                var requestPath = context.HttpContext.Request.Path.ToString();
-                var allowedPaths = new[] { "/login", "/logout", "devicesync" };
-                if (allowedPaths.Contains(requestPath) || requestPath.StartsWith("/_blazor"))
-                {
-                    return;
-                }
-                var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(user.Identity.Name);
-                if (dashboardDevice == null)
-                {
-                    context.RejectPrincipal();
-                    await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    return;
-                }
-                context.HttpContext.Response.Redirect("/devicesync");
+                return;
             }
+            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(user.Identity.Name);
+            if (ValidateClaims(dashboardDevice, user))
+            {
+                return;
+            }
+            context.RejectPrincipal();
+            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return;
+        }
+
+        private bool ValidateClaims(DashboardDevice dashboardDevice, ClaimsPrincipal user)
+        {
+            if (dashboardDevice == null)
+            {
+                return false;
+            }
+            var ignoreClaimTypes = new[] { ClaimTypes.Name, DeviceClaimTypes.LastDeviceSync };
+            var userClaims = new DeviceClaims();
+            foreach (var claim in user.Claims)
+            {
+                if (ignoreClaimTypes.Contains(claim.Type))
+                {
+                    continue;
+                }
+                userClaims.Add(claim.Type, claim.Value);
+            }
+            return dashboardDevice.GetClaimsList().Equals(userClaims);
         }
     }
 }

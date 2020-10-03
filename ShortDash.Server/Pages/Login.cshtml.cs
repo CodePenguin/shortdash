@@ -47,10 +47,6 @@ namespace ShortDash.Server.Pages
                 IsPersistent = true,
                 RedirectUri = HttpContext.Request.Host.Value
             };
-            if (HttpContext.User.Identity.IsAuthenticated && HttpContext.User.Identity.Name.Equals(response.DeviceId) && !response.AllowSync)
-            {
-                return LocalRedirect("/logout");
-            }
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),

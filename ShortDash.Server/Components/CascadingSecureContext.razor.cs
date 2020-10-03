@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -18,6 +20,9 @@ namespace ShortDash.Server.Components
     public sealed partial class CascadingSecureContext : ComponentBase, ISecureContext, IDisposable
     {
         private string channelId;
+
+        [CascadingParameter]
+        public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Parameter]
         public RenderFragment ChildContent { get; set; }
@@ -34,6 +39,9 @@ namespace ShortDash.Server.Components
 
         [Inject]
         protected ILogger<CascadingSecureContext> Logger { get; set; }
+
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
 
         public string Decrypt(string value)
         {
@@ -94,11 +102,30 @@ namespace ShortDash.Server.Components
 
         private async Task InitializeEncryptedChannel()
         {
-            Logger.LogDebug("Retrieving client public key...");
+            Logger.LogDebug("Establishing secure context...");
             await GetClientPublicKey();
+            Logger.LogDebug("Verifying client identity...");
+            var user = (await AuthenticationStateTask).User;
+            if (user.Identity.IsAuthenticated && user.Identity.Name != ReceiverId)
+            {
+                Logger.LogError("Client was authenticated but the identity did not match.");
+                NavigationManager.NavigateTo("/logout", true);
+                return;
+            }
+            Logger.LogDebug("Sending device challenge...");
+            var challenge = GenerateChallenge(out var rawChallenge);
+            var challengeResponse = await JSRuntime.InvokeAsync<string>("secureContext.challenge", challenge);
+            Logger.LogDebug("Verifying device challenge response...");
+            if (!VerifyChallengeResponse(rawChallenge, challengeResponse))
+            {
+                Logger.LogError("Device challenge could not be verified.");
+                NavigationManager.NavigateTo("/logout", true);
+                return;
+            }
             Logger.LogDebug("Sending session key to client...");
             var encryptedKey = EncryptedChannelService.ExportEncryptedKey(channelId);
             await JSRuntime.InvokeVoidAsync("secureContext.openChannel", GetServerPublicKey(), encryptedKey);
+            Logger.LogDebug("Secure context established successfully.");
             IsInitialized = true;
         }
     }

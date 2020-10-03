@@ -13,7 +13,7 @@ namespace ShortDash.Server.Components
     public partial class DeviceClaimsEditPanel : ComponentBase
     {
         [Parameter]
-        public List<DeviceClaim> Claims { get; set; }
+        public DeviceClaims Claims { get; set; }
 
         public EditContext ClaimsEditContext { get; set; }
 

@@ -94,14 +94,14 @@ namespace ShortDash.Server.Data
         public DateTime LinkedDateTime { get; set; }
         public string Name { get; set; }
 
-        public List<DeviceClaim> GetClaimsList()
+        public DeviceClaims GetClaimsList()
         {
-            return JsonSerializer.Deserialize<List<DeviceClaim>>(Claims);
+            return JsonSerializer.Deserialize<DeviceClaims>(Claims);
         }
 
         public void SetClaimsList(IEnumerable<DeviceClaim> values)
         {
-            var list = new List<DeviceClaim>();
+            var list = new DeviceClaims();
             list.AddRange(values);
             Claims = JsonSerializer.Serialize(list);
         }
