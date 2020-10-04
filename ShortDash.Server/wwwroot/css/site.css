@@ -156,3 +156,7 @@ app {
     font-size: 1rem;
     color: #6c757d;
 }
+
+.text-center > .qrcode > img {
+    margin: auto;
+}

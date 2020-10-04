@@ -13,6 +13,7 @@ namespace ShortDash.Server.Data
         public DbSet<DashboardAction> DashboardActions { get; set; }
         public DbSet<DashboardActionTarget> DashboardActionTargets { get; set; }
         public DbSet<DashboardCell> DashboardCells { get; set; }
+        public DbSet<DashboardDevice> DashboardDevices { get; set; }
         public DbSet<Dashboard> Dashboards { get; set; }
         public DbSet<DashboardSubAction> DashboardSubActions { get; set; }
 

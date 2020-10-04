@@ -1,0 +1,41 @@
+﻿@page "/devices"
+@attribute [Authorize(Policy = "EditDevices")]
+@using System.Web
+@using ShortDash.Core.Extensions
+
+<div class="page text-dark">
+    <button @onclick="LinkDevice" class="btn btn-outline-primary float-right">Link</button>
+    <h3><span class="fas fa-mobile-alt"></span> Devices</h3>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            @foreach (var device in DashboardDevices)
+            {
+                var link = $"devices/{HttpUtility.UrlEncode(device.DashboardDeviceId)}";
+                <div class="col-lg-3">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
+                                @device.Name
+                                <AuthorizeView>
+                                    @if (device.DashboardDeviceId == context.User.Identity.Name)
+                                    {
+                                        <span class="badge badge-secondary ml-4">This device</span>
+                                    }
+                                </AuthorizeView>
+                            </NavLink>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-text">
+                                Linked: @device.LinkedDateTime.ToDisplayString()
+                            </div>
+                            <div class="card-text">
+                                Last Connection: @device.LastSeenDateTime.ToDisplayString()
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

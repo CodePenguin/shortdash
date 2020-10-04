@@ -1,0 +1,10 @@
+﻿<CascadingValue Value="@this" Name="SecureContext">
+    @if (!IsInitialized)
+    {
+        <PageLoadingComponent />
+    }
+    else
+    {
+        @ChildContent
+    }
+</CascadingValue>

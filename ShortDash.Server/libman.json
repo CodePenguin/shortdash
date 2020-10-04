@@ -17,6 +17,27 @@
         "css/bootstrap.min.css",
         "js/bootstrap.min.js"
       ]
+    },
+    {
+      "library": "jsencrypt@2.3.1",
+      "destination": "wwwroot/lib/jsencrypt/",
+      "files": [
+        "jsencrypt.min.js"
+      ]
+    },
+    {
+      "library": "crypto-js@4.0.0",
+      "destination": "wwwroot/lib/crypto-js/",
+      "files": [
+        "crypto-js.min.js"
+      ]
+    },
+    {
+      "library": "qrcodejs@1.0.0",
+      "destination": "wwwroot/lib/qrcodejs/",
+      "files": [
+        "qrcode.min.js"
+      ]
     }
   ]
 }

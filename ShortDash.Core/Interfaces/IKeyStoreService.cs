@@ -2,14 +2,10 @@
 {
     public interface IKeyStoreService
     {
-        bool HasKey();
+        bool HasKey(string purpose);
 
-        string RetrieveKey(bool autoGenerate = true);
+        string RetrieveKey(string purpose, bool autoGenerate = true);
 
-        void StoreKey(string key);
-    }
-
-    public interface IKeyStoreService<out TKeyName> : IKeyStoreService
-    {
+        void StoreKey(string purpose, string key);
     }
 }

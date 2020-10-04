@@ -4,32 +4,52 @@
     {
         void CloseChannel(string channelId);
 
+        string Encrypt(string channelId, object data);
+
         string Encrypt(string channelId, string data);
 
-        string Encrypt(string channelId, object data);
+        string EncryptSigned(string channelId, object data);
+
+        string EncryptSigned(string channelId, string data);
 
         string ExportEncryptedKey(string channelId);
 
         string ExportPublicKey();
 
-        public string GenerateChallenge(string publicKey, out byte[] rawChallenge);
+        string ExportPublicKey(string channelId);
 
-        public string GenerateChallengeResponse(string challenge, string publicKey);
+        string GenerateChallenge(string publicKey, out string rawChallenge);
+
+        string GenerateChallengeResponse(string challenge, string publicKey);
+
+        string GetChannelId(string alias);
 
         void ImportPrivateKey(string privateKeyXml);
 
-        void OpenChannel(string channelId, string receiverPublicKeyXml);
+        string LocalEncryptSigned(string data);
 
-        void OpenChannel(string channelId, string receiverPublicKeyXml, string encryptedKey);
+        string LocalEncryptSigned(object parameters);
+
+        string OpenChannel(string receiverPublicKeyXml);
+
+        string OpenChannel(string receiverPublicKeyXml, string encryptedKey);
+
+        string ReceiverId(string channelId);
+
+        void RegisterChannelAlias(string channelId, string alias);
 
         bool TryDecrypt(string channelId, string encryptedPacket, out string data);
 
-        bool TryDecrypt<TDataType>(string channelId, string encryptedPacket, out TDataType data);
+        bool TryDecryptVerify(string channelId, string encryptedPacket, out string data);
 
-        public bool VerifyChallengeResponse(byte[] challenge, string challengeResponse);
-    }
+        bool TryDecryptVerify<TDataType>(string channelId, string encryptedPacket, out TDataType data);
 
-    public interface IEncryptedChannelService<T> : IEncryptedChannelService
-    {
+        bool TryLocalDecryptVerify<TParameterType>(string encryptedParameters, out TParameterType data);
+
+        bool TryLocalDecryptVerify(string encryptedPacket, out string data);
+
+        void UnregisterChannelAlias(string alias);
+
+        bool VerifyChallengeResponse(string rawChallenge, string challengeResponse);
     }
 }

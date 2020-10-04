@@ -1,15 +1,18 @@
 ﻿@page "/dashboard"
 @page "/dashboard/{DashboardId:int}"
+@attribute [Authorize(Policy = "ViewDashboards")]
 
 <CascadingValue Value="DashboardService">
-    @if (Dashboard == null)
+    @if (Dashboard == null || !CanView)
     {
-        <h3 class="alert alert-danger">Opps, this dashboard does not seem to exist anymore.</h3>
+        <div class="page">
+            <h3 class="alert alert-danger">This device does not have access to this dashboard.</h3>
+        </div>
     }
     else
     {
         <div class="page dashboard vh-100 text-@TextClass" @attributes="DashboardAttributes">
-            <div class="btn-panel fixed-bottom float-right">
+            <div class="btn-panel float-right m-0 mb-2">
                 @if (EditMode)
                 {
                     <button class="btn btn-danger btn-sm mr-5" @onclick="ConfirmDelete">Delete</button>
@@ -18,9 +21,11 @@
                 }
                 else
                 {
-                    <button type="button" class="btn btn-outline-@TextClass btn-sm" @onclick="ToggleEditMode">
-                        Edit
-                    </button>
+                    <AuthorizeView Policy="EditDashboards">
+                        <button type="button" class="btn btn-outline-@TextClass btn-sm" @onclick="ToggleEditMode">
+                            Edit
+                        </button>
+                    </AuthorizeView>
                 }
             </div>
 

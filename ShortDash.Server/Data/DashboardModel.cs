@@ -1,12 +1,21 @@
 ﻿using ShortDash.Server.Extensions;
 using ShortDash.Server.Shared;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace ShortDash.Server.Data
 {
+    public class AccessCode
+    {
+        public string SecureData { get; set; }
+    }
+
     public class Dashboard
     {
         [NotMapped]
@@ -75,6 +84,27 @@ namespace ShortDash.Server.Data
         public int DashboardCellId { get; set; }
         public int DashboardId { get; set; }
         public int Sequence { get; set; }
+    }
+
+    public class DashboardDevice
+    {
+        public string Claims { get; set; }
+        public string DashboardDeviceId { get; set; }
+        public DateTime LastSeenDateTime { get; set; }
+        public DateTime LinkedDateTime { get; set; }
+        public string Name { get; set; }
+
+        public DeviceClaims GetClaimsList()
+        {
+            return JsonSerializer.Deserialize<DeviceClaims>(Claims);
+        }
+
+        public void SetClaimsList(IEnumerable<DeviceClaim> values)
+        {
+            var list = new DeviceClaims();
+            list.AddRange(values);
+            Claims = JsonSerializer.Serialize(list);
+        }
     }
 
     public class DashboardSubAction

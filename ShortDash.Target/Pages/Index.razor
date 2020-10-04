@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ShortDash.Core.Extensions
 
 <div class="container col-lg-4">
     <div class="card">
@@ -22,10 +23,10 @@
                 Target ID: @(!string.IsNullOrEmpty(TargetHubClient.TargetId) ? TargetHubClient.TargetId : "Not Configured")
             </p>
             <p class="card-text">
-                Last Connection: @DisplayDateTime(LastConnection)
+                Last Connection: @LastConnection.ToDisplayString();
             </p>
             <p class="card-text">
-                Last Connection Attempt: @DisplayDateTime(LastConnectionAttempt)
+                Last Connection Attempt: @LastConnectionAttempt.ToDisplayString()
             </p>
         </div>
         <div class="card-footer text-light bg-@ConnectionStatusClass">

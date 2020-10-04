@@ -1,6 +1,8 @@
 using Blazored.Modal;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,11 +48,15 @@ namespace ShortDash.Server
 
             app.UseRouting();
 
+            app.UseCookiePolicy();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<TargetsHub>("/targetshub");
+                endpoints.MapHub<TargetsHub>(TargetsHub.HubUrl);
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
@@ -64,16 +70,41 @@ namespace ShortDash.Server
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
+            });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.EventsType = typeof(AuthenticationEvents);
+                });
+
+            services.AddAuthorization(config =>
+            {
+                // Administrator Actions
+                config.AddPolicy("EditActions", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditDashboards", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditTargets", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy("EditDevices", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                // Specific Actions
+                config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
+            });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();
             services.AddBlazoredModal();
+            services.AddHttpContextAccessor();
+            services.AddScoped<AuthenticationEvents>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
-            services.AddTransient(typeof(IKeyStoreService<>), typeof(KeyStoreService<>));
-            services.AddSingleton(typeof(IEncryptedChannelService<TargetsHub>), typeof(TargetsHubEncryptedChannelService));
+            services.AddScoped<DeviceLinkService>();
+            services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
+            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
             services.AddResponseCompression(opts =>
             {

@@ -1,5 +1,6 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
@@ -25,20 +26,29 @@ namespace ShortDash.Server.Pages
         public IModalService ModalService { get; set; }
 
         public string TextClass { get; set; } = "light";
+        protected bool CanView { get; set; }
         protected Dashboard Dashboard { get; private set; }
         protected Dictionary<string, object> DashboardAttributes { get; private set; } = new Dictionary<string, object>();
         protected EditContext DashboardEditContext { get; private set; } = null;
         protected bool EditMode { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
         private List<DashboardCell> DashboardCells { get; } = new List<DashboardCell>();
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
         {
             LoadDashboardCells();
             StateHasChanged();
+        }
+
+        protected async Task<bool> CanViewDashboard()
+        {
+            return (await AuthenticationStateTask).User.CanAccessDashboard(DashboardId.GetValueOrDefault());
         }
 
         protected async void ConfirmDelete()
@@ -53,7 +63,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardAsync(Dashboard);
-            NavigationManagerService.NavigateTo($"/");
+            NavigationManager.NavigateTo($"/");
         }
 
         protected void LoadDashboardCells()
@@ -63,9 +73,10 @@ namespace ShortDash.Server.Pages
             EditMode = DashboardCells.Count == 0;
         }
 
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             DashboardId ??= 1;
+            CanView = await CanViewDashboard();
             Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
             DashboardEditContext = new EditContext(Dashboard);
             LoadDashboardCells();

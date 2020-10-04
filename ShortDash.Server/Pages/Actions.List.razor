@@ -1,4 +1,5 @@
 ﻿@page "/actions"
+@attribute [Authorize(Policy = "EditActions")]
 
 <div class="page text-dark">
     <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>

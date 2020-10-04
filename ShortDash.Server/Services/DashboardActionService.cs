@@ -14,12 +14,12 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
-        private readonly IEncryptedChannelService<TargetsHub> encryptedChannelService;
+        private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<ActionService> logger;
         private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
 
         public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider,
-            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService<TargetsHub> encryptedChannelService) : base(logger, pluginService, serviceProvider)
+            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService encryptedChannelService) : base(logger, pluginService, serviceProvider)
         {
             this.logger = logger;
             this.targetsHubContext = targetsHubContext;
@@ -39,7 +39,13 @@ namespace ShortDash.Server.Services
                     Parameters = dashboardAction.Parameters,
                     ToggleState = toggleState
                 };
-                var encryptedParameters = EncryptParameters(targetId, parameters);
+                var channelId = encryptedChannelService.GetChannelId(targetId);
+                if (channelId == null)
+                {
+                    // TODO: Handle target is not connected scenario
+                    return Task.CompletedTask;
+                }
+                var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, parameters);
                 return targetsHubContext.Clients.Groups(targetId).ExecuteAction(encryptedParameters);
             }
             // Handle non-targeted actions at the server
@@ -56,12 +62,6 @@ namespace ShortDash.Server.Services
             RegisterActionType(typeof(DashLinkAction));
             RegisterActionType(typeof(DashSeparatorAction));
             base.RegisterActions();
-        }
-
-        private string EncryptParameters(string targetId, object parameters)
-        {
-            var data = JsonSerializer.Serialize(parameters);
-            return encryptedChannelService.Encrypt(targetId, data);
         }
 
         private Task ExecuteGroupAction(DashboardAction dashboardAction)

@@ -10,11 +10,22 @@ namespace ShortDash.Server.Services
 {
     public class DashboardService
     {
+        public static string DeviceSyncValue;
         private readonly ApplicationDbContext dbContext;
+
+        static DashboardService()
+        {
+            UpdateDeviceSyncValue();
+        }
 
         public DashboardService(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext;
+        }
+
+        public static bool ValidateDeviceSync(string value)
+        {
+            return DeviceSyncValue.Equals(value);
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
@@ -37,6 +48,21 @@ namespace ShortDash.Server.Services
             dbContext.Add(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
+        }
+
+        public async Task<DashboardDevice> AddDashboardDeviceAsync(DashboardDevice dashboardDevice)
+        {
+            dbContext.Add(dashboardDevice);
+            await dbContext.SaveChangesAsync();
+            UpdateDeviceSyncValue();
+            return dashboardDevice;
+        }
+
+        public async Task<DashboardDevice> DeleteDashboardActionAsync(DashboardDevice dashboardDevice)
+        {
+            dbContext.Remove(dashboardDevice);
+            await dbContext.SaveChangesAsync();
+            return dashboardDevice;
         }
 
         public async Task<DashboardAction> DeleteDashboardActionAsync(DashboardAction dashboardAction)
@@ -65,6 +91,14 @@ namespace ShortDash.Server.Services
             dbContext.Remove(dashboardCell);
             await dbContext.SaveChangesAsync();
             return dashboardCell;
+        }
+
+        public async Task<DashboardDevice> DeleteDashboardDeviceAsync(DashboardDevice dashboardDevice)
+        {
+            dbContext.Remove(dashboardDevice);
+            await dbContext.SaveChangesAsync();
+            UpdateDeviceSyncValue();
+            return dashboardDevice;
         }
 
         public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
@@ -107,6 +141,18 @@ namespace ShortDash.Server.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<DashboardDevice> GetDashboardDeviceAsync(string dashboardDeviceId)
+        {
+            return await dbContext.DashboardDevices
+                .Where(d => d.DashboardDeviceId == dashboardDeviceId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<DashboardDevice>> GetDashboardDevicesAsync()
+        {
+            return await dbContext.DashboardDevices.ToListAsync();
+        }
+
         public async Task<List<Dashboard>> GetDashboardsAsync()
         {
             return await dbContext.Dashboards.ToListAsync();
@@ -145,6 +191,19 @@ namespace ShortDash.Server.Services
             dbContext.Update(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
+        }
+
+        public async Task<DashboardDevice> UpdateDashboardDeviceAsync(DashboardDevice dashboardDevice)
+        {
+            dbContext.Update(dashboardDevice);
+            await dbContext.SaveChangesAsync();
+            UpdateDeviceSyncValue();
+            return dashboardDevice;
+        }
+
+        private static void UpdateDeviceSyncValue()
+        {
+            DeviceSyncValue = DateTime.Now.GetHashCode().ToString();
         }
 
         private string GenerateDashboardActionTargetId()

@@ -44,11 +44,11 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private NavigationManager NavigationManagerService { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
         {
-            NavigationManagerService.NavigateTo($"/actions");
+            NavigationManager.NavigateTo($"/actions");
         }
 
         protected async Task ChangeActionTypeName()
@@ -72,7 +72,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardActionAsync(DashboardAction);
-            NavigationManagerService.NavigateTo($"/actions");
+            NavigationManager.NavigateTo($"/actions");
         }
 
         protected override async Task OnParametersSetAsync()
@@ -127,7 +127,7 @@ namespace ShortDash.Server.Pages
                 await DashboardService.UpdateDashboardActionAsync(DashboardAction, subActionRemovalList);
             }
 
-            NavigationManagerService.NavigateTo($"/actions");
+            NavigationManager.NavigateTo($"/actions");
         }
 
         protected async void SelectIcon()
