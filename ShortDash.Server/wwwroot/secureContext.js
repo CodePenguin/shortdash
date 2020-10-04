@@ -92,9 +92,11 @@
             var inputText = document.getElementById(id);
             var secureContext = this;
             inputText.value = this.decrypt(initialValue);
-            inputText.onchange = function () {
+            var updateEvent = function () {
                 dotnetHelper.invokeMethodAsync("OnClientChanged", secureContext.encrypt(inputText.value));
             }
+            inputText.onchange = updateEvent;
+            inputText.oninput = updateEvent;
         },
 
         openChannel: function (serverPublicKey, encryptedKey) {

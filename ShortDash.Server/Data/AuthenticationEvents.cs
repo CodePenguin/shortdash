@@ -30,6 +30,8 @@ namespace ShortDash.Server.Data
             var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(user.Identity.Name);
             if (ValidateClaims(dashboardDevice, user))
             {
+                dashboardDevice.LastSeenDateTime = DateTime.Now;
+                await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
                 return;
             }
             context.RejectPrincipal();
