@@ -1,4 +1,5 @@
-﻿using ShortDash.Server.Extensions;
+﻿using Microsoft.AspNetCore.SignalR;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Shared;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,10 @@ using System.Text.Json;
 
 namespace ShortDash.Server.Data
 {
-    public class AccessCode
+    public class ConfigurationSection
     {
-        public string SecureData { get; set; }
+        public string ConfigurationSectionId { get; set; }
+        public string Data { get; set; }
     }
 
     public class Dashboard

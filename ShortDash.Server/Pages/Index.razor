@@ -20,12 +20,14 @@
             </ul>
         </Authorized>
         <NotAuthorized>
-            <DeviceLinkPanel />
+            @if (IsFirstRun)
+            {
+                <AdminAccessCodeSetupPanel OnCompleted="OnCompletedEvent" />
+            }
+            else
+            {
+                <DeviceLinkPanel />
+            }
         </NotAuthorized>
     </AuthorizeView>
 </div>
-
-@code {
-
-    public string AccessToken { get; set; }
-}

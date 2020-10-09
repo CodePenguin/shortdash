@@ -97,7 +97,9 @@ namespace ShortDash.Server
             services.AddSignalR();
             services.AddBlazoredModal();
             services.AddHttpContextAccessor();
+            services.AddScoped<AdminAccessCodeService>();
             services.AddScoped<AuthenticationEvents>();
+            services.AddScoped<ConfigurationService>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddScoped<DeviceLinkService>();

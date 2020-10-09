@@ -53,11 +53,6 @@ namespace ShortDash.Server.Pages
             }
         }
 
-        protected string DeviceLinkCodeDisplay()
-        {
-            return string.Join(" ", from Match m in Regex.Matches(DeviceLinkCode, @"\d{1,3}") select m.Value);
-        }
-
         protected void DeviceLinked(string deviceLinkCode, string deviceId)
         {
             if (!deviceLinkCode.Equals(DeviceLinkCode))

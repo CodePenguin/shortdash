@@ -7,7 +7,7 @@ namespace ShortDash.Server.Extensions
 {
     public static class ColorExtensions
     {
-        private static Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static Color? FromHtmlString(string value)
         {
@@ -50,7 +50,7 @@ namespace ShortDash.Server.Extensions
             {
                 return false;
             }
-            Match match = _regex.Match(value);
+            var match = _regex.Match(value);
             if (!match.Success)
             {
                 return false;

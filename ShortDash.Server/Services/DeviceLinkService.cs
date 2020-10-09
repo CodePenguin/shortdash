@@ -14,25 +14,27 @@ namespace ShortDash.Server.Services
     public class DeviceLinkService
     {
         private static readonly ConcurrentDictionary<string, LinkDeviceRequest> Requests = new ConcurrentDictionary<string, LinkDeviceRequest>();
+        private readonly AdminAccessCodeService adminAccessCodeService;
         private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger logger;
 
-        public DeviceLinkService(ILogger<DeviceLinkService> logger, DashboardService dashboardService, IEncryptedChannelService encryptedChannelService)
+        public DeviceLinkService(ILogger<DeviceLinkService> logger, DashboardService dashboardService, IEncryptedChannelService encryptedChannelService, AdminAccessCodeService adminAccessCodeService)
         {
             this.dashboardService = dashboardService;
             this.logger = logger;
             this.encryptedChannelService = encryptedChannelService;
+            this.adminAccessCodeService = adminAccessCodeService;
         }
 
         public static event EventHandler<DeviceLinkedEventArgs> OnDeviceLinked;
 
-        public void AddRequest(LinkDeviceRequest request)
+        public static void AddRequest(LinkDeviceRequest request)
         {
             Requests[request.DeviceLinkCode] = request;
         }
 
-        public void CancelRequest(LinkDeviceRequest request)
+        public static void CancelRequest(LinkDeviceRequest request)
         {
             Requests.TryRemove(request.DeviceLinkCode, out _);
         }
@@ -61,7 +63,7 @@ namespace ShortDash.Server.Services
             {
                 return null;
             }
-            return GenerateAccessToken(dashboardDevice.DashboardDeviceId, dashboardDevice, true);
+            return GenerateAccessToken(dashboardDevice.DashboardDeviceId, dashboardDevice);
         }
 
         public async Task<string> LinkDevice(string deviceLinkCode, string deviceName, string deviceId)
@@ -72,7 +74,7 @@ namespace ShortDash.Server.Services
             {
                 claims.AddRange(request.Claims);
             }
-            else if (IsValidAdminDeviceLinkCode(deviceLinkCode))
+            else if (await IsValidAdminDeviceLinkCode(deviceLinkCode))
             {
                 claims.Add(new DeviceClaim(ClaimTypes.Role, DeviceClaimTypes.AdministratorRole));
             }
@@ -105,7 +107,7 @@ namespace ShortDash.Server.Services
             {
                 dashboardDevice = await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
             }
-            return GenerateAccessToken(deviceLinkCode, dashboardDevice, false);
+            return GenerateAccessToken(deviceLinkCode, dashboardDevice);
         }
 
         public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)
@@ -135,7 +137,7 @@ namespace ShortDash.Server.Services
             return response;
         }
 
-        private string GenerateAccessToken(string deviceLinkCode, DashboardDevice dashboardDevice, bool allowSync)
+        private string GenerateAccessToken(string deviceLinkCode, DashboardDevice dashboardDevice)
         {
             var response = new LinkDeviceResponse
             {
@@ -146,10 +148,9 @@ namespace ShortDash.Server.Services
             return encryptedChannelService.LocalEncryptSigned(response);
         }
 
-        private bool IsValidAdminDeviceLinkCode(string deviceLinkCode)
+        private async Task<bool> IsValidAdminDeviceLinkCode(string deviceLinkCode)
         {
-            // TODO: Add better mechnism
-            return deviceLinkCode == "123456";
+            return await adminAccessCodeService.IsValidAccessCode(deviceLinkCode);
         }
     }
 }

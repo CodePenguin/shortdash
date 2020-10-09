@@ -28,6 +28,13 @@ namespace ShortDash.Server.Services
             return DeviceSyncValue.Equals(value);
         }
 
+        public async Task<ConfigurationSection> AddConfigurationSectionAsync(ConfigurationSection configurationSection)
+        {
+            dbContext.Add(configurationSection);
+            await dbContext.SaveChangesAsync();
+            return configurationSection;
+        }
+
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
         {
             dbContext.Add(dashboardAction);
@@ -101,6 +108,13 @@ namespace ShortDash.Server.Services
             return dashboardDevice;
         }
 
+        public async Task<ConfigurationSection> GetConfigurationSectionAsync(string configurationSectionId)
+        {
+            return await dbContext.ConfigurationSections
+                .Where(s => s.ConfigurationSectionId == configurationSectionId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
             return await dbContext.DashboardActions
@@ -156,6 +170,13 @@ namespace ShortDash.Server.Services
         public async Task<List<Dashboard>> GetDashboardsAsync()
         {
             return await dbContext.Dashboards.ToListAsync();
+        }
+
+        public async Task<ConfigurationSection> UpdateConfigurationSectionAsync(ConfigurationSection configurationSection)
+        {
+            dbContext.Update(configurationSection);
+            await dbContext.SaveChangesAsync();
+            return configurationSection;
         }
 
         public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction, List<DashboardSubAction> subActionRemovalList = null)
