@@ -27,8 +27,8 @@
             }
         </div>
         <div class="card-footer text-right">
-            <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-            <button class="btn btn-primary" @onclick="StartLinking" disabled="@Linking">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="StartLinking" disabled="@Linking">
                 @if (Linking)
                 {
                     <span class="spinner-border spinner-border-sm"></span>

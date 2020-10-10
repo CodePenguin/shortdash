@@ -21,18 +21,18 @@
             </div>
         }
 
-        <EditForm EditContext="DeviceEditContext">
+        <EditForm Model="DashboardDevice" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
             <div class="form-group">
                 <label for="DashboardName">Name</label>
                 <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardName" />
                 <ValidationMessage For="() => DashboardDevice.Name" />
             </div>
-            <button class="btn btn-outline-danger float-left" @onclick="ConfirmUnlink">Unlink</button>
+            <button class="btn btn-outline-danger float-left" type="button" @onclick="ConfirmUnlink">Unlink</button>
 
             <div class="float-right">
-                <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
-                <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </EditForm>
     }

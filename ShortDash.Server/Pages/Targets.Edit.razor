@@ -18,7 +18,7 @@
             <h3>@DashboardActionTarget.Name</h3>
         }
 
-        <EditForm EditContext="TargetEditContext">
+        <EditForm Model="DashboardActionTarget" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
             <div class="form-group">
                 <label for="DashboardName">Name</label>
@@ -36,11 +36,11 @@
                     <input type="text" class="form-control" value="@DashboardActionTarget.DashboardActionTargetId" disabled />
                 }
             </div>
-            <button class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+            <button type="button" class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
 
             <div class="float-right">
-                <button class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
-                <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </EditForm>
     }

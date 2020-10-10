@@ -24,9 +24,7 @@ namespace ShortDash.Server.Pages
 
         protected DashboardActionTarget DashboardActionTarget { get; set; }
 
-        protected bool IsLoading => TargetEditContext == null;
-
-        protected EditContext TargetEditContext { get; private set; } = null;
+        protected bool IsLoading => DashboardActionTarget == null;
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -56,7 +54,7 @@ namespace ShortDash.Server.Pages
 
         protected override async Task OnParametersSetAsync()
         {
-            TargetEditContext = null;
+            DashboardActionTarget = null;
             if (!string.IsNullOrWhiteSpace(DashboardActionTargetId))
             {
                 if (DashboardActionTargetId == DashboardActionTarget.ServerTargetId)
@@ -71,16 +69,10 @@ namespace ShortDash.Server.Pages
             {
                 await Task.Run(() => NewDashboardActionTarget());
             }
-            TargetEditContext = new EditContext(DashboardActionTarget);
         }
 
         protected async void SaveChanges()
         {
-            if (!TargetEditContext.Validate())
-            {
-                return;
-            }
-
             if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
             {
                 await DashboardService.AddDashboardActionTargetAsync(DashboardActionTarget);

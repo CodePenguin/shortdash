@@ -26,12 +26,10 @@ namespace ShortDash.Server.Pages
 
         protected DashboardDevice DashboardDevice { get; set; }
 
-        protected EditContext DeviceEditContext { get; private set; } = null;
-
         [Inject]
         protected IHttpContextAccessor HttpContextAccessor { get; set; }
 
-        protected bool IsLoading => DeviceEditContext == null;
+        protected bool IsLoading => DashboardDevice == null;
 
         protected bool SuccessfullyLinked { get; set; }
 
@@ -63,10 +61,8 @@ namespace ShortDash.Server.Pages
 
         protected override async Task OnParametersSetAsync()
         {
-            DeviceEditContext = null;
+            DashboardDevice = null;
             await LoadDashboardDevice();
-
-            DeviceEditContext = new EditContext(DashboardDevice);
 
             var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
             QueryHelpers.ParseQuery(uri.Query).TryGetValue("linked", out var linkedValue);
@@ -75,11 +71,6 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            if (!DeviceEditContext.Validate())
-            {
-                return;
-            }
-
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);
 
             NavigationManager.NavigateTo("/devices");
