@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +32,7 @@ namespace ShortDash.Server.Pages
             {
                 return LocalRedirect("~/");
             }
+
             deviceLinkService.DeviceLinked(response);
             var claims = new List<Claim>
             {
@@ -41,16 +43,23 @@ namespace ShortDash.Server.Pages
             {
                 claims.Add(new Claim(claim.Type, claim.Value));
             }
+
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,
                 RedirectUri = HttpContext.Request.Host.Value
             };
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
+                claimsPrincipal,
                 authProperties);
+
+            if (claimsPrincipal.IsInRole(DeviceClaimTypes.AdministratorRole))
+            {
+                return LocalRedirect("~/devices/" + HttpUtility.UrlEncode(claimsPrincipal.Identity.Name));
+            }
             return LocalRedirect("~/");
         }
     }
