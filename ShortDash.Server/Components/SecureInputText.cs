@@ -14,6 +14,7 @@ namespace ShortDash.Server.Components
 {
     public class SecureInputText : InputBase<string>
     {
+        private string lastSentValue;
         private DotNetObjectReference<SecureInputText> objectReference;
 
         [Inject]
@@ -62,17 +63,18 @@ namespace ShortDash.Server.Components
             return SecureContext.Encrypt(Value);
         }
 
-        protected override string FormatValueAsString(string value)
-        {
-            return value;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
+                lastSentValue = CurrentValue;
                 await JSRuntime.InvokeVoidAsync("secureContext.initSecureInputText", UniqueId, objectReference, EncryptedCurrentValue());
+            }
+            else if (lastSentValue != CurrentValue)
+            {
+                lastSentValue = CurrentValue;
+                await JSRuntime.InvokeVoidAsync("secureContext.setSecureInputTextValue", UniqueId, EncryptedCurrentValue());
             }
         }
 

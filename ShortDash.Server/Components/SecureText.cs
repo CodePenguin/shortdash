@@ -14,6 +14,8 @@ namespace ShortDash.Server.Components
 {
     public sealed class SecureText : ComponentBase
     {
+        private string lastSentValue;
+
         [Parameter(CaptureUnmatchedValues = true)]
         public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
 
@@ -40,10 +42,14 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-            await JSRuntime.InvokeVoidAsync("secureContext.setSecureControlText", UniqueId, SecureContext.Encrypt(Value));
+            if (Value != lastSentValue)
+            {
+                lastSentValue = Value;
+                await JSRuntime.InvokeVoidAsync("secureContext.setSecureControlText", UniqueId, SecureContext.Encrypt(Value));
+            }
         }
 
         protected override void OnParametersSet()
