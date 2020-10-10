@@ -31,6 +31,10 @@
             var encrypt = new JSEncrypt();
             encrypt.setPublicKey(publicKey);
             var encrypted = encrypt.encrypt(value);
+            // Fix sporadic JSEncrypt padding bug
+            if (encrypted.length != 4 * Math.ceil(256 / 3)) {
+                encrypted = btoa(atob(encrypted).padStart(256, "\0"));
+            }
             return encrypted;
         },
 
