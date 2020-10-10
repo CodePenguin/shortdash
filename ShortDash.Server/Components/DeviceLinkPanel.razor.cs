@@ -18,8 +18,6 @@ namespace ShortDash.Server.Components
 {
     public sealed partial class DeviceLinkPanel : ComponentBase, IDisposable
     {
-        protected EditContext DeviceLinkEditContext { get; set; }
-
         [Inject]
         protected DeviceLinkService DeviceLinkService { get; set; }
 
@@ -45,6 +43,7 @@ namespace ShortDash.Server.Components
 
         protected void Cancel()
         {
+            ShowRetryMessage = false;
             if (Linking)
             {
                 StopLinking();
@@ -52,6 +51,7 @@ namespace ShortDash.Server.Components
             else
             {
                 Model.DeviceLinkCode = "";
+                StateHasChanged();
             }
         }
 
@@ -67,7 +67,6 @@ namespace ShortDash.Server.Components
         {
             Linking = false;
             Model = new DeviceLinkModel();
-            DeviceLinkEditContext = new EditContext(Model);
 
             var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
             QueryHelpers.ParseQuery(uri.Query).TryGetValue("c", out var deviceLinkCode);
@@ -83,7 +82,7 @@ namespace ShortDash.Server.Components
         protected async void StartLinking()
         {
             ShowRetryMessage = false;
-            if (Linking || !DeviceLinkEditContext.Validate())
+            if (Linking)
             {
                 return;
             }
@@ -96,7 +95,7 @@ namespace ShortDash.Server.Components
 
             if (accessToken == null)
             {
-                ShowRetryMessage = true;
+                ShowRetryMessage = Linking;
                 StopLinking();
                 StateHasChanged();
                 return;
