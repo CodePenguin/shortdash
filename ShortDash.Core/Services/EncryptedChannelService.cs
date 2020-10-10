@@ -90,7 +90,7 @@ namespace ShortDash.Core.Services
         {
             // Use Aes class to generate random cryptographic data for the challenge data
             using var aes = Aes.Create();
-            rawChallenge = Convert.ToBase64String(aes.Key.ToArray());
+            rawChallenge = Convert.ToBase64String(aes.IV.Concat(aes.Key).ToArray());
             byte[] challenge;
             var isEncryptedChallenge = !string.IsNullOrEmpty(publicKey);
             if (isEncryptedChallenge)

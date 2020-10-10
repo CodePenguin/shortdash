@@ -15,27 +15,21 @@
 
         getSessionkey: function () {
             var key = sessionStorage.getItem("SecureContextSessionKey");
-            return CryptoJS.enc.Base64.parse(key);
+            return forge.util.decode64(key);
         },
 
         rsaDecrypt: function (value) {
-            var privateKey = this.getClientPrivateKey();
-            var crypto = new JSEncrypt();
-            crypto.setPrivateKey(privateKey);
-            var encrypted = crypto.decrypt(value);
-            return encrypted;
+            var privateKeyPem = this.getClientPrivateKey();
+            var privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+            var decodedBytes = forge.util.decode64(value);
+            return privateKey.decrypt(decodedBytes);
         },
 
         rsaEncrypt: function (value) {
-            var publicKey = this.getServerPublicKey();
-            var encrypt = new JSEncrypt();
-            encrypt.setPublicKey(publicKey);
-            var encrypted = encrypt.encrypt(value);
-            // Fix sporadic JSEncrypt padding bug
-            if (encrypted.length != 4 * Math.ceil(256 / 3)) {
-                encrypted = btoa(atob(encrypted).padStart(256, "\0"));
-            }
-            return encrypted;
+            var publicKeyPem = this.getServerPublicKey();
+            var publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+            var encryptedBytes = publicKey.encrypt(value);
+            return forge.util.encode64(encryptedBytes);
         },
 
         setSessionKey: function (encryptedKey) {
@@ -50,11 +44,11 @@
 
     // Initialize context
     if (_.getClientPublicKey() === null) {
-        var crypto = new JSEncrypt({ default_key_size: 2048 });
-        crypto.getKey();
-        clientPublicKey = crypto.getPublicKey();
-        localStorage.setItem("SecureContextClientPrivateKey", crypto.getPrivateKey());
-        localStorage.setItem("SecureContextClientPublicKey", clientPublicKey);
+        var keypair = forge.pki.rsa.generateKeyPair({ bits: 2048, e: 0x10001 });
+        var privateKey = forge.pki.privateKeyToPem(keypair.privateKey);
+        var publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
+        localStorage.setItem("SecureContextClientPrivateKey", privateKey);
+        localStorage.setItem("SecureContextClientPublicKey", publicKey);
     }
 
     // Public functions
@@ -68,22 +62,29 @@
         },
 
         decrypt: function (base64data) {
-            var data = CryptoJS.enc.Base64.parse(base64data);
-            var key = _.getSessionkey();
-            var dataHex = CryptoJS.enc.Hex.stringify(data);
-            var iv = CryptoJS.enc.Hex.parse(dataHex.slice(0, 32));
-            var cipher = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(dataHex.slice(32)));
-            var plain = CryptoJS.AES.decrypt(cipher, key, { iv: iv });
-            return CryptoJS.enc.Utf8.stringify(plain);
+            var data = forge.util.decode64(base64data);
+            var dataHex = forge.util.bytesToHex(data);
+            var iv = forge.util.hexToBytes(dataHex.slice(0, 32));
+            var encryptedBytes = forge.util.hexToBytes(dataHex.slice(32));
+            var buffer = forge.util.createBuffer(encryptedBytes, "raw");
+            var decipher = forge.cipher.createDecipher("AES-CBC", _.getSessionkey());
+            decipher.start({ iv: iv });
+            decipher.update(buffer);
+            decipher.finish();
+            return forge.util.decodeUtf8(decipher.output);
         },
 
         encrypt: function (data) {
-            var keyBytes = _.getSessionkey();
-            var iv = CryptoJS.lib.WordArray.random(16);
-            var encrypted = CryptoJS.AES.encrypt(data, keyBytes, { iv: iv });
-            var encryptedHex = encrypted.iv.toString() + encrypted.ciphertext.toString();
-            var encryptedBytes = CryptoJS.enc.Hex.parse(encryptedHex);
-            return CryptoJS.enc.Base64.stringify(encryptedBytes);
+            var buffer = forge.util.createBuffer(data, "utf8");
+            var iv = forge.random.getBytesSync(16);
+            var cipher = forge.cipher.createCipher("AES-CBC", _.getSessionkey());
+            cipher.start({ iv: iv });
+            cipher.update(buffer);
+            cipher.finish();
+            var encrypted = cipher.output;
+            var encryptedHex = forge.util.bytesToHex(iv) + encrypted.toHex();
+            var encryptedBytes = forge.util.hexToBytes(encryptedHex);
+            return forge.util.encode64(encryptedBytes);
         },
 
         exportPublicKey: function () {

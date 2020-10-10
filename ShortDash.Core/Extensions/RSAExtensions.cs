@@ -43,6 +43,7 @@ namespace ShortDash.Core.Extensions
 
         private static byte[] GetKeyBytes(string key, string prefix, string suffix)
         {
+            key = key.Replace("\r\n", "\n").Trim('\n');
             if (!key.StartsWith(prefix) || !key.EndsWith(suffix))
             {
                 throw new CryptographicException("Invalid key format.");
