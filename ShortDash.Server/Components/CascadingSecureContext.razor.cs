@@ -104,27 +104,26 @@ namespace ShortDash.Server.Components
         {
             Logger.LogDebug("Establishing secure context...");
             await GetClientPublicKey();
-            Logger.LogDebug("Verifying client identity...");
             var user = (await AuthenticationStateTask).User;
             if (user.Identity.IsAuthenticated && user.Identity.Name != ReceiverId)
             {
-                Logger.LogError("Client was authenticated but the identity did not match.");
+                Logger.LogError("Device was already linked but the identity did not match.");
                 NavigationManager.NavigateTo("/logout", true);
                 return;
             }
-            Logger.LogDebug("Sending device challenge...");
+            Logger.LogDebug("Sending initialization request...");
             var challenge = GenerateChallenge(out var rawChallenge);
-            var challengeResponse = await JSRuntime.InvokeAsync<string>("secureContext.challenge", challenge);
-            Logger.LogDebug("Verifying device challenge response...");
+            var challengeResponse = await JSRuntime.InvokeAsync<string>("secureContext.initChannel", GetServerPublicKey(), challenge);
+            Logger.LogDebug("Verifying initialization response...");
             if (!VerifyChallengeResponse(rawChallenge, challengeResponse))
             {
-                Logger.LogError("Device challenge could not be verified.");
+                Logger.LogError("Initialization challenge could not be verified.");
                 NavigationManager.NavigateTo("/logout", true);
                 return;
             }
-            Logger.LogDebug("Sending session key to client...");
+            Logger.LogDebug("Sending session key...");
             var encryptedKey = EncryptedChannelService.ExportEncryptedKey(channelId);
-            await JSRuntime.InvokeVoidAsync("secureContext.openChannel", GetServerPublicKey(), encryptedKey);
+            await JSRuntime.InvokeVoidAsync("secureContext.openChannel", encryptedKey);
             Logger.LogDebug("Secure context established successfully.");
             IsInitialized = true;
         }

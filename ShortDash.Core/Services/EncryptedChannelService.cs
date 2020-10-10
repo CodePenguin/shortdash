@@ -88,9 +88,9 @@ namespace ShortDash.Core.Services
 
         public string GenerateChallenge(string publicKey, out string rawChallenge)
         {
-            // Use Aes class to generate random cryptographic data
+            // Use Aes class to generate random cryptographic data for the challenge data
             using var aes = Aes.Create();
-            rawChallenge = Convert.ToBase64String(aes.IV.Concat(aes.Key).ToArray());
+            rawChallenge = Convert.ToBase64String(aes.Key.ToArray());
             byte[] challenge;
             var isEncryptedChallenge = !string.IsNullOrEmpty(publicKey);
             if (isEncryptedChallenge)
@@ -102,7 +102,7 @@ namespace ShortDash.Core.Services
             }
             else
             {
-                // If the challenge is for a new registration, send a unencrypted challenge
+                // If the challenge is for a new registration, send an unencrypted challenge
                 challenge = Encoding.UTF8.GetBytes(rawChallenge);
             }
             // Add the encrypted challenge prefix if applicable

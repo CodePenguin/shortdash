@@ -55,13 +55,11 @@
 
     // Public functions
     return {
-        challenge: function (base64data) {
-            console.log("Challenge: ", base64data);
+        initChannel: function (serverPublicKey, base64data) {
+            _.setServerPublicKey(serverPublicKey);
             base64data = base64data.substring(4);
             var decryptedChallenge = _.rsaDecrypt(base64data);
-            console.log("Decrypted: ", decryptedChallenge);
             var encryptedChallenge = _.rsaEncrypt(decryptedChallenge);
-            console.log("encryptedChallenge: ", encryptedChallenge);
             return encryptedChallenge;
         },
 
@@ -99,8 +97,7 @@
             inputText.oninput = updateEvent;
         },
 
-        openChannel: function (serverPublicKey, encryptedKey) {
-            _.setServerPublicKey(serverPublicKey);
+        openChannel: function (encryptedKey) {
             _.setSessionKey(encryptedKey);
         },
 
