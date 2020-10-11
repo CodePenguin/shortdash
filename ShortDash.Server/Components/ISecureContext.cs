@@ -15,6 +15,8 @@ namespace ShortDash.Server.Components
 
         string GenerateChallenge(out string rawChallenge);
 
+        Task<bool> ValidateUser();
+
         bool VerifyChallengeResponse(string rawChallenge, string challengeResponse);
     }
 }

@@ -29,6 +29,8 @@ namespace ShortDash.Server.Services
 
         public static event EventHandler<DeviceLinkedEventArgs> OnDeviceLinked;
 
+        public static event EventHandler<DeviceUnlinkedEventArgs> OnDeviceUnlinked;
+
         public static void AddRequest(LinkDeviceRequest request)
         {
             Requests[request.DeviceLinkCode] = request;
@@ -56,20 +58,9 @@ namespace ShortDash.Server.Services
             });
         }
 
-        public async Task<string> GenerateSyncToken(string deviceId)
-        {
-            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(deviceId);
-            if (dashboardDevice == null)
-            {
-                return null;
-            }
-            return GenerateAccessToken(dashboardDevice.DashboardDeviceId, dashboardDevice);
-        }
-
         public async Task<string> LinkDevice(string deviceLinkCode, string deviceName, string deviceId)
         {
             var claims = new DeviceClaims();
-            logger.LogDebug("Received LinkDevice message - {0} - {1}", deviceLinkCode, deviceId);
             if (Requests.TryRemove(deviceLinkCode, out var request))
             {
                 claims.AddRange(request.Claims);
@@ -108,6 +99,17 @@ namespace ShortDash.Server.Services
                 dashboardDevice = await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
             }
             return GenerateAccessToken(deviceLinkCode, dashboardDevice);
+        }
+
+        public async Task UnlinkDevice(string deviceId)
+        {
+            var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(deviceId);
+            if (dashboardDevice == null)
+            {
+                return;
+            }
+            await dashboardService.DeleteDashboardDeviceAsync(dashboardDevice);
+            OnDeviceUnlinked?.Invoke(this, new DeviceUnlinkedEventArgs { DeviceId = deviceId });
         }
 
         public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)

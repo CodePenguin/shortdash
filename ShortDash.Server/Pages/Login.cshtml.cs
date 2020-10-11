@@ -36,8 +36,7 @@ namespace ShortDash.Server.Pages
             deviceLinkService.DeviceLinked(response);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, response.DeviceId),
-                new Claim(DeviceClaimTypes.LastDeviceSync, DashboardService.DeviceSyncValue)
+                new Claim(ClaimTypes.Name, response.DeviceId)
             };
             foreach (var claim in response.Claims)
             {

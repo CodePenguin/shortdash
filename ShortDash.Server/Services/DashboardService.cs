@@ -10,22 +10,11 @@ namespace ShortDash.Server.Services
 {
     public class DashboardService
     {
-        public static string DeviceSyncValue;
         private readonly ApplicationDbContext dbContext;
-
-        static DashboardService()
-        {
-            UpdateDeviceSyncValue();
-        }
 
         public DashboardService(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext;
-        }
-
-        public static bool ValidateDeviceSync(string value)
-        {
-            return DeviceSyncValue.Equals(value);
         }
 
         public async Task<ConfigurationSection> AddConfigurationSectionAsync(ConfigurationSection configurationSection)
@@ -61,7 +50,6 @@ namespace ShortDash.Server.Services
         {
             dbContext.Add(dashboardDevice);
             await dbContext.SaveChangesAsync();
-            UpdateDeviceSyncValue();
             return dashboardDevice;
         }
 
@@ -104,7 +92,6 @@ namespace ShortDash.Server.Services
         {
             dbContext.Remove(dashboardDevice);
             await dbContext.SaveChangesAsync();
-            UpdateDeviceSyncValue();
             return dashboardDevice;
         }
 
@@ -218,13 +205,7 @@ namespace ShortDash.Server.Services
         {
             dbContext.Update(dashboardDevice);
             await dbContext.SaveChangesAsync();
-            UpdateDeviceSyncValue();
             return dashboardDevice;
-        }
-
-        private static void UpdateDeviceSyncValue()
-        {
-            DeviceSyncValue = DateTime.Now.GetHashCode().ToString();
         }
 
         private string GenerateDashboardActionTargetId()

@@ -2,16 +2,19 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Services;
+using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -28,6 +31,12 @@ namespace ShortDash.Server.Components
         public RenderFragment ChildContent { get; set; }
 
         public string ReceiverId { get; private set; }
+
+        [Inject]
+        protected AuthenticationEvents AuthenticationEvents { get; set; }
+
+        [Inject]
+        protected DeviceLinkService DeviceLinkService { get; set; }
 
         [Inject]
         protected IEncryptedChannelService EncryptedChannelService { get; set; }
@@ -54,6 +63,8 @@ namespace ShortDash.Server.Components
 
         public void Dispose()
         {
+            DeviceLinkService.OnDeviceUnlinked -= DeviceUnlinkedEvent;
+            NavigationManager.LocationChanged -= LocationChanged;
             EncryptedChannelService.CloseChannel(channelId);
         }
 
@@ -67,18 +78,30 @@ namespace ShortDash.Server.Components
             return EncryptedChannelService.GenerateChallenge(EncryptedChannelService.ExportPublicKey(channelId), out rawChallenge);
         }
 
+        public async Task<bool> ValidateUser()
+        {
+            var user = (await AuthenticationStateTask).User;
+            return await CheckUser(user);
+        }
+
         public bool VerifyChallengeResponse(string rawChallenge, string challengeResponse)
         {
             return EncryptedChannelService.VerifyChallengeResponse(rawChallenge, challengeResponse);
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+            var user = (await AuthenticationStateTask).User;
+            if (!await CheckUser(user))
+            {
+                return;
+            }
             if (firstRender)
             {
                 await InitializeEncryptedChannel();
                 StateHasChanged();
+                return;
             }
         }
 
@@ -86,6 +109,28 @@ namespace ShortDash.Server.Components
         {
             base.OnInitialized();
             channelId = Guid.NewGuid().ToString();
+            NavigationManager.LocationChanged += LocationChanged;
+            DeviceLinkService.OnDeviceUnlinked += DeviceUnlinkedEvent;
+        }
+
+        private async Task<bool> CheckUser(ClaimsPrincipal user)
+        {
+            if (!user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+            if (await AuthenticationEvents.ValidatePrincipal(user) && (ReceiverId == null || user.Identity.Name == ReceiverId))
+            {
+                return true;
+            }
+            Logger.LogError("Device's identity could not be verified.");
+            NavigationManager.NavigateTo("/logout", true);
+            return false;
+        }
+
+        private void DeviceUnlinkedEvent(object sender, DeviceUnlinkedEventArgs e)
+        {
+            InvokeAsync(async () => await ValidateUser());
         }
 
         private async Task GetClientPublicKey()
@@ -104,13 +149,6 @@ namespace ShortDash.Server.Components
         {
             Logger.LogDebug("Establishing secure context...");
             await GetClientPublicKey();
-            var user = (await AuthenticationStateTask).User;
-            if (user.Identity.IsAuthenticated && user.Identity.Name != ReceiverId)
-            {
-                Logger.LogError("Device was already linked but the identity did not match.");
-                NavigationManager.NavigateTo("/logout", true);
-                return;
-            }
             Logger.LogDebug("Sending initialization request...");
             var challenge = GenerateChallenge(out var rawChallenge);
             var challengeResponse = await JSRuntime.InvokeAsync<string>("secureContext.initChannel", GetServerPublicKey(), challenge);
@@ -126,6 +164,12 @@ namespace ShortDash.Server.Components
             await JSRuntime.InvokeVoidAsync("secureContext.openChannel", encryptedKey);
             Logger.LogDebug("Secure context established successfully.");
             IsInitialized = true;
+        }
+
+        private async void LocationChanged(object sender, LocationChangedEventArgs e)
+        {
+            var user = (await AuthenticationStateTask).User;
+            await CheckUser(user);
         }
     }
 }

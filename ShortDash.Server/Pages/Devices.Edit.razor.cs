@@ -37,6 +37,9 @@ namespace ShortDash.Server.Pages
         private DashboardService DashboardService { get; set; }
 
         [Inject]
+        private DeviceLinkService DeviceLinkService { get; set; }
+
+        [Inject]
         private NavigationManager NavigationManager { get; set; }
 
         protected void CancelChanges()
@@ -55,11 +58,11 @@ namespace ShortDash.Server.Pages
             {
                 return;
             }
-            await DashboardService.DeleteDashboardDeviceAsync(DashboardDevice);
+            await DeviceLinkService.UnlinkDevice(DashboardDevice.DashboardDeviceId);
             NavigationManager.NavigateTo("/devices");
         }
 
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             DashboardDevice = null;
             await LoadDashboardDevice();
