@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Data
 {
-    public static class DeviceClaimTypes
+    public static class Claims
     {
-        public const string AdministratorRole = "Administrator";
-
         public static string DashboardAccess(int dashboardId)
         {
             return $"DashboardAccess_{dashboardId}";

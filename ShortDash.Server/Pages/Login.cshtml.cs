@@ -40,13 +40,13 @@ namespace ShortDash.Server.Pages
                 IsPersistent = true,
                 RedirectUri = HttpContext.Request.Host.Value
             };
-            var claimsPrincipal = response.Claims.ToClaimsPrincipal(response.DeviceId);
+            var claimsPrincipal = response.DeviceClaims.ToClaimsPrincipal(response.DeviceId);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 claimsPrincipal,
                 authProperties);
 
-            if (claimsPrincipal.IsInRole(DeviceClaimTypes.AdministratorRole))
+            if (claimsPrincipal.IsInRole(Roles.Administrator))
             {
                 return LocalRedirect("~/devices/" + HttpUtility.UrlEncode(claimsPrincipal.Identity.Name));
             }

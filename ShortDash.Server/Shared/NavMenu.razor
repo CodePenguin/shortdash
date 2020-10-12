@@ -10,10 +10,11 @@
                     <span class="fas fa-home fa-fw" aria-hidden="true"></span> Home
                 </NavLink>
 
-                <div class="dropdown-divider"></div>
+                <AuthorizeView Policy="@Policies.ViewDashboards">
+                    <div class="dropdown-divider"></div>
 
-                <h6 class="dropdown-header">Dashboards</h6>
-                <AuthorizeView Policy="ViewDashboards">
+                    <h6 class="dropdown-header">Dashboards</h6>
+
                     @foreach (var dashboard in Dashboards)
                     {
                         if (CanAccessDashboard(dashboard.DashboardId))
@@ -25,33 +26,35 @@
                         }
                     }
                 </AuthorizeView>
-                <AuthorizeView Policy="EditDashboards">
+                <AuthorizeView Policy="@Policies.EditDashboards">
                     <a href="#" class="dropdown-item" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
                         <span class="fas fa-plus fa-fw" aria-hidden="true"></span> New Dashboard
                     </a>
                 </AuthorizeView>
 
-                <div class="dropdown-divider"></div>
+                <AuthorizeView>
+                    <div class="dropdown-divider"></div>
+                </AuthorizeView>
 
-                <AuthorizeView Policy="EditActions">
+                <AuthorizeView Policy="@Policies.EditActions">
                     <NavLink class="dropdown-item" href="actions" Match="NavLinkMatch.Prefix">
                         <span class="fas fa-puzzle-piece fa-fw" aria-hidden="true"></span> Actions
                     </NavLink>
                 </AuthorizeView>
-                <AuthorizeView Policy="EditDevices">
+                <AuthorizeView Policy="@Policies.EditDevices">
                     <NavLink class="dropdown-item" href="devices" Match="NavLinkMatch.Prefix">
                         <span class="fas fa-mobile-alt fa-fw" aria-hidden="true"></span> Devices
                     </NavLink>
                 </AuthorizeView>
-                <AuthorizeView Policy="EditTargets">
+                <AuthorizeView Policy="@Policies.EditTargets">
                     <NavLink class="dropdown-item" href="targets" Match="NavLinkMatch.Prefix">
                         <span class="fas fa-crosshairs fa-fw" aria-hidden="true"></span> Targets
                     </NavLink>
                 </AuthorizeView>
 
-                <div class="dropdown-divider"></div>
-
                 <AuthorizeView>
+                    <div class="dropdown-divider"></div>
+
                     <a href="#" class="dropdown-item" @onclick="ConfirmUnlink" @onclick:preventDefault>
                         <span class="fas fa-unlink fa-fw" aria-hidden="true"></span> Unlink
                     </a>

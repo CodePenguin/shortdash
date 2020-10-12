@@ -1,5 +1,5 @@
 ﻿@page "/devices/{DashboardDeviceId}"
-@attribute [Authorize(Policy = "EditDevices")]
+@attribute [Authorize(Policy = Policies.EditDevices)]
 
 <div class="page">
     @if (IsLoading)
@@ -26,7 +26,7 @@
                 <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardDeviceName" />
                 <ValidationMessage For="() => DashboardDevice.Name" />
             </div>
-            <DeviceClaimsEditPanel Claims="DeviceClaims" />
+            <DeviceClaimsEditPanel DeviceClaims="DeviceClaims" />
 
             <button class="btn btn-outline-danger float-left" type="button" @onclick="ConfirmUnlink">Unlink</button>
 

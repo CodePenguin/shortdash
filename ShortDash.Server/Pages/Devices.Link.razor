@@ -1,5 +1,5 @@
 ﻿@page "/devices/link"
-@attribute [Authorize(Policy = "EditDevices")]
+@attribute [Authorize(Policy = Policies.EditDevices)]
 
 <div class="page container">
     <div class="card">
@@ -23,7 +23,7 @@
             }
             else
             {
-                <DeviceClaimsEditPanel Claims="Claims" />
+                <DeviceClaimsEditPanel DeviceClaims="DeviceClaims" />
             }
         </div>
         <div class="card-footer text-right">

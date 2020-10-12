@@ -77,8 +77,8 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            var refreshClaims = !DeviceClaims.Equals(DashboardDevice.GetClaimsList());
-            DashboardDevice.SetClaimsList(DeviceClaims);
+            var refreshClaims = !DeviceClaims.Equals(DashboardDevice.GetDeviceClaimsList());
+            DashboardDevice.SetDeviceClaimsList(DeviceClaims);
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);
             if (refreshClaims)
             {
@@ -90,7 +90,7 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardDevice()
         {
             DashboardDevice = await DashboardService.GetDashboardDeviceAsync(DashboardDeviceId);
-            DeviceClaims = DashboardDevice.GetClaimsList();
+            DeviceClaims = DashboardDevice.GetDeviceClaimsList();
         }
     }
 }

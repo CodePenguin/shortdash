@@ -1,6 +1,6 @@
 ﻿@page "/targets/{DashboardActionTargetId}"
 @page "/targets/new"
-@attribute [Authorize(Policy = "EditTargets")]
+@attribute [Authorize(Policy = Policies.EditTargets)]
 
 <div class="page">
     @if (IsLoading)

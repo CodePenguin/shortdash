@@ -11,7 +11,7 @@ namespace ShortDash.Server.Extensions
     {
         public static bool CanAccessDashboard(this ClaimsPrincipal user, int dashboardId)
         {
-            return user.IsInRole(DeviceClaimTypes.AdministratorRole) || user.HasClaim(c => c.Type == DeviceClaimTypes.DashboardAccess(dashboardId) && c.Value.Equals("VIEW"));
+            return user.IsInRole(Roles.Administrator) || user.HasClaim(c => c.Type == Claims.DashboardAccess(dashboardId) && c.Value.Equals("VIEW"));
         }
 
         public static ClaimsPrincipal ToClaimsPrincipal(this DeviceClaims deviceClaims, string deviceId)

@@ -13,35 +13,34 @@ namespace ShortDash.Server.Components
     public partial class DeviceClaimsEditPanel : ComponentBase
     {
         [Parameter]
-        public DeviceClaims Claims { get; set; }
+        public DeviceClaims DeviceClaims { get; set; }
 
-        public EditContext ClaimsEditContext { get; set; }
-
+        public EditContext EditContext { get; set; }
         protected List<Dashboard> Dashboards { get; set; }
 
         [Inject]
         protected DashboardService DashboardService { get; set; }
 
-        protected bool IsLoading => ClaimsEditContext == null;
+        protected bool IsLoading => EditContext == null;
         protected DeviceClaimsModel Model { get; set; }
 
         public void ReadClaims()
         {
-            Model.IsAdministrator = Claims.Find(c => c.Type == ClaimTypes.Role && c.Value.Equals(DeviceClaimTypes.AdministratorRole)) != null;
+            Model.IsAdministrator = DeviceClaims.Find(c => c.Type == ClaimTypes.Role && c.Value.Equals(Roles.Administrator)) != null;
 
             foreach (var dashboard in Dashboards)
             {
-                var claim = Claims.Find(c => c.Type == DeviceClaimTypes.DashboardAccess(dashboard.DashboardId));
+                var claim = DeviceClaims.Find(c => c.Type == Claims.DashboardAccess(dashboard.DashboardId));
                 Model.DashboardAccess[dashboard.DashboardId] = claim != null;
             }
         }
 
         public void UpdateClaims()
         {
-            Claims.Clear();
+            DeviceClaims.Clear();
             if (Model.IsAdministrator)
             {
-                Claims.Add(new DeviceClaim(ClaimTypes.Role, DeviceClaimTypes.AdministratorRole));
+                DeviceClaims.Add(new DeviceClaim(ClaimTypes.Role, Roles.Administrator));
             }
             else
             {
@@ -51,7 +50,7 @@ namespace ShortDash.Server.Components
                     {
                         continue;
                     }
-                    Claims.Add(new DeviceClaim(DeviceClaimTypes.DashboardAccess(dashboard.DashboardId), "VIEW"));
+                    DeviceClaims.Add(new DeviceClaim(Claims.DashboardAccess(dashboard.DashboardId), "VIEW"));
                 }
             }
         }
@@ -64,8 +63,8 @@ namespace ShortDash.Server.Components
             Dashboards = await DashboardService.GetDashboardsAsync();
             ReadClaims();
 
-            ClaimsEditContext = new EditContext(Model);
-            ClaimsEditContext.OnFieldChanged += OnFieldChanged;
+            EditContext = new EditContext(Model);
+            EditContext.OnFieldChanged += OnFieldChanged;
         }
 
         protected void ToggleDashboardAccess(int dashboardId)

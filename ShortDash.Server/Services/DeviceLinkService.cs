@@ -65,11 +65,11 @@ namespace ShortDash.Server.Services
             var claims = new DeviceClaims();
             if (Requests.TryRemove(deviceLinkCode, out var request))
             {
-                claims.AddRange(request.Claims);
+                claims.AddRange(request.DeviceClaims);
             }
             else if (await IsValidAdminDeviceLinkCode(deviceLinkCode))
             {
-                claims.Add(new DeviceClaim(ClaimTypes.Role, DeviceClaimTypes.AdministratorRole));
+                claims.Add(new DeviceClaim(ClaimTypes.Role, Roles.Administrator));
             }
             else
             {
@@ -89,7 +89,7 @@ namespace ShortDash.Server.Services
 
             dashboardDevice.DashboardDeviceId = deviceId;
             dashboardDevice.Name = deviceName;
-            dashboardDevice.SetClaimsList(claims);
+            dashboardDevice.SetDeviceClaimsList(claims);
             dashboardDevice.LastSeenDateTime = DateTime.Now;
 
             if (isNewDevice)
@@ -116,7 +116,7 @@ namespace ShortDash.Server.Services
 
         public void UpdateDeviceClaims(string deviceId, DeviceClaims claims)
         {
-            OnDeviceClaimsUpdated?.Invoke(this, new DeviceClaimsUpdatedEventArgs { DeviceId = deviceId, Claims = claims });
+            OnDeviceClaimsUpdated?.Invoke(this, new DeviceClaimsUpdatedEventArgs { DeviceId = deviceId, DeviceClaims = claims });
         }
 
         public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)
@@ -136,7 +136,7 @@ namespace ShortDash.Server.Services
                 return null;
             }
 
-            if (!dashboardDevice.GetClaimsList().Equals(response.Claims))
+            if (!dashboardDevice.GetDeviceClaimsList().Equals(response.DeviceClaims))
             {
                 logger.LogDebug("Claims in access token did not match.");
                 return null;
@@ -150,7 +150,7 @@ namespace ShortDash.Server.Services
         {
             var response = new LinkDeviceResponse
             {
-                Claims = dashboardDevice.GetClaimsList(),
+                DeviceClaims = dashboardDevice.GetDeviceClaimsList(),
                 DeviceId = dashboardDevice.DashboardDeviceId,
                 DeviceLinkCode = deviceLinkCode
             };

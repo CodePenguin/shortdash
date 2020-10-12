@@ -1,14 +1,11 @@
 ﻿using ShortDash.Server.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services
 {
-    public class DeviceClaimsUpdatedEventArgs
+    public class DeviceClaimsUpdatedEventArgs : EventArgs
     {
-        public DeviceClaims Claims { get; set; }
+        public DeviceClaims DeviceClaims { get; set; }
         public string DeviceId { get; set; }
     }
 }

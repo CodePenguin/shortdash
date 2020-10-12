@@ -11,7 +11,7 @@ namespace ShortDash.Server.Data
     {
         public AuthenticationValidationResult()
         {
-            Claims = null;
+            DeviceClaims = null;
             DeviceId = null;
             IsValid = false;
             RequiresUpdate = false;
@@ -19,21 +19,21 @@ namespace ShortDash.Server.Data
 
         public AuthenticationValidationResult(string deviceId) : base()
         {
-            Claims = null;
+            DeviceClaims = null;
             DeviceId = deviceId;
             IsValid = true;
             RequiresUpdate = false;
         }
 
-        public AuthenticationValidationResult(string deviceId, DeviceClaims claims)
+        public AuthenticationValidationResult(string deviceId, DeviceClaims deviceClaims)
         {
             DeviceId = deviceId;
-            Claims = claims;
+            DeviceClaims = deviceClaims;
             IsValid = true;
             RequiresUpdate = true;
         }
 
-        public DeviceClaims Claims { get; set; }
+        public DeviceClaims DeviceClaims { get; set; }
         public string DeviceId { get; set; }
         public bool IsValid { get; set; }
         public bool RequiresUpdate { get; set; }

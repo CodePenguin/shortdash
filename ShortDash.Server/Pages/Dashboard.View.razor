@@ -1,6 +1,6 @@
 ﻿@page "/dashboard"
 @page "/dashboard/{DashboardId:int}"
-@attribute [Authorize(Policy = "ViewDashboards")]
+@attribute [Authorize(Policy = Policies.ViewDashboards)]
 
 <CascadingValue Value="DashboardService">
     @if (Dashboard == null || !CanView)

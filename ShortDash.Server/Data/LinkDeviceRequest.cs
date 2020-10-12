@@ -5,7 +5,7 @@ namespace ShortDash.Server.Data
 {
     public class LinkDeviceRequest
     {
-        public DeviceClaims Claims { get; } = new DeviceClaims();
+        public DeviceClaims DeviceClaims { get; } = new DeviceClaims();
         public string DeviceLinkCode { get; set; }
     }
 }

@@ -90,22 +90,22 @@ namespace ShortDash.Server.Data
 
     public class DashboardDevice
     {
-        public string Claims { get; set; }
         public string DashboardDeviceId { get; set; }
+        public string DeviceClaims { get; set; }
         public DateTime LastSeenDateTime { get; set; }
         public DateTime LinkedDateTime { get; set; }
         public string Name { get; set; }
 
-        public DeviceClaims GetClaimsList()
+        public DeviceClaims GetDeviceClaimsList()
         {
-            return JsonSerializer.Deserialize<DeviceClaims>(Claims);
+            return JsonSerializer.Deserialize<DeviceClaims>(DeviceClaims);
         }
 
-        public void SetClaimsList(IEnumerable<DeviceClaim> values)
+        public void SetDeviceClaimsList(IEnumerable<DeviceClaim> values)
         {
             var list = new DeviceClaims();
             list.AddRange(values);
-            Claims = JsonSerializer.Serialize(list);
+            DeviceClaims = JsonSerializer.Serialize(list);
         }
     }
 

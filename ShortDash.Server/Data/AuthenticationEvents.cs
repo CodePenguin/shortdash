@@ -39,7 +39,7 @@ namespace ShortDash.Server.Data
             }
             if (validationResult.RequiresUpdate)
             {
-                var claimsPrincipal = validationResult.Claims.ToClaimsPrincipal(validationResult.DeviceId);
+                var claimsPrincipal = validationResult.DeviceClaims.ToClaimsPrincipal(validationResult.DeviceId);
                 context.ReplacePrincipal(claimsPrincipal);
                 context.ShouldRenew = true;
             }
@@ -62,7 +62,7 @@ namespace ShortDash.Server.Data
                 await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
                 return new AuthenticationValidationResult(dashboardDevice.DashboardDeviceId);
             }
-            return new AuthenticationValidationResult(dashboardDevice.DashboardDeviceId, dashboardDevice.GetClaimsList());
+            return new AuthenticationValidationResult(dashboardDevice.DashboardDeviceId, dashboardDevice.GetDeviceClaimsList());
         }
 
         private bool ValidateClaims(DashboardDevice dashboardDevice, ClaimsPrincipal user)
@@ -77,7 +77,7 @@ namespace ShortDash.Server.Data
                 }
                 userClaims.Add(claim.Type, claim.Value);
             }
-            return dashboardDevice.GetClaimsList().Equals(userClaims);
+            return dashboardDevice.GetDeviceClaimsList().Equals(userClaims);
         }
     }
 }

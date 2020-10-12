@@ -84,12 +84,12 @@ namespace ShortDash.Server
             services.AddAuthorization(config =>
             {
                 // Administrator Actions
-                config.AddPolicy("EditActions", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
-                config.AddPolicy("EditDashboards", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
-                config.AddPolicy("EditTargets", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
-                config.AddPolicy("EditDevices", policy => policy.RequireRole(DeviceClaimTypes.AdministratorRole));
+                config.AddPolicy(Policies.EditActions, Policies.IsAdminPolicy());
+                config.AddPolicy(Policies.EditDashboards, Policies.IsAdminPolicy());
+                config.AddPolicy(Policies.EditTargets, Policies.IsAdminPolicy());
+                config.AddPolicy(Policies.EditDevices, Policies.IsAdminPolicy());
                 // Specific Actions
-                config.AddPolicy("ViewDashboards", policy => policy.RequireAuthenticatedUser());
+                config.AddPolicy(Policies.ViewDashboards, Policies.IsUserPolicy());
             });
 
             services.AddRazorPages();

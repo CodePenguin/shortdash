@@ -1,5 +1,5 @@
 ﻿@page "/actions"
-@attribute [Authorize(Policy = "EditActions")]
+@attribute [Authorize(Policy = Policies.EditActions)]
 
 <div class="page text-dark">
     <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>

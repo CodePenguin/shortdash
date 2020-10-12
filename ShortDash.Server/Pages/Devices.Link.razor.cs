@@ -17,7 +17,7 @@ namespace ShortDash.Server.Pages
     public sealed partial class Devices_Link : ComponentBase, IDisposable
     {
         private const int DeviceLinkCodeLength = 6;
-        public DeviceClaims Claims { get; private set; } = new DeviceClaims();
+        public DeviceClaims DeviceClaims { get; private set; } = new DeviceClaims();
         protected string DeviceLinkCode { get; set; }
 
         protected string DeviceLinkSecureUrl { get; set; }
@@ -84,7 +84,7 @@ namespace ShortDash.Server.Pages
             DeviceLinkService.OnDeviceLinked += DeviceLinkedEvent;
 
             var request = new LinkDeviceRequest { DeviceLinkCode = DeviceLinkCode };
-            request.Claims.AddRange(Claims);
+            request.DeviceClaims.AddRange(DeviceClaims);
             DeviceLinkService.AddRequest(request);
 
             Linking = true;
