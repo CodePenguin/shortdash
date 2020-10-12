@@ -1,6 +1,7 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -13,9 +14,9 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Shared
 {
-    public partial class NavMenu : ComponentBase
+    public sealed partial class NavMenu : ComponentBase, IDisposable
     {
-        private bool collapseNavMenu = true;
+        private bool showNavMenu = false;
 
         [CascadingParameter]
         public Task<AuthenticationState> AuthenticationStateTask { get; set; }
@@ -37,9 +38,14 @@ namespace ShortDash.Server.Shared
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+        private string NavMenuCssClass => showNavMenu ? "show" : "";
 
         private ClaimsPrincipal User { get; set; }
+
+        public void Dispose()
+        {
+            NavigationManager.LocationChanged -= LocationChanged;
+        }
 
         protected bool CanAccessDashboard(int dashboardId)
         {
@@ -48,6 +54,7 @@ namespace ShortDash.Server.Shared
 
         protected async void ConfirmUnlink()
         {
+            HideNavMenu();
             var confirmed = await ConfirmDialog.ShowAsync(ModalService,
                 title: "Unlink Device",
                 message: "Are you sure you want to unlink this device?",
@@ -66,6 +73,12 @@ namespace ShortDash.Server.Shared
             Dashboards = await DashboardService.GetDashboardsAsync();
         }
 
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            NavigationManager.LocationChanged += LocationChanged;
+        }
+
         protected async override Task OnParametersSetAsync()
         {
             User = (await AuthenticationStateTask).User;
@@ -74,6 +87,7 @@ namespace ShortDash.Server.Shared
 
         protected async void ShowAddDashboardDialog()
         {
+            HideNavMenu();
             var result = await AddDashboardDialog.ShowAsync(ModalService);
             if (result.Cancelled)
             {
@@ -86,9 +100,20 @@ namespace ShortDash.Server.Shared
             NavigationManager.NavigateTo($"/dashboard/{dashboard.DashboardId}");
         }
 
+        private void HideNavMenu()
+        {
+            showNavMenu = false;
+        }
+
+        private void LocationChanged(object sender, LocationChangedEventArgs e)
+        {
+            HideNavMenu();
+            StateHasChanged();
+        }
+
         private void ToggleNavMenu()
         {
-            collapseNavMenu = !collapseNavMenu;
+            showNavMenu = !showNavMenu;
         }
     }
 }

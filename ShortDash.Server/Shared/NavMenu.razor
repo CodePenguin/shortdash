@@ -1,65 +1,62 @@
-﻿<nav class="navbar navbar-dark bg-dark">
+﻿<nav class="navbar navbar-dark navbar-expand bg-dark p-0 pl-3 pr-2">
     <a class="navbar-brand" href="">ShortDash</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="fas fa-home" aria-hidden="true"></span> Home
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link float-right" href="#" @onclick="ToggleNavMenu" @onclick:preventDefault>
+                <span class="navbar-toggler-icon"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right @NavMenuCssClass">
+                <NavLink class="dropdown-item" href="" Match="NavLinkMatch.All">
+                    <span class="fas fa-home fa-fw" aria-hidden="true"></span> Home
                 </NavLink>
-            </li>
-            <AuthorizeView Policy="EditActions">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="actions" Match="NavLinkMatch.Prefix">
-                        <span class="fas fa-puzzle-piece" aria-hidden="true"></span> Actions
-                    </NavLink>
-                </li>
-            </AuthorizeView>
-            <AuthorizeView Policy="EditDevices">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="devices" Match="NavLinkMatch.Prefix">
-                        <span class="fas fa-mobile-alt" aria-hidden="true"></span> Devices
-                    </NavLink>
-                </li>
-            </AuthorizeView>
-            <AuthorizeView Policy="EditTargets">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="targets" Match="NavLinkMatch.Prefix">
-                        <span class="fas fa-crosshairs" aria-hidden="true"></span> Targets
-                    </NavLink>
-                </li>
-            </AuthorizeView>
-            <AuthorizeView Policy="ViewDashboards">
-                @foreach (var dashboard in Dashboards)
-                {
-                    if (CanAccessDashboard(dashboard.DashboardId))
+
+                <div class="dropdown-divider"></div>
+
+                <h6 class="dropdown-header">Dashboards</h6>
+                <AuthorizeView Policy="ViewDashboards">
+                    @foreach (var dashboard in Dashboards)
                     {
-                        var link = $"dashboard/{dashboard.DashboardId}";
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
-                                <span class="fas fa-layer-group" aria-hidden="true"></span> @dashboard.Name
+                        if (CanAccessDashboard(dashboard.DashboardId))
+                        {
+                            var link = $"dashboard/{dashboard.DashboardId}";
+                            <NavLink class="dropdown-item" href="@link" Match="NavLinkMatch.All">
+                                <span class="fas fa-layer-group fa-fw" aria-hidden="true"></span> @dashboard.Name
                             </NavLink>
-                        </li>
+                        }
                     }
-                }
-            </AuthorizeView>
-            <AuthorizeView Policy="EditDashboards">
-                <li class="nav-item">
-                    <a href="" class="nav-link" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
-                        <span class="fas fa-plus" aria-hidden="true"></span> New Dashboard
+                </AuthorizeView>
+                <AuthorizeView Policy="EditDashboards">
+                    <a href="#" class="dropdown-item" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
+                        <span class="fas fa-plus fa-fw" aria-hidden="true"></span> New Dashboard
                     </a>
-                </li>
-            </AuthorizeView>
-            <AuthorizeView>
-                <li>
-                    <a href="" class="nav-link" @onclick="ConfirmUnlink" @onclick:preventDefault>
-                        <span class="fas fa-unlink" aria-hidden="true"></span> Unlink
+                </AuthorizeView>
+
+                <div class="dropdown-divider"></div>
+
+                <AuthorizeView Policy="EditActions">
+                    <NavLink class="dropdown-item" href="actions" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-puzzle-piece fa-fw" aria-hidden="true"></span> Actions
+                    </NavLink>
+                </AuthorizeView>
+                <AuthorizeView Policy="EditDevices">
+                    <NavLink class="dropdown-item" href="devices" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-mobile-alt fa-fw" aria-hidden="true"></span> Devices
+                    </NavLink>
+                </AuthorizeView>
+                <AuthorizeView Policy="EditTargets">
+                    <NavLink class="dropdown-item" href="targets" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-crosshairs fa-fw" aria-hidden="true"></span> Targets
+                    </NavLink>
+                </AuthorizeView>
+
+                <div class="dropdown-divider"></div>
+
+                <AuthorizeView>
+                    <a href="#" class="dropdown-item" @onclick="ConfirmUnlink" @onclick:preventDefault>
+                        <span class="fas fa-unlink fa-fw" aria-hidden="true"></span> Unlink
                     </a>
-                </li>
-            </AuthorizeView>
-        </ul>
-    </div>
+                </AuthorizeView>
+            </div>
+        </li>
+    </ul>
 </nav>
