@@ -5,19 +5,22 @@
 else
 {
     <EditForm EditContext="ClaimsEditContext">
-        <div class="form-group form-check">
-            <InputCheckbox class="form-check-input" @bind-Value="Model.IsAdministrator" />
-            <label class="form-check-label">Administrator</label>
-        </div>
-        <fieldset disabled="@Model.IsAdministrator">
-            <legend>View Dashboards</legend>
-            @foreach (var dashboard in Dashboards)
-            {
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" checked="@Model.DashboardAccess[dashboard.DashboardId]" @onchange="(c) => ToggleDashboardAccess(dashboard.DashboardId)" />
-                    <label class="form-check-label">@dashboard.Name</label>
-                </div>
-            }
+        <fieldset>
+            <legend>Device Access</legend>
+            <div class="form-group form-check ml-4">
+                <InputCheckbox class="form-check-input" @bind-Value="Model.IsAdministrator" />
+                <label class="form-check-label">Full Access</label>
+            </div>
+            <fieldset disabled="@Model.IsAdministrator">
+                <h6>View Dashboards</h6>
+                @foreach (var dashboard in Dashboards)
+                {
+                    <div class="form-group form-check ml-4">
+                        <input type="checkbox" class="form-check-input" checked="@Model.DashboardAccess[dashboard.DashboardId]" @onchange="(c) => ToggleDashboardAccess(dashboard.DashboardId)" />
+                        <label class="form-check-label">@dashboard.Name</label>
+                    </div>
+                }
+            </fieldset>
         </fieldset>
     </EditForm>
 }

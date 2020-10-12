@@ -2,8 +2,8 @@
 {
     public enum AdminAccessCodeType
     {
-        DynamicTotp,
-        Static,
+        Static = 0,
+        DynamicTotp = 1
     }
 
     public class AdminAccessCode

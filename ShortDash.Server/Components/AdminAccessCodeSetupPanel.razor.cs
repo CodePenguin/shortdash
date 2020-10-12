@@ -23,6 +23,7 @@ namespace ShortDash.Server.Components
         protected bool IsStaticSelected { get; set; }
         protected AdminCodeModel Model { get; set; }
         protected bool PairedSuccessfully { get; set; }
+        protected bool ShowRetryMessage { get; set; }
         protected string StaticCode { get; set; }
         protected string TabDynamicClass => IsStaticSelected ? "" : "active";
         protected string TabStaticClass => IsStaticSelected ? "active" : "";
@@ -36,16 +37,19 @@ namespace ShortDash.Server.Components
             AdminCodeEditContext = new EditContext(Model);
             DynamicCode = GenerateDynamicCode();
             StaticCode = GenerateStaticCode();
+            ShowRetryMessage = false;
 
             return base.OnParametersSetAsync();
         }
 
         protected async void PairDevice()
         {
+            ShowRetryMessage = false;
             if (!AdminCodeEditContext.Validate())
             {
                 return;
             }
+
             string adminCode;
             string compareCode;
             AdminAccessCodeType accessCodeType;
@@ -65,12 +69,16 @@ namespace ShortDash.Server.Components
                 compareCode = otp.ComputeTotp();
             }
 
-            if (compareCode.Equals(Model.UserCode))
+            var userCode = Model.UserCode.Replace(" ", "");
+            if (!compareCode.Equals(userCode))
             {
-                await AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
-                PairedSuccessfully = true;
-                OnCompleted?.Invoke(this, new EventArgs());
+                ShowRetryMessage = true;
+                return;
             }
+
+            await AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
+            PairedSuccessfully = true;
+            OnCompleted?.Invoke(this, new EventArgs());
         }
 
         protected void TabDynamicClick()

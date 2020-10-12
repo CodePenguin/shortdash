@@ -7,7 +7,7 @@ namespace ShortDash.Server.Components
 {
     public interface ISecureContext
     {
-        public string ReceiverId { get; }
+        public string DeviceId { get; }
 
         string Decrypt(string value);
 

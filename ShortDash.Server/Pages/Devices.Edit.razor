@@ -16,18 +16,18 @@
 
         @if (SuccessfullyLinked)
         {
-            <div class="card-text">
-                <h3 class="alert alert-success"><span class="fas fa-check"></span> The device has been linked!</h3>
-            </div>
+            <div class="alert alert-success"><span class="fas fa-check"></span> The device has been linked!</div>
         }
 
         <EditForm Model="DashboardDevice" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
             <div class="form-group">
-                <label for="DashboardName">Name</label>
-                <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardName" />
+                <label for="DashboardDeviceName">Name</label>
+                <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardDeviceName" />
                 <ValidationMessage For="() => DashboardDevice.Name" />
             </div>
+            <DeviceClaimsEditPanel Claims="DeviceClaims" />
+
             <button class="btn btn-outline-danger float-left" type="button" @onclick="ConfirmUnlink">Unlink</button>
 
             <div class="float-right">

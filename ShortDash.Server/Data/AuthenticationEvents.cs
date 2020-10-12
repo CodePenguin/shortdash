@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ShortDash.Server.Components;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
@@ -21,13 +22,6 @@ namespace ShortDash.Server.Data
             this.dashboardService = dashboardService;
         }
 
-        public enum AuthenticationValidationResult
-        {
-            Invalid,
-            Valid,
-            ValidRequiresUpdate
-        }
-
         public async override Task ValidatePrincipal(CookieValidatePrincipalContext context)
         {
             var user = context.Principal;
@@ -37,36 +31,42 @@ namespace ShortDash.Server.Data
                 return;
             }
             var validationResult = await ValidatePrincipal(user);
-            if (!validationResult)
+            if (!validationResult.IsValid)
             {
                 context.RejectPrincipal();
                 await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return;
             }
+            if (validationResult.RequiresUpdate)
+            {
+                var claimsPrincipal = validationResult.Claims.ToClaimsPrincipal(validationResult.DeviceId);
+                context.ReplacePrincipal(claimsPrincipal);
+                context.ShouldRenew = true;
+            }
         }
 
-        public async Task<bool> ValidatePrincipal(ClaimsPrincipal user)
+        public async Task<AuthenticationValidationResult> ValidatePrincipal(ClaimsPrincipal user)
         {
             if (!user.Identity.IsAuthenticated)
             {
-                return true;
+                return new AuthenticationValidationResult();
             }
             var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(user.Identity.Name);
+            if (dashboardDevice == null)
+            {
+                return new AuthenticationValidationResult();
+            }
             if (ValidateClaims(dashboardDevice, user))
             {
                 dashboardDevice.LastSeenDateTime = DateTime.Now;
                 await dashboardService.UpdateDashboardDeviceAsync(dashboardDevice);
-                return true;
+                return new AuthenticationValidationResult(dashboardDevice.DashboardDeviceId);
             }
-            return false;
+            return new AuthenticationValidationResult(dashboardDevice.DashboardDeviceId, dashboardDevice.GetClaimsList());
         }
 
         private bool ValidateClaims(DashboardDevice dashboardDevice, ClaimsPrincipal user)
         {
-            if (dashboardDevice == null)
-            {
-                return false;
-            }
             var ignoreClaimTypes = new[] { ClaimTypes.Name };
             var userClaims = new DeviceClaims();
             foreach (var claim in user.Claims)

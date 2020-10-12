@@ -27,6 +27,8 @@ namespace ShortDash.Server.Services
             this.adminAccessCodeService = adminAccessCodeService;
         }
 
+        public static event EventHandler<DeviceClaimsUpdatedEventArgs> OnDeviceClaimsUpdated;
+
         public static event EventHandler<DeviceLinkedEventArgs> OnDeviceLinked;
 
         public static event EventHandler<DeviceUnlinkedEventArgs> OnDeviceUnlinked;
@@ -110,6 +112,11 @@ namespace ShortDash.Server.Services
             }
             await dashboardService.DeleteDashboardDeviceAsync(dashboardDevice);
             OnDeviceUnlinked?.Invoke(this, new DeviceUnlinkedEventArgs { DeviceId = deviceId });
+        }
+
+        public void UpdateDeviceClaims(string deviceId, DeviceClaims claims)
+        {
+            OnDeviceClaimsUpdated?.Invoke(this, new DeviceClaimsUpdatedEventArgs { DeviceId = deviceId, Claims = claims });
         }
 
         public async Task<LinkDeviceResponse> ValidateAccessToken(string accessToken)

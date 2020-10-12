@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
@@ -34,22 +35,12 @@ namespace ShortDash.Server.Pages
             }
 
             deviceLinkService.DeviceLinked(response);
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, response.DeviceId)
-            };
-            foreach (var claim in response.Claims)
-            {
-                claims.Add(new Claim(claim.Type, claim.Value));
-            }
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,
                 RedirectUri = HttpContext.Request.Host.Value
             };
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            var claimsPrincipal = response.Claims.ToClaimsPrincipal(response.DeviceId);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 claimsPrincipal,

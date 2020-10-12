@@ -26,6 +26,10 @@
             }
             else
             {
+                @if (ShowAdminDeviceLinkMessage)
+                {
+                    <div class="alert alert-success"><span class="fas fa-check"></span> Enter your full access device code to get started.</div>
+                }
                 <DeviceLinkPanel />
             }
         </NotAuthorized>

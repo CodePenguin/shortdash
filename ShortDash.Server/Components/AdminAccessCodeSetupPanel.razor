@@ -2,76 +2,84 @@
 
 @if (PairedSuccessfully)
 {
-<div class="alert alert-success">Your full access device code is now ready to go!</div>
+    <div class="alert alert-success">Your full access device code is now ready to go!</div>
 }
 else
 {
-<p class="alert alert-info">
-    Select a method for linking your first full access device.
-</p>
+    <p class="alert alert-info">
+        Select a method for linking your first full access device.
+    </p>
 
-<EditForm EditContext="AdminCodeEditContext">
-    <DataAnnotationsValidator />
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link @TabDynamicClass" href="#" @onclick="TabDynamicClick" @onclick:preventDefault>Dynamic Code</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @TabStaticClass" href="#" @onclick="TabStaticClick" @onclick:preventDefault>Static Code</a>
-        </li>
-    </ul>
-    <div class="tab-content col-lg-3">
-        @if (IsStaticSelected)
-        {
-        <p>A static code does not change and can be used multiple times.</p>
-
-        <h4>Store the full access code</h4>
-
-        <ol>
-            <li>
-                <p>Store the following code somewhere safe as it will not be displayed again:</p>
-                <div class="form-control mb-3">
-                    <SecureText Value="@StaticCode.Separate(3)" />
-                </div>
+    <EditForm EditContext="AdminCodeEditContext">
+        <DataAnnotationsValidator />
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link @TabDynamicClass" href="#" @onclick="TabDynamicClick" @onclick:preventDefault>Dynamic Code</a>
             </li>
-            <li>
-                <p>Verify that the code you stored is correct by entering it below:</p>
-                <div class="form-group">
-                    <InputText @bind-Value="Model.UserCode" class="form-control" placeholder="Enter code here" />
-                    <ValidationMessage For="() => Model.UserCode" />
-                </div>
-                <button @onclick="PairDevice" class="btn btn-primary">Pair</button>
+            <li class="nav-item">
+                <a class="nav-link @TabStaticClass" href="#" @onclick="TabStaticClick" @onclick:preventDefault>Static Code</a>
             </li>
-        </ol>
-        }
-        else
-        {
-        <p>A dynamic code changes every 30 seconds and uses an external authenticator app to generate the new codes.</p>
+        </ul>
+        <div class="tab-content col-lg-3">
+            @if (IsStaticSelected)
+            {
+                <p>A static code does not change and can be used multiple times.</p>
 
-        <h4>Set up an authenticator app</h4>
+                <h4>Store the full access code</h4>
 
-        <ol>
-            <li>Install any TOTP compatible authenticator app such as Google Authenticator or Authy on one of your devices.</li>
-            <li>
-                <p>Scan the bar code below to pair your authenticator app with ShortDash.</p>
-                <div class="mb-3 ml-4">
-                    <SecureQrCode class="qrcode" Value="@DynamicCodeUrl" />
-                </div>
-                <p>If you cannot scan the code above, enter the following code into your app manually:</p>
-                <div class="form-control mb-3">
-                    <SecureText Value="@DynamicCode.Separate(4)" />
-                </div>
-            </li>
-            <li>
-                <p>Verify that your authenticator app is correctly paired by entering a code it generates below:</p>
-                <div class="form-group">
-                    <InputText @bind-Value="Model.UserCode" class="form-control" placeholder="Enter generated code here" />
-                    <ValidationMessage For="() => Model.UserCode" />
-                </div>
-                <button @onclick="PairDevice" class="btn btn-primary">Pair</button>
-            </li>
-        </ol>
-        }
-    </div>
-</EditForm>
+                <ol>
+                    <li>
+                        <p>Store the following code somewhere safe as it will not be displayed again:</p>
+                        <div class="form-control mb-3">
+                            <SecureText Value="@StaticCode.Separate(3)" />
+                        </div>
+                    </li>
+                    <li>
+                        <p>Verify that the code you stored is correct by entering it below:</p>
+                        <div class="form-group">
+                            <SecureInputText type="number" @bind-Value="Model.UserCode" class="form-control" placeholder="Enter code here" />
+                            <ValidationMessage For="() => Model.UserCode" />
+                        </div>
+                        @if (ShowRetryMessage)
+                        {
+                            <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
+                        }
+                        <button @onclick="PairDevice" class="btn btn-primary">Pair</button>
+                    </li>
+                </ol>
+            }
+            else
+            {
+                <p>A dynamic code changes every 30 seconds and uses an external authenticator app to generate the new codes.</p>
+
+                <h4>Set up an authenticator app</h4>
+
+                <ol>
+                    <li>Install any TOTP compatible authenticator app such as Google Authenticator or Authy on one of your devices.</li>
+                    <li>
+                        <p>Scan the bar code below to pair your authenticator app with ShortDash.</p>
+                        <div class="mb-3 ml-4">
+                            <SecureQrCode class="qrcode" Value="@DynamicCodeUrl" />
+                        </div>
+                        <p>If you cannot scan the code above, enter the following code into your app manually:</p>
+                        <div class="form-control mb-3">
+                            <SecureText Value="@DynamicCode.Separate(4)" />
+                        </div>
+                    </li>
+                    <li>
+                        <p>Verify that your authenticator app is correctly paired by entering a code it generates below:</p>
+                        <div class="form-group">
+                            <SecureInputText type="number" @bind-Value="Model.UserCode" class="form-control" placeholder="Enter generated code here" />
+                            <ValidationMessage For="() => Model.UserCode" />
+                        </div>
+                        @if (ShowRetryMessage)
+                        {
+                            <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
+                        }
+                        <button @onclick="PairDevice" class="btn btn-primary">Pair</button>
+                    </li>
+                </ol>
+            }
+        </div>
+    </EditForm>
 }

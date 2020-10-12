@@ -89,7 +89,7 @@ namespace ShortDash.Server.Components
             Linking = true;
 
             var deviceLinkCode = Model.DeviceLinkCode.Replace(" ", "").Trim();
-            var deviceId = SecureContext.ReceiverId;
+            var deviceId = SecureContext.DeviceId;
             var deviceName = GenerateDefaultDeviceName();
             var accessToken = await DeviceLinkService.LinkDevice(deviceLinkCode, deviceName, deviceId);
 

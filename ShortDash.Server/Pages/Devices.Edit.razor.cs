@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
@@ -25,6 +26,7 @@ namespace ShortDash.Server.Pages
         public IModalService ModalService { get; set; }
 
         protected DashboardDevice DashboardDevice { get; set; }
+        protected DeviceClaims DeviceClaims { get; set; }
 
         [Inject]
         protected IHttpContextAccessor HttpContextAccessor { get; set; }
@@ -65,6 +67,7 @@ namespace ShortDash.Server.Pages
         protected async override Task OnParametersSetAsync()
         {
             DashboardDevice = null;
+            DeviceClaims = null;
             await LoadDashboardDevice();
 
             var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
@@ -74,14 +77,20 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
+            var refreshClaims = !DeviceClaims.Equals(DashboardDevice.GetClaimsList());
+            DashboardDevice.SetClaimsList(DeviceClaims);
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);
-
+            if (refreshClaims)
+            {
+                DeviceLinkService.UpdateDeviceClaims(DashboardDevice.DashboardDeviceId, DeviceClaims);
+            }
             NavigationManager.NavigateTo("/devices");
         }
 
         private async Task LoadDashboardDevice()
         {
             DashboardDevice = await DashboardService.GetDashboardDeviceAsync(DashboardDeviceId);
+            DeviceClaims = DashboardDevice.GetClaimsList();
         }
     }
 }

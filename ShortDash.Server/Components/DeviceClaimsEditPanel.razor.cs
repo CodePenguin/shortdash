@@ -43,13 +43,16 @@ namespace ShortDash.Server.Components
             {
                 Claims.Add(new DeviceClaim(ClaimTypes.Role, DeviceClaimTypes.AdministratorRole));
             }
-            foreach (var dashboard in Dashboards)
+            else
             {
-                if (!Model.DashboardAccess.TryGetValue(dashboard.DashboardId, out var canAccess) || !canAccess)
+                foreach (var dashboard in Dashboards)
                 {
-                    continue;
+                    if (!Model.DashboardAccess.TryGetValue(dashboard.DashboardId, out var canAccess) || !canAccess)
+                    {
+                        continue;
+                    }
+                    Claims.Add(new DeviceClaim(DeviceClaimTypes.DashboardAccess(dashboard.DashboardId), "VIEW"));
                 }
-                Claims.Add(new DeviceClaim(DeviceClaimTypes.DashboardAccess(dashboard.DashboardId), "VIEW"));
             }
         }
 

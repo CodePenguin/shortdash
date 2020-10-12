@@ -30,7 +30,7 @@ namespace ShortDash.Server.Components
         [Parameter]
         public RenderFragment ChildContent { get; set; }
 
-        public string ReceiverId { get; private set; }
+        public string DeviceId { get; private set; }
 
         [Inject]
         protected AuthenticationEvents AuthenticationEvents { get; set; }
@@ -63,6 +63,7 @@ namespace ShortDash.Server.Components
 
         public void Dispose()
         {
+            DeviceLinkService.OnDeviceClaimsUpdated -= DeviceClaimsUpdatedEvent;
             DeviceLinkService.OnDeviceUnlinked -= DeviceUnlinkedEvent;
             NavigationManager.LocationChanged -= LocationChanged;
             EncryptedChannelService.CloseChannel(channelId);
@@ -81,7 +82,24 @@ namespace ShortDash.Server.Components
         public async Task<bool> ValidateUser()
         {
             var user = (await AuthenticationStateTask).User;
-            return await CheckUser(user);
+            if (!user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+            var authenticationResult = await AuthenticationEvents.ValidatePrincipal(user);
+            if (authenticationResult.IsValid && authenticationResult.DeviceId == DeviceId)
+            {
+                if (authenticationResult.RequiresUpdate)
+                {
+                    // Force reload to refresh the device claims
+                    Logger.LogError("Device's access has changed and will be updated.");
+                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
+                }
+                return true;
+            }
+            Logger.LogError("Device's identity could not be verified.");
+            NavigationManager.NavigateTo("/logout", true);
+            return false;
         }
 
         public bool VerifyChallengeResponse(string rawChallenge, string challengeResponse)
@@ -92,17 +110,12 @@ namespace ShortDash.Server.Components
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-            var user = (await AuthenticationStateTask).User;
-            if (!await CheckUser(user))
-            {
-                return;
-            }
             if (firstRender)
             {
                 await InitializeEncryptedChannel();
                 StateHasChanged();
-                return;
             }
+            await ValidateUser();
         }
 
         protected override void OnInitialized()
@@ -110,22 +123,23 @@ namespace ShortDash.Server.Components
             base.OnInitialized();
             channelId = Guid.NewGuid().ToString();
             NavigationManager.LocationChanged += LocationChanged;
+            DeviceLinkService.OnDeviceClaimsUpdated += DeviceClaimsUpdatedEvent;
             DeviceLinkService.OnDeviceUnlinked += DeviceUnlinkedEvent;
         }
 
-        private async Task<bool> CheckUser(ClaimsPrincipal user)
+        protected override void OnParametersSet()
         {
-            if (!user.Identity.IsAuthenticated)
+            base.OnParametersSet();
+            DeviceId = null;
+        }
+
+        private void DeviceClaimsUpdatedEvent(object sender, DeviceClaimsUpdatedEventArgs e)
+        {
+            // Refresh the page so that the device claims are refreshed for the active device
+            if (e.DeviceId == DeviceId)
             {
-                return true;
+                NavigationManager.NavigateTo(NavigationManager.Uri, true);
             }
-            if (await AuthenticationEvents.ValidatePrincipal(user) && (ReceiverId == null || user.Identity.Name == ReceiverId))
-            {
-                return true;
-            }
-            Logger.LogError("Device's identity could not be verified.");
-            NavigationManager.NavigateTo("/logout", true);
-            return false;
         }
 
         private void DeviceUnlinkedEvent(object sender, DeviceUnlinkedEventArgs e)
@@ -137,7 +151,6 @@ namespace ShortDash.Server.Components
         {
             var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
             channelId = EncryptedChannelService.OpenChannel(publicKey);
-            ReceiverId = EncryptedChannelService.ReceiverId(channelId);
         }
 
         private string GetServerPublicKey()
@@ -162,14 +175,14 @@ namespace ShortDash.Server.Components
             Logger.LogDebug("Sending session key...");
             var encryptedKey = EncryptedChannelService.ExportEncryptedKey(channelId);
             await JSRuntime.InvokeVoidAsync("secureContext.openChannel", encryptedKey);
+            DeviceId = EncryptedChannelService.ReceiverId(channelId);
             Logger.LogDebug("Secure context established successfully.");
             IsInitialized = true;
         }
 
         private async void LocationChanged(object sender, LocationChangedEventArgs e)
         {
-            var user = (await AuthenticationStateTask).User;
-            await CheckUser(user);
+            await ValidateUser();
         }
     }
 }
