@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -27,9 +26,6 @@ namespace ShortDash.Server.Pages
 
         protected DashboardDevice DashboardDevice { get; set; }
         protected DeviceClaims DeviceClaims { get; set; }
-
-        [Inject]
-        protected IHttpContextAccessor HttpContextAccessor { get; set; }
 
         protected bool IsLoading => DashboardDevice == null;
 

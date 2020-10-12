@@ -17,7 +17,7 @@
 
                     @foreach (var dashboard in Dashboards)
                     {
-                        if (CanAccessDashboard(dashboard.DashboardId))
+                        if (User.CanAccessDashboard(dashboard.DashboardId))
                         {
                             var link = $"dashboard/{dashboard.DashboardId}";
                             <NavLink class="dropdown-item" href="@link" Match="NavLinkMatch.All">
@@ -32,7 +32,7 @@
                     </a>
                 </AuthorizeView>
 
-                <AuthorizeView>
+                <AuthorizeView Roles="@Roles.Administrator">
                     <div class="dropdown-divider"></div>
                 </AuthorizeView>
 
@@ -52,12 +52,12 @@
                     </NavLink>
                 </AuthorizeView>
 
-                <AuthorizeView>
+                <AuthorizeView Policy="@Policies.EditDevices">
                     <div class="dropdown-divider"></div>
 
-                    <a href="#" class="dropdown-item" @onclick="ConfirmUnlink" @onclick:preventDefault>
-                        <span class="fas fa-unlink fa-fw" aria-hidden="true"></span> Unlink
-                    </a>
+                    <NavLink class="dropdown-item" href="devices/link" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-link fa-fw" aria-hidden="true"></span> Link a new device
+                    </NavLink>
                 </AuthorizeView>
             </div>
         </li>

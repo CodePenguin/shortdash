@@ -33,9 +33,6 @@ namespace ShortDash.Server.Shared
         private DashboardService DashboardService { get; set; }
 
         [Inject]
-        private DeviceLinkService DeviceLinkService { get; set; }
-
-        [Inject]
         private NavigationManager NavigationManager { get; set; }
 
         private string NavMenuCssClass => showNavMenu ? "show" : "";
@@ -45,27 +42,6 @@ namespace ShortDash.Server.Shared
         public void Dispose()
         {
             NavigationManager.LocationChanged -= LocationChanged;
-        }
-
-        protected bool CanAccessDashboard(int dashboardId)
-        {
-            return User.CanAccessDashboard(dashboardId);
-        }
-
-        protected async void ConfirmUnlink()
-        {
-            HideNavMenu();
-            var confirmed = await ConfirmDialog.ShowAsync(ModalService,
-                title: "Unlink Device",
-                message: "Are you sure you want to unlink this device?",
-                confirmLabel: "Unlink",
-                confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
-            {
-                return;
-            }
-            await DeviceLinkService.UnlinkDevice(User.Identity.Name);
-            NavigationManager.NavigateTo("/logout", true);
         }
 
         protected async Task LoadDashboards()
