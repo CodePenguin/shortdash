@@ -36,9 +36,6 @@ namespace ShortDash.Server.Components
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Inject]
-        private DeviceLinkService DeviceLinkService { get; set; }
-
-        [Inject]
         private IEncryptedChannelService EncryptedChannelService { get; set; }
 
         private bool IsInitialized { get; set; }

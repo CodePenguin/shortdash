@@ -107,13 +107,6 @@ namespace ShortDash.Server.Pages
             }
         }
 
-        private async void RemoveCell(DashboardCell cell)
-        {
-            Dashboard.DashboardCells.Remove(cell);
-            await DashboardService.DeleteDashboardCellAsync(cell);
-            StateHasChanged();
-        }
-
         private async void SaveChanges()
         {
             if (!DashboardEditContext.Validate() || !await SecureContext.ValidateUser())

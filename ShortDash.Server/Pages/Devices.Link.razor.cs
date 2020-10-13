@@ -23,13 +23,7 @@ namespace ShortDash.Server.Pages
 
         private string DeviceLinkSecureUrl { get; set; }
 
-        [Inject]
-        private DeviceLinkService DeviceLinkService { get; set; }
-
         private string DeviceLinkUrl { get; set; }
-
-        [Inject]
-        private IEncryptedChannelService EncryptedChannelService { get; set; }
 
         private bool Linking { get; set; }
 
