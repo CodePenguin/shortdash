@@ -10,6 +10,12 @@
                     <span class="fas fa-home fa-fw" aria-hidden="true"></span> Home
                 </NavLink>
 
+                <AuthorizeView Policy="@Policies.EditDevices">
+                    <NavLink class="dropdown-item" href="devices/link" Match="NavLinkMatch.Prefix">
+                        <span class="fas fa-link fa-fw" aria-hidden="true"></span> Link a new device
+                    </NavLink>
+                </AuthorizeView>
+
                 <AuthorizeView Policy="@Policies.ViewDashboards">
                     <div class="dropdown-divider"></div>
 
@@ -49,14 +55,6 @@
                 <AuthorizeView Policy="@Policies.EditTargets">
                     <NavLink class="dropdown-item" href="targets" Match="NavLinkMatch.Prefix">
                         <span class="fas fa-crosshairs fa-fw" aria-hidden="true"></span> Targets
-                    </NavLink>
-                </AuthorizeView>
-
-                <AuthorizeView Policy="@Policies.EditDevices">
-                    <div class="dropdown-divider"></div>
-
-                    <NavLink class="dropdown-item" href="devices/link" Match="NavLinkMatch.Prefix">
-                        <span class="fas fa-link fa-fw" aria-hidden="true"></span> Link a new device
                     </NavLink>
                 </AuthorizeView>
             </div>

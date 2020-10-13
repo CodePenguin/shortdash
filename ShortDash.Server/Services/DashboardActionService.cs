@@ -29,7 +29,7 @@ namespace ShortDash.Server.Services
         public Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
             // Forward targeted actions to the specific target
-            if (!dashboardAction.DashboardActionTargetId.Equals(DashboardActionTarget.ServerTargetId))
+            if (dashboardAction.DashboardActionTargetId != DashboardActionTarget.ServerTargetId)
             {
                 var targetId = dashboardAction.DashboardActionTargetId;
                 logger.LogDebug($"Forwarding action to Target {targetId}: {dashboardAction.ActionTypeName}");
