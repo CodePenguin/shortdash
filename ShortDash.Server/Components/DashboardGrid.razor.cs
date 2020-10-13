@@ -15,36 +15,14 @@ namespace ShortDash.Server.Components
         [Parameter]
         public List<DashboardCell> DashboardCells { get; set; }
 
-        [CascadingParameter]
-        public DashboardService DashboardService { get; set; }
-
         [Parameter]
         public bool EditMode { get; set; } = false;
 
         [CascadingParameter]
-        public IModalService ModalService { get; set; }
+        private DashboardService DashboardService { get; set; }
 
-        protected async void ShowAddDialog()
-        {
-            var result = await AddDashboardActionDialog.ShowAsync(ModalService);
-            if (result.Cancelled)
-            {
-                return;
-            }
-            var dashboardActionId = (int)result.Data;
-            if (dashboardActionId <= 0)
-            {
-                return;
-            }
-            var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
-            if (dashboardAction == null)
-            {
-                return;
-            }
-
-            DashboardCells.Add(new DashboardCell { DashboardActionId = dashboardActionId, DashboardAction = dashboardAction });
-            StateHasChanged();
-        }
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
 
         private void MoveCellLeft(DashboardCell cell)
         {
@@ -73,6 +51,28 @@ namespace ShortDash.Server.Components
         private void RemoveCell(DashboardCell cell)
         {
             DashboardCells.Remove(cell);
+            StateHasChanged();
+        }
+
+        private async void ShowAddDialog()
+        {
+            var result = await AddDashboardActionDialog.ShowAsync(ModalService);
+            if (result.Cancelled)
+            {
+                return;
+            }
+            var dashboardActionId = (int)result.Data;
+            if (dashboardActionId <= 0)
+            {
+                return;
+            }
+            var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
+            if (dashboardAction == null)
+            {
+                return;
+            }
+
+            DashboardCells.Add(new DashboardCell { DashboardActionId = dashboardActionId, DashboardAction = dashboardAction });
             StateHasChanged();
         }
     }

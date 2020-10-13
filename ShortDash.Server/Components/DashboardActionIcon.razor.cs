@@ -26,7 +26,7 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool ToggleState { get; set; }
 
-        protected Dictionary<string, object> CellAttributes { get; private set; } = new Dictionary<string, object>();
+        private Dictionary<string, object> CellAttributes { get; set; } = new Dictionary<string, object>();
         private string TextClass { get; set; }
 
         protected override void OnParametersSet()

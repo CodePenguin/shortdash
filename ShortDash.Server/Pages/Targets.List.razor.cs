@@ -12,7 +12,7 @@ namespace ShortDash.Server.Pages
 {
     public partial class Targets_List : ComponentBase
     {
-        protected List<DashboardActionTarget> DashboardActionTargets { get; } = new List<DashboardActionTarget>();
+        private List<DashboardActionTarget> DashboardActionTargets { get; } = new List<DashboardActionTarget>();
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -20,16 +20,16 @@ namespace ShortDash.Server.Pages
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void AddTarget()
-        {
-            NavigationManager.NavigateTo($"/targets/new");
-        }
-
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             var list = await DashboardService.GetDashboardActionTargetsAsync();
             DashboardActionTargets.Clear();
             DashboardActionTargets.AddRange(list.Where(o => !o.DashboardActionTargetId.Equals(DashboardActionTarget.ServerTargetId)).OrderBy(o => o.Name).ToList());
+        }
+
+        private void AddTarget()
+        {
+            NavigationManager.NavigateTo($"/targets/new");
         }
     }
 }

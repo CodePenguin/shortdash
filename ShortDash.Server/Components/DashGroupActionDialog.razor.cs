@@ -14,15 +14,14 @@ namespace ShortDash.Server.Components
 {
     public partial class DashGroupActionDialog : ComponentBase
     {
-        public string BackgroundColorCode => DashboardAction.BackgroundColor?.ToHtmlString();
-
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
 
         private string TextClass => DashboardAction.BackgroundColor?.TextClass();
+        private string BackgroundColorCode => DashboardAction.BackgroundColor?.ToHtmlString();
 
         [CascadingParameter]
-        protected BlazoredModalInstance BlazoredModal { get; set; }
+        private BlazoredModalInstance BlazoredModal { get; set; }
 
         public static Task ShowAsync(IModalService modalService, DashboardAction dashboardAction)
         {
@@ -32,7 +31,7 @@ namespace ShortDash.Server.Components
             return modal.Result;
         }
 
-        protected Task CloseDialog()
+        private Task CloseDialog()
         {
             return BlazoredModal.Close();
         }

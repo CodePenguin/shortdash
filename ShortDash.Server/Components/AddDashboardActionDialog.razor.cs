@@ -13,12 +13,12 @@ namespace ShortDash.Server.Components
 {
     public partial class AddDashboardActionDialog : ComponentBase
     {
-        protected List<DashboardAction> AvailableActions { get; } = new List<DashboardAction>();
+        private List<DashboardAction> AvailableActions { get; } = new List<DashboardAction>();
 
         [Inject]
-        protected DashboardService DashboardService { get; set; }
+        private DashboardService DashboardService { get; set; }
 
-        protected SelectedItem Selected { get; } = new SelectedItem();
+        private SelectedItem Selected { get; } = new SelectedItem();
 
         public static Task<ModalResult> ShowAsync(IModalService modalService)
         {
@@ -26,18 +26,18 @@ namespace ShortDash.Server.Components
             return modal.Result;
         }
 
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             AvailableActions.AddRange(await DashboardService.GetDashboardActionsAsync());
             Selected.Value = AvailableActions.FirstOrDefault().DashboardActionId.ToString();
         }
 
-        protected int ParseResult()
+        private int ParseResult()
         {
             return BindConverter.TryConvertToInt(Selected.Value, CultureInfo.InvariantCulture, out var result) ? result : 0;
         }
 
-        protected class SelectedItem
+        private class SelectedItem
         {
             public string Value { get; set; }
         }

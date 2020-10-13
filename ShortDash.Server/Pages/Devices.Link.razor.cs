@@ -17,34 +17,41 @@ namespace ShortDash.Server.Pages
     public sealed partial class Devices_Link : ComponentBase, IDisposable
     {
         private const int DeviceLinkCodeLength = 6;
-        public DeviceClaims DeviceClaims { get; private set; } = new DeviceClaims();
+        private DeviceClaims DeviceClaims { get; set; } = new DeviceClaims();
+
+        private string DeviceLinkCode { get; set; }
+
+        private string DeviceLinkSecureUrl { get; set; }
+
+        [Inject]
+        private DeviceLinkService DeviceLinkService { get; set; }
+
+        private string DeviceLinkUrl { get; set; }
+
+        [Inject]
+        private IEncryptedChannelService EncryptedChannelService { get; set; }
+
+        private bool Linking { get; set; }
+
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
 
         [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
-        protected string DeviceLinkCode { get; set; }
-
-        protected string DeviceLinkSecureUrl { get; set; }
-
-        [Inject]
-        protected DeviceLinkService DeviceLinkService { get; set; }
-
-        protected string DeviceLinkUrl { get; set; }
-
-        [Inject]
-        protected IEncryptedChannelService EncryptedChannelService { get; set; }
-
-        protected bool Linking { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        private ISecureContext SecureContext { get; set; }
 
         public void Dispose()
         {
             StopLinking();
         }
 
-        protected void Cancel()
+        protected override Task OnParametersSetAsync()
+        {
+            DeviceLinkUrl = NavigationManager.ToAbsoluteUri("/").ToString();
+            Linking = false;
+            return base.OnParametersSetAsync();
+        }
+
+        private void Cancel()
         {
             if (Linking)
             {
@@ -57,7 +64,7 @@ namespace ShortDash.Server.Pages
             }
         }
 
-        protected void DeviceLinked(string deviceLinkCode, string deviceId)
+        private void DeviceLinked(string deviceLinkCode, string deviceId)
         {
             if (!deviceLinkCode.Equals(DeviceLinkCode))
             {
@@ -67,19 +74,12 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo("/devices/" + HttpUtility.UrlEncode(deviceId) + "?linked=1");
         }
 
-        protected void DeviceLinkedEvent(object sender, DeviceLinkedEventArgs eventArgs)
+        private void DeviceLinkedEvent(object sender, DeviceLinkedEventArgs eventArgs)
         {
             InvokeAsync(() => DeviceLinked(eventArgs.DeviceLinkCode, eventArgs.DeviceId));
         }
 
-        protected override Task OnParametersSetAsync()
-        {
-            DeviceLinkUrl = NavigationManager.ToAbsoluteUri("/").ToString();
-            Linking = false;
-            return base.OnParametersSetAsync();
-        }
-
-        protected async void StartLinking()
+        private async void StartLinking()
         {
             if (!await SecureContext.ValidateUser())
             {
@@ -98,7 +98,7 @@ namespace ShortDash.Server.Pages
             Linking = true;
         }
 
-        protected void StopLinking()
+        private void StopLinking()
         {
             if (!Linking)
             {

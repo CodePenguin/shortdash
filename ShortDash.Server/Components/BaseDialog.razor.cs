@@ -29,11 +29,14 @@ namespace ShortDash.Server.Components
         public TResult Result { get; set; } = default;
 
         [CascadingParameter]
-        protected BlazoredModalInstance BlazoredModal { get; set; }
+        private BlazoredModalInstance BlazoredModal { get; set; }
 
-        protected Task CancelClick() => BlazoredModal.Cancel();
+        private Task CancelClick()
+        {
+            return BlazoredModal.Cancel();
+        }
 
-        protected Task OkClick()
+        private Task OkClick()
         {
             return BlazoredModal.Close(ModalResult.Ok(Result));
         }

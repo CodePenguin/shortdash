@@ -23,8 +23,6 @@ namespace ShortDash.Server.Components
         [Parameter]
         public string DescriptionFieldClasses { get; set; }
 
-        public string Id => ModelProperty.Name;
-
         [Parameter]
         public string InputFieldClasses { get; set; }
 
@@ -34,29 +32,34 @@ namespace ShortDash.Server.Components
         [Parameter]
         public PropertyInfo ModelProperty { get; set; }
 
+        private string Id => ModelProperty.Name;
+
         [Inject]
         private ILogger<FormElementComponent> Logger { get; set; }
 
-        public RenderFragment RenderComponent(PropertyInfo property) => builder =>
+        public RenderFragment RenderComponent(PropertyInfo property)
         {
-            var componentType = GetInputType(property);
-            if (componentType == null)
-            {
-                Logger.LogDebug($"Unhandled component mapping: {property.PropertyType}");
-                return;
-            }
-            var elementType = componentType;
-            if (elementType.IsGenericTypeDefinition)
-            {
-                Type[] typeArgs = { property.PropertyType };
-                elementType = elementType.MakeGenericType(typeArgs);
-            }
+            return builder =>
+                {
+                    var componentType = GetInputType(property);
+                    if (componentType == null)
+                    {
+                        Logger.LogDebug($"Unhandled component mapping: {property.PropertyType}");
+                        return;
+                    }
+                    var elementType = componentType;
+                    if (elementType.IsGenericTypeDefinition)
+                    {
+                        Type[] typeArgs = { property.PropertyType };
+                        elementType = elementType.MakeGenericType(typeArgs);
+                    }
 
-            var instance = Activator.CreateInstance(elementType);
-            var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
-            var genericMethod = method.MakeGenericMethod(property.PropertyType, elementType);
-            genericMethod.Invoke(this, new object[] { this, Model, property, builder, instance });
-        };
+                    var instance = Activator.CreateInstance(elementType);
+                    var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
+                    var genericMethod = method.MakeGenericMethod(property.PropertyType, elementType);
+                    genericMethod.Invoke(this, new object[] { this, Model, property, builder, instance });
+                };
+        }
 
         protected override void OnInitialized()
         {

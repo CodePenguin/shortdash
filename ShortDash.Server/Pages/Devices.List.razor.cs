@@ -12,7 +12,7 @@ namespace ShortDash.Server.Pages
 {
     public partial class Devices_List : ComponentBase
     {
-        protected List<DashboardDevice> DashboardDevices { get; } = new List<DashboardDevice>();
+        private List<DashboardDevice> DashboardDevices { get; } = new List<DashboardDevice>();
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -20,16 +20,16 @@ namespace ShortDash.Server.Pages
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void LinkDevice()
-        {
-            NavigationManager.NavigateTo($"/devices/link");
-        }
-
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             var list = await DashboardService.GetDashboardDevicesAsync();
             DashboardDevices.Clear();
             DashboardDevices.AddRange(list.OrderBy(d => d.Name).ToList());
+        }
+
+        private void LinkDevice()
+        {
+            NavigationManager.NavigateTo($"/devices/link");
         }
     }
 }

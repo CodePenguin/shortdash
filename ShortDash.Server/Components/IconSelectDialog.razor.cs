@@ -29,11 +29,11 @@ namespace ShortDash.Server.Components
         public string TextClass { get; set; }
 
         [CascadingParameter]
-        protected BlazoredModalInstance BlazoredModal { get; set; }
+        private BlazoredModalInstance BlazoredModal { get; set; }
 
-        protected List<string> FilteredIcons { get; } = new List<string>();
+        private List<string> FilteredIcons { get; } = new List<string>();
 
-        protected string SearchText { get; set; }
+        private string SearchText { get; set; }
 
         [Inject]
         private IWebHostEnvironment WebHostEnvironment { get; set; }
@@ -46,47 +46,6 @@ namespace ShortDash.Server.Components
             parameters.Add(nameof(TextClass), backgroundColor.TextClass());
             var modal = modalService.Show<IconSelectDialog>("", parameters);
             return modal.Result;
-        }
-
-        protected Task CloseDialog()
-        {
-            return BlazoredModal.Close();
-        }
-
-        protected void FilterIcons(object source, ElapsedEventArgs e)
-        {
-            InvokeAsync(() =>
-            {
-                FilterIcons();
-                StateHasChanged();
-            });
-        }
-
-        protected void FilterIcons(bool allowShowAll = false)
-        {
-            FilteredIcons.Clear();
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                if (allowShowAll)
-                {
-                    FilteredIcons.AddRange(icons);
-                }
-            }
-            else
-            {
-                var normalizedSearchText = new string(SearchText.ToLower().Where(x => char.IsLetterOrDigit(x)).ToArray());
-                FilteredIcons.AddRange(icons.Where(x => x.Replace("-", string.Empty).Contains(normalizedSearchText)));
-            }
-        }
-
-        protected string IconBorderClass(string icon)
-        {
-            return icon.Equals(CurrentValue) ? "border border-" + TextClass : "";
-        }
-
-        protected Task OkClick()
-        {
-            return BlazoredModal.Close(ModalResult.Ok(CurrentValue));
         }
 
         protected async override Task OnInitializedAsync()
@@ -105,13 +64,54 @@ namespace ShortDash.Server.Components
             FilterIcons();
         }
 
-        protected void SearchTextKeyUp()
+        private Task CloseDialog()
+        {
+            return BlazoredModal.Close();
+        }
+
+        private void FilterIcons(object source, ElapsedEventArgs e)
+        {
+            InvokeAsync(() =>
+            {
+                FilterIcons();
+                StateHasChanged();
+            });
+        }
+
+        private void FilterIcons(bool allowShowAll = false)
+        {
+            FilteredIcons.Clear();
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                if (allowShowAll)
+                {
+                    FilteredIcons.AddRange(icons);
+                }
+            }
+            else
+            {
+                var normalizedSearchText = new string(SearchText.ToLower().Where(x => char.IsLetterOrDigit(x)).ToArray());
+                FilteredIcons.AddRange(icons.Where(x => x.Replace("-", string.Empty).Contains(normalizedSearchText)));
+            }
+        }
+
+        private string IconBorderClass(string icon)
+        {
+            return icon.Equals(CurrentValue) ? "border border-" + TextClass : "";
+        }
+
+        private Task OkClick()
+        {
+            return BlazoredModal.Close(ModalResult.Ok(CurrentValue));
+        }
+
+        private void SearchTextKeyUp()
         {
             searchTextTimer.Stop();
             searchTextTimer.Start();
         }
 
-        protected void SetCurrentValue(string value)
+        private void SetCurrentValue(string value)
         {
             CurrentValue = value;
         }

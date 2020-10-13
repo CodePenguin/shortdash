@@ -18,12 +18,12 @@ namespace ShortDash.Server.Components
         private DotNetObjectReference<SecureInputText> objectReference;
 
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        private IJSRuntime JSRuntime { get; set; }
 
         [CascadingParameter]
-        protected ISecureContext SecureContext { get; set; }
+        private ISecureContext SecureContext { get; set; }
 
-        protected string UniqueId { get; private set; }
+        private string UniqueId { get; set; }
 
         [JSInvokable]
         public void OnClientChanged(string encryptedValue)
@@ -44,11 +44,6 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected void DecryptConvertValue(string encryptedValue)
-        {
-            CurrentValueAsString = SecureContext.Decrypt(encryptedValue);
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -58,12 +53,7 @@ namespace ShortDash.Server.Components
             base.Dispose(disposing);
         }
 
-        protected string EncryptedCurrentValue()
-        {
-            return SecureContext.Encrypt(Value);
-        }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
@@ -94,6 +84,16 @@ namespace ShortDash.Server.Components
             result = value;
             validationErrorMessage = null;
             return true;
+        }
+
+        private void DecryptConvertValue(string encryptedValue)
+        {
+            CurrentValueAsString = SecureContext.Decrypt(encryptedValue);
+        }
+
+        private string EncryptedCurrentValue()
+        {
+            return SecureContext.Encrypt(Value);
         }
     }
 }

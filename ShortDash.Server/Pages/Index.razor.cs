@@ -13,17 +13,11 @@ namespace ShortDash.Server.Pages
 {
     public partial class Index : ComponentBase
     {
-        [CascadingParameter]
-        public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
-
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
         [Inject]
         private AdminAccessCodeService AdministratorAccessCodeService { get; set; }
+
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 
@@ -35,13 +29,32 @@ namespace ShortDash.Server.Pages
 
         private bool IsFirstRun { get; set; }
 
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
+
         [Inject]
         private NavigationManager NavigationManager { get; set; }
+
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
 
         private bool ShowAdminDeviceLinkMessage { get; set; }
         private ClaimsPrincipal User { get; set; }
 
-        protected async void ConfirmUnlink()
+        protected async override Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+            ShowAdminDeviceLinkMessage = false;
+            IsFirstRun = !await AdministratorAccessCodeService.IsInitialized();
+            User = (await AuthenticationStateTask).User;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                Dashboards = await DashboardService.GetDashboardsAsync();
+            }
+        }
+
+        private async void ConfirmUnlink()
         {
             var confirmed = await ConfirmDialog.ShowAsync(ModalService,
                 title: "Unlink Device",
@@ -56,24 +69,11 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo("/logout", true);
         }
 
-        protected void OnCompletedEvent(object sender, EventArgs eventArgs)
+        private void OnCompletedEvent(object sender, EventArgs eventArgs)
         {
             IsFirstRun = false;
             ShowAdminDeviceLinkMessage = true;
             StateHasChanged();
-        }
-
-        protected async override Task OnParametersSetAsync()
-        {
-            await base.OnParametersSetAsync();
-            ShowAdminDeviceLinkMessage = false;
-            IsFirstRun = !await AdministratorAccessCodeService.IsInitialized();
-            User = (await AuthenticationStateTask).User;
-
-            if (User.Identity.IsAuthenticated)
-            {
-                Dashboards = await DashboardService.GetDashboardsAsync();
-            }
         }
     }
 }

@@ -17,19 +17,19 @@ namespace ShortDash.Server.Components
         [Parameter]
         public EventHandler OnCompleted { get; set; }
 
-        protected EditContext AdminCodeEditContext { get; set; }
-        protected string DynamicCode { get; set; }
-        protected string DynamicCodeUrl => $"otpauth://totp/ShortDash?secret={DynamicCode}&issuer=Shortdash";
-        protected bool IsStaticSelected { get; set; }
-        protected AdminCodeModel Model { get; set; }
-        protected bool PairedSuccessfully { get; set; }
-        protected bool ShowRetryMessage { get; set; }
-        protected string StaticCode { get; set; }
-        protected string TabDynamicClass => IsStaticSelected ? "" : "active";
-        protected string TabStaticClass => IsStaticSelected ? "active" : "";
-
         [Inject]
         private AdminAccessCodeService AdminAccessCodeService { get; set; }
+
+        private EditContext AdminCodeEditContext { get; set; }
+        private string DynamicCode { get; set; }
+        private string DynamicCodeUrl => $"otpauth://totp/ShortDash?secret={DynamicCode}&issuer=Shortdash";
+        private bool IsStaticSelected { get; set; }
+        private AdminCodeModel Model { get; set; }
+        private bool PairedSuccessfully { get; set; }
+        private bool ShowRetryMessage { get; set; }
+        private string StaticCode { get; set; }
+        private string TabDynamicClass => IsStaticSelected ? "" : "active";
+        private string TabStaticClass => IsStaticSelected ? "active" : "";
 
         protected override Task OnParametersSetAsync()
         {
@@ -81,16 +81,6 @@ namespace ShortDash.Server.Components
             OnCompleted?.Invoke(this, new EventArgs());
         }
 
-        protected void TabDynamicClick()
-        {
-            IsStaticSelected = false;
-        }
-
-        protected void TabStaticClick()
-        {
-            IsStaticSelected = true;
-        }
-
         private string GenerateDynamicCode()
         {
             var code = KeyGeneration.GenerateRandomKey(10);
@@ -104,7 +94,17 @@ namespace ShortDash.Server.Components
             return baseCode.ToString().PadLeft(AdminCodeLength, '1');
         }
 
-        protected class AdminCodeModel
+        private void TabDynamicClick()
+        {
+            IsStaticSelected = false;
+        }
+
+        private void TabStaticClick()
+        {
+            IsStaticSelected = true;
+        }
+
+        private class AdminCodeModel
         {
             [Required]
             public string UserCode { get; set; }

@@ -19,43 +19,23 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public string DashboardActionTargetId { get; set; }
 
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
-
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
-        protected DashboardActionTarget DashboardActionTarget { get; set; }
-
-        protected bool IsLoading => DashboardActionTarget == null;
+        private DashboardActionTarget DashboardActionTarget { get; set; }
 
         [Inject]
         private DashboardService DashboardService { get; set; }
 
+        private bool IsLoading => DashboardActionTarget == null;
+
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
+
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void CancelChanges()
-        {
-            NavigationManager.NavigateTo("/targets");
-        }
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
 
-        protected async void ConfirmDelete()
-        {
-            var confirmed = await ConfirmDialog.ShowAsync(ModalService,
-                title: "Delete Target",
-                message: "Are you sure you want to delete this target?",
-                confirmLabel: "Delete",
-                confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
-            {
-                return;
-            }
-            await DashboardService.DeleteDashboardActionTargetAsync(DashboardActionTarget);
-            NavigationManager.NavigateTo("/targets");
-        }
-
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             DashboardActionTarget = null;
             if (!string.IsNullOrWhiteSpace(DashboardActionTargetId))
@@ -74,7 +54,37 @@ namespace ShortDash.Server.Pages
             }
         }
 
-        protected async void SaveChanges()
+        private void CancelChanges()
+        {
+            NavigationManager.NavigateTo("/targets");
+        }
+
+        private async void ConfirmDelete()
+        {
+            var confirmed = await ConfirmDialog.ShowAsync(ModalService,
+                title: "Delete Target",
+                message: "Are you sure you want to delete this target?",
+                confirmLabel: "Delete",
+                confirmClass: "btn-danger");
+            if (!confirmed || !await SecureContext.ValidateUser())
+            {
+                return;
+            }
+            await DashboardService.DeleteDashboardActionTargetAsync(DashboardActionTarget);
+            NavigationManager.NavigateTo("/targets");
+        }
+
+        private async Task LoadDashboardActionTarget()
+        {
+            DashboardActionTarget = await DashboardService.GetDashboardActionTargetAsync(DashboardActionTargetId);
+        }
+
+        private void NewDashboardActionTarget()
+        {
+            DashboardActionTarget = new DashboardActionTarget();
+        }
+
+        private async void SaveChanges()
         {
             if (!await SecureContext.ValidateUser())
             {
@@ -89,16 +99,6 @@ namespace ShortDash.Server.Pages
                 await DashboardService.UpdateDashboardActionTargetAsync(DashboardActionTarget);
             }
             NavigationManager.NavigateTo("/targets");
-        }
-
-        private async Task LoadDashboardActionTarget()
-        {
-            DashboardActionTarget = await DashboardService.GetDashboardActionTargetAsync(DashboardActionTargetId);
-        }
-
-        private void NewDashboardActionTarget()
-        {
-            DashboardActionTarget = new DashboardActionTarget();
         }
     }
 }

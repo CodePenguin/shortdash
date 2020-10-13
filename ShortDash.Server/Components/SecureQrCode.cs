@@ -17,20 +17,22 @@ namespace ShortDash.Server.Components
         [Parameter(CaptureUnmatchedValues = true)]
         public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
 
+        [Parameter]
         public int Height { get; set; } = 150;
 
         [Parameter]
         public string Value { get; set; }
 
+        [Parameter]
         public int Width { get; set; } = 150;
 
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        private IJSRuntime JSRuntime { get; set; }
 
         [CascadingParameter]
-        protected ISecureContext SecureContext { get; set; }
+        private ISecureContext SecureContext { get; set; }
 
-        protected string UniqueId { get; private set; }
+        private string UniqueId { get; set; }
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
@@ -44,7 +46,7 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
             await JSRuntime.InvokeVoidAsync("secureContext.setSecureQRCode", UniqueId, SecureContext.Encrypt(Value), Width, Height);

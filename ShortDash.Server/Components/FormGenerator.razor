@@ -1,7 +1,7 @@
 ﻿<EditForm EditContext="@EditContext" OnValidSubmit="@(context => OnValidSubmit.InvokeAsync(context))">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    @foreach (var property in Properties)
+    @foreach (var property in properties)
     {
         @RenderFormElement(property)
     }

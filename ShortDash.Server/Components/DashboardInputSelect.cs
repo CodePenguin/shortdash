@@ -44,7 +44,7 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             var dashboards = await DashboardService.GetDashboardsAsync();
             Options.Clear();

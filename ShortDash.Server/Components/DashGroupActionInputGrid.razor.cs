@@ -18,9 +18,9 @@ namespace ShortDash.Server.Components
         public DashboardService DashboardService { get; set; }
 
         [CascadingParameter]
-        public IModalService ModalService { get; set; }
+        private IModalService ModalService { get; set; }
 
-        protected List<DashboardSubAction> SubActions { get; } = new List<DashboardSubAction>();
+        private List<DashboardSubAction> SubActions { get; } = new List<DashboardSubAction>();
 
         public void GenerateChanges(DashboardAction dashboardAction, out List<DashboardSubAction> removalList)
         {
@@ -46,7 +46,13 @@ namespace ShortDash.Server.Components
             }
         }
 
-        protected void MoveCellLeft(DashboardSubAction cell)
+        protected override void OnParametersSet()
+        {
+            SubActions.Clear();
+            SubActions.AddRange(DashboardAction.DashboardSubActionChildren.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardActionChildId).ToList());
+        }
+
+        private void MoveCellLeft(DashboardSubAction cell)
         {
             var index = SubActions.IndexOf(cell);
             if (index < 1)
@@ -58,7 +64,7 @@ namespace ShortDash.Server.Components
             StateHasChanged();
         }
 
-        protected void MoveCellRight(DashboardSubAction cell)
+        private void MoveCellRight(DashboardSubAction cell)
         {
             var index = SubActions.IndexOf(cell);
             if (index >= SubActions.Count - 1)
@@ -70,19 +76,13 @@ namespace ShortDash.Server.Components
             StateHasChanged();
         }
 
-        protected override void OnParametersSet()
-        {
-            SubActions.Clear();
-            SubActions.AddRange(DashboardAction.DashboardSubActionChildren.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardActionChildId).ToList());
-        }
-
-        protected void RemoveCell(DashboardSubAction cell)
+        private void RemoveCell(DashboardSubAction cell)
         {
             SubActions.Remove(cell);
             StateHasChanged();
         }
 
-        protected async void ShowAddDialog()
+        private async void ShowAddDialog()
         {
             var result = await AddDashboardActionDialog.ShowAsync(ModalService);
             if (result.Cancelled)

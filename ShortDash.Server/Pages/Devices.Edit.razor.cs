@@ -21,34 +21,46 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public string DashboardDeviceId { get; set; }
 
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
-
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
-        protected DashboardDevice DashboardDevice { get; set; }
-        protected DeviceClaims DeviceClaims { get; set; }
-
-        protected bool IsLoading => DashboardDevice == null;
-
-        protected bool SuccessfullyLinked { get; set; }
+        private DashboardDevice DashboardDevice { get; set; }
 
         [Inject]
         private DashboardService DashboardService { get; set; }
 
+        private DeviceClaims DeviceClaims { get; set; }
+
         [Inject]
         private DeviceLinkService DeviceLinkService { get; set; }
+
+        private bool IsLoading => DashboardDevice == null;
+
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
 
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void CancelChanges()
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
+
+        private bool SuccessfullyLinked { get; set; }
+
+        protected async override Task OnParametersSetAsync()
+        {
+            DashboardDevice = null;
+            DeviceClaims = null;
+            await LoadDashboardDevice();
+
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            QueryHelpers.ParseQuery(uri.Query).TryGetValue("linked", out var linkedValue);
+            SuccessfullyLinked = !string.IsNullOrWhiteSpace(linkedValue);
+        }
+
+        private void CancelChanges()
         {
             NavigationManager.NavigateTo("/devices");
         }
 
-        protected async void ConfirmUnlink()
+        private async void ConfirmUnlink()
         {
             var confirmed = await ConfirmDialog.ShowAsync(ModalService,
                 title: "Unlink Device",
@@ -63,18 +75,13 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo("/devices");
         }
 
-        protected async override Task OnParametersSetAsync()
+        private async Task LoadDashboardDevice()
         {
-            DashboardDevice = null;
-            DeviceClaims = null;
-            await LoadDashboardDevice();
-
-            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            QueryHelpers.ParseQuery(uri.Query).TryGetValue("linked", out var linkedValue);
-            SuccessfullyLinked = !string.IsNullOrWhiteSpace(linkedValue);
+            DashboardDevice = await DashboardService.GetDashboardDeviceAsync(DashboardDeviceId);
+            DeviceClaims = DashboardDevice.GetDeviceClaimsList();
         }
 
-        protected async void SaveChanges()
+        private async void SaveChanges()
         {
             if (!await SecureContext.ValidateUser())
             {
@@ -88,12 +95,6 @@ namespace ShortDash.Server.Pages
                 DeviceLinkService.UpdateDeviceClaims(DashboardDevice.DashboardDeviceId, DeviceClaims);
             }
             NavigationManager.NavigateTo("/devices");
-        }
-
-        private async Task LoadDashboardDevice()
-        {
-            DashboardDevice = await DashboardService.GetDashboardDeviceAsync(DashboardDeviceId);
-            DeviceClaims = DashboardDevice.GetDeviceClaimsList();
         }
     }
 }

@@ -24,33 +24,33 @@ namespace ShortDash.Server.Components
     {
         private string channelId;
 
-        [CascadingParameter]
-        public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
         [Parameter]
         public RenderFragment ChildContent { get; set; }
 
         public string DeviceId { get; private set; }
 
         [Inject]
-        protected AuthenticationEvents AuthenticationEvents { get; set; }
+        private AuthenticationEvents AuthenticationEvents { get; set; }
+
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Inject]
-        protected DeviceLinkService DeviceLinkService { get; set; }
+        private DeviceLinkService DeviceLinkService { get; set; }
 
         [Inject]
-        protected IEncryptedChannelService EncryptedChannelService { get; set; }
+        private IEncryptedChannelService EncryptedChannelService { get; set; }
 
-        protected bool IsInitialized { get; private set; }
-
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        private bool IsInitialized { get; set; }
 
         [Inject]
-        protected ILogger<CascadingSecureContext> Logger { get; set; }
+        private IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        private ILogger<CascadingSecureContext> Logger { get; set; }
+
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
 
         public string Decrypt(string value)
         {
@@ -77,6 +77,12 @@ namespace ShortDash.Server.Components
         public string GenerateChallenge(out string rawChallenge)
         {
             return EncryptedChannelService.GenerateChallenge(EncryptedChannelService.ExportPublicKey(channelId), out rawChallenge);
+        }
+
+        public async Task GetClientPublicKey()
+        {
+            var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
+            channelId = EncryptedChannelService.OpenChannel(publicKey);
         }
 
         public async Task<bool> ValidateUser()
@@ -145,12 +151,6 @@ namespace ShortDash.Server.Components
         private void DeviceUnlinkedEvent(object sender, DeviceUnlinkedEventArgs e)
         {
             InvokeAsync(async () => await ValidateUser());
-        }
-
-        private async Task GetClientPublicKey()
-        {
-            var publicKey = await JSRuntime.InvokeAsync<string>("secureContext.exportPublicKey");
-            channelId = EncryptedChannelService.OpenChannel(publicKey);
         }
 
         private string GetServerPublicKey()

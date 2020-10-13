@@ -13,7 +13,7 @@ namespace ShortDash.Server.Components
 {
     public partial class AddDashboardDialog : ComponentBase
     {
-        protected SelectedItem Selected { get; } = new SelectedItem();
+        private SelectedItem Selected { get; } = new SelectedItem();
 
         public static Task<ModalResult> ShowAsync(IModalService modalService)
         {
@@ -21,7 +21,7 @@ namespace ShortDash.Server.Components
             return modal.Result;
         }
 
-        protected class SelectedItem
+        private class SelectedItem
         {
             public string Value { get; set; }
         }

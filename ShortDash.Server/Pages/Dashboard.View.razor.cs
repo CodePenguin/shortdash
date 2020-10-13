@@ -19,42 +19,59 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public int? DashboardId { get; set; }
 
-        [Inject]
-        public DashboardService DashboardService { get; set; }
-
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
-
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
-        public string TextClass { get; set; } = "light";
-        protected bool CanView { get; set; }
-        protected Dashboard Dashboard { get; private set; }
-        protected Dictionary<string, object> DashboardAttributes { get; private set; } = new Dictionary<string, object>();
-        protected EditContext DashboardEditContext { get; private set; } = null;
-        protected bool EditMode { get; set; }
-
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
+        private bool CanView { get; set; }
+
+        private Dashboard Dashboard { get; set; }
+
+        private Dictionary<string, object> DashboardAttributes { get; set; } = new Dictionary<string, object>();
+
         private List<DashboardCell> DashboardCells { get; } = new List<DashboardCell>();
+
+        private EditContext DashboardEditContext { get; set; } = null;
+
+        [Inject]
+        private DashboardService DashboardService { get; set; }
+
+        private bool EditMode { get; set; }
+
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
 
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void CancelChanges()
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
+
+        private string TextClass { get; set; } = "light";
+
+        protected async override Task OnParametersSetAsync()
+        {
+            DashboardId ??= 1;
+            CanView = await CanViewDashboard();
+            Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
+            DashboardEditContext = new EditContext(Dashboard);
+            LoadDashboardCells();
+
+            DashboardAttributes.Clear();
+            RefreshStyles();
+        }
+
+        private void CancelChanges()
         {
             LoadDashboardCells();
             StateHasChanged();
         }
 
-        protected async Task<bool> CanViewDashboard()
+        private async Task<bool> CanViewDashboard()
         {
             return (await AuthenticationStateTask).User.CanAccessDashboard(DashboardId.GetValueOrDefault());
         }
 
-        protected async void ConfirmDelete()
+        private async void ConfirmDelete()
         {
             var confirmed = await ConfirmDialog.ShowAsync(ModalService,
                 title: "Delete Dashboard",
@@ -69,26 +86,14 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo($"/");
         }
 
-        protected void LoadDashboardCells()
+        private void LoadDashboardCells()
         {
             DashboardCells.Clear();
             DashboardCells.AddRange(Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList());
             EditMode = DashboardCells.Count == 0;
         }
 
-        protected async override Task OnParametersSetAsync()
-        {
-            DashboardId ??= 1;
-            CanView = await CanViewDashboard();
-            Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
-            DashboardEditContext = new EditContext(Dashboard);
-            LoadDashboardCells();
-
-            DashboardAttributes.Clear();
-            RefreshStyles();
-        }
-
-        protected void RefreshStyles()
+        private void RefreshStyles()
         {
             if (Dashboard.BackgroundColor != null)
             {
@@ -102,14 +107,14 @@ namespace ShortDash.Server.Pages
             }
         }
 
-        protected async void RemoveCell(DashboardCell cell)
+        private async void RemoveCell(DashboardCell cell)
         {
             Dashboard.DashboardCells.Remove(cell);
             await DashboardService.DeleteDashboardCellAsync(cell);
             StateHasChanged();
         }
 
-        protected async void SaveChanges()
+        private async void SaveChanges()
         {
             if (!DashboardEditContext.Validate() || !await SecureContext.ValidateUser())
             {
@@ -140,7 +145,7 @@ namespace ShortDash.Server.Pages
             StateHasChanged();
         }
 
-        protected void ToggleEditMode()
+        private void ToggleEditMode()
         {
             EditMode = !EditMode;
         }

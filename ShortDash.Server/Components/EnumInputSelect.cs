@@ -40,7 +40,7 @@ namespace ShortDash.Server.Components
             builder.CloseElement();
         }
 
-        protected override async Task OnInitializedAsync()
+        protected async override Task OnInitializedAsync()
         {
             var values = typeof(T).GetEnumValues();
             Options.Clear();

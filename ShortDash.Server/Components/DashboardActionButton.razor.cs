@@ -20,21 +20,30 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool EditMode { get; set; }
 
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
-
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
-
         [Inject]
-        protected DashboardActionService DashboardActionService { get; set; }
+        private DashboardActionService DashboardActionService { get; set; }
 
         private bool IsExecuting { get; set; } = false;
+
         private bool IsToggle { get; set; } = false;
+
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
+
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
+
         private bool ToggleState { get; set; } = false;
 
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            IsExecuting = false;
+            ToggleState = false;
+        }
+
         // TODO: Implement toggle functionality
-        protected async void ExecuteAction()
+        private async void ExecuteAction()
         {
             if (EditMode || IsExecuting || !await SecureContext.ValidateUser())
             {
@@ -59,7 +68,7 @@ namespace ShortDash.Server.Components
             StateHasChanged();
         }
 
-        protected async Task ExecuteDashGroupAction()
+        private async Task ExecuteDashGroupAction()
         {
             if (!await SecureContext.ValidateUser())
             {
@@ -77,14 +86,7 @@ namespace ShortDash.Server.Components
             }
         }
 
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            IsExecuting = false;
-            ToggleState = false;
-        }
-
-        protected bool ShouldShowCaption()
+        private bool ShouldShowCaption()
         {
             return DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName || EditMode;
         }

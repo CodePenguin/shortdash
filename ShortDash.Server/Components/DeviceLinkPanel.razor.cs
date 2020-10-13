@@ -19,48 +19,26 @@ namespace ShortDash.Server.Components
     public sealed partial class DeviceLinkPanel : ComponentBase, IDisposable
     {
         [Inject]
-        protected DeviceLinkService DeviceLinkService { get; set; }
+        private DeviceLinkService DeviceLinkService { get; set; }
 
         [Inject]
-        protected IHttpContextAccessor HttpContextAccessor { get; set; }
+        private IHttpContextAccessor HttpContextAccessor { get; set; }
 
-        protected bool Linking { get; set; }
+        private bool Linking { get; set; }
 
-        protected DeviceLinkModel Model { get; set; }
+        private DeviceLinkModel Model { get; set; }
 
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        private NavigationManager NavigationManager { get; set; }
 
         [CascadingParameter]
-        protected ISecureContext SecureContext { get; set; }
+        private ISecureContext SecureContext { get; set; }
 
-        protected bool ShowRetryMessage { get; set; }
+        private bool ShowRetryMessage { get; set; }
 
         public void Dispose()
         {
             StopLinking();
-        }
-
-        protected void Cancel()
-        {
-            ShowRetryMessage = false;
-            if (Linking)
-            {
-                StopLinking();
-            }
-            else
-            {
-                Model.DeviceLinkCode = "";
-                StateHasChanged();
-            }
-        }
-
-        protected string GenerateDefaultDeviceName()
-        {
-            var userAgent = HttpContextAccessor.HttpContext.Request.Headers["User-Agent"];
-            var parser = Parser.GetDefault();
-            var client = parser.Parse(userAgent);
-            return (client.Device.ToString().Equals("Other") ? "Device" : client.Device.ToString()) + " " + client.UA.Family;
         }
 
         protected override Task OnParametersSetAsync()
@@ -79,7 +57,29 @@ namespace ShortDash.Server.Components
             return base.OnParametersSetAsync();
         }
 
-        protected async void StartLinking()
+        private void Cancel()
+        {
+            ShowRetryMessage = false;
+            if (Linking)
+            {
+                StopLinking();
+            }
+            else
+            {
+                Model.DeviceLinkCode = "";
+                StateHasChanged();
+            }
+        }
+
+        private string GenerateDefaultDeviceName()
+        {
+            var userAgent = HttpContextAccessor.HttpContext.Request.Headers["User-Agent"];
+            var parser = Parser.GetDefault();
+            var client = parser.Parse(userAgent);
+            return (client.Device.ToString().Equals("Other") ? "Device" : client.Device.ToString()) + " " + client.UA.Family;
+        }
+
+        private async void StartLinking()
         {
             ShowRetryMessage = false;
             if (Linking)
@@ -104,7 +104,7 @@ namespace ShortDash.Server.Components
             NavigationManager.NavigateTo("/login?accessToken=" + HttpUtility.UrlEncode(accessToken), true);
         }
 
-        protected void StopLinking()
+        private void StopLinking()
         {
             if (!Linking)
             {
@@ -113,7 +113,7 @@ namespace ShortDash.Server.Components
             Linking = false;
         }
 
-        protected class DeviceLinkModel
+        private class DeviceLinkModel
         {
             [Required]
             [Display(Name = "Device Code")]

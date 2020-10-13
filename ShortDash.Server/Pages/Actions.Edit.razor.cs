@@ -23,22 +23,11 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public int DashboardActionId { get; set; }
 
-        [CascadingParameter]
-        public IModalService ModalService { get; set; }
+        private ShortDashActionAttribute ActionAttribute { get; set; }
 
-        [CascadingParameter]
-        public ISecureContext SecureContext { get; set; }
+        private EditContext ActionEditContext { get; set; }
 
-        protected ShortDashActionAttribute ActionAttribute { get; set; }
-
-        protected EditContext ActionEditContext { get; set; }
-
-        protected DashboardAction DashboardAction { get; set; }
-        protected bool IsLoading => ActionEditContext == null;
-
-        protected object Parameters { get; set; }
-
-        protected EditContext ParametersEditContext { get; set; }
+        private DashboardAction DashboardAction { get; set; }
 
         [Inject]
         private DashboardActionService DashboardActionService { get; set; }
@@ -46,22 +35,20 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DashboardService DashboardService { get; set; }
 
+        private bool IsLoading => ActionEditContext == null;
+
+        [CascadingParameter]
+        private IModalService ModalService { get; set; }
+
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        protected void CancelChanges()
-        {
-            NavigationManager.NavigateTo($"/actions");
-        }
+        private object Parameters { get; set; }
 
-        protected async Task ChangeActionTypeName()
-        {
-            var settingsDefault = DashboardActionService.GetActionDefaultSettingsAttribute(DashboardAction.ActionTypeName);
-            DashboardAction.BackgroundColor = DashboardAction.BackgroundColor ?? settingsDefault.BackgroundColor;
-            DashboardAction.Icon = settingsDefault.Icon;
-            DashboardAction.Label = settingsDefault.Label;
-            await Task.Run(() => RefreshParameters());
-        }
+        private EditContext ParametersEditContext { get; set; }
+
+        [CascadingParameter]
+        private ISecureContext SecureContext { get; set; }
 
         protected async void ConfirmDelete()
         {
@@ -78,7 +65,7 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo($"/actions");
         }
 
-        protected override async Task OnParametersSetAsync()
+        protected async override Task OnParametersSetAsync()
         {
             ActionEditContext = null;
             ParametersEditContext = null;
@@ -93,7 +80,54 @@ namespace ShortDash.Server.Pages
             ActionEditContext = new EditContext(DashboardAction);
         }
 
-        protected async void SaveChanges()
+        private void CancelChanges()
+        {
+            NavigationManager.NavigateTo($"/actions");
+        }
+
+        private async Task ChangeActionTypeName()
+        {
+            var settingsDefault = DashboardActionService.GetActionDefaultSettingsAttribute(DashboardAction.ActionTypeName);
+            DashboardAction.BackgroundColor = DashboardAction.BackgroundColor ?? settingsDefault.BackgroundColor;
+            DashboardAction.Icon = settingsDefault.Icon;
+            DashboardAction.Label = settingsDefault.Label;
+            await Task.Run(() => RefreshParameters());
+        }
+
+        private async Task LoadDashboardAction()
+        {
+            DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
+
+            RefreshParameters();
+        }
+
+        private void NewDashboardAction()
+        {
+            DashboardAction = new DashboardAction { DashboardActionTargetId = DashboardActionTarget.ServerTargetId, BackgroundColor = Color.Black };
+
+            ActionAttribute = null;
+            Parameters = null;
+            ParametersEditContext = null;
+
+            RefreshParameters();
+        }
+
+        private void RefreshParameters()
+        {
+            ActionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
+            if (ActionAttribute != null && ActionAttribute.ParametersType != null)
+            {
+                Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ActionAttribute.ParametersType);
+                ParametersEditContext = new EditContext(Parameters);
+            }
+            else
+            {
+                Parameters = null;
+                ParametersEditContext = null;
+            }
+        }
+
+        private async void SaveChanges()
         {
             if (!ActionEditContext.Validate() || !await SecureContext.ValidateUser())
             {
@@ -133,7 +167,7 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo($"/actions");
         }
 
-        protected async void SelectIcon()
+        private async void SelectIcon()
         {
             var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.Icon, DashboardAction.BackgroundColor ?? Color.Black);
             if (result.Cancelled)
@@ -142,39 +176,6 @@ namespace ShortDash.Server.Pages
             }
             DashboardAction.Icon = (string)result.Data;
             StateHasChanged();
-        }
-
-        private async Task LoadDashboardAction()
-        {
-            DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
-
-            RefreshParameters();
-        }
-
-        private void NewDashboardAction()
-        {
-            DashboardAction = new DashboardAction { DashboardActionTargetId = DashboardActionTarget.ServerTargetId, BackgroundColor = Color.Black };
-
-            ActionAttribute = null;
-            Parameters = null;
-            ParametersEditContext = null;
-
-            RefreshParameters();
-        }
-
-        private void RefreshParameters()
-        {
-            ActionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
-            if (ActionAttribute != null && ActionAttribute.ParametersType != null)
-            {
-                Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ActionAttribute.ParametersType);
-                ParametersEditContext = new EditContext(Parameters);
-            }
-            else
-            {
-                Parameters = null;
-                ParametersEditContext = null;
-            }
         }
     }
 }

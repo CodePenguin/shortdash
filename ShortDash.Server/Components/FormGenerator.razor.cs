@@ -11,7 +11,7 @@ namespace ShortDash.Server.Components
 {
     public partial class FormGenerator : ComponentBase
     {
-        public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
+        private PropertyInfo[] properties = Array.Empty<PropertyInfo>();
 
         [Parameter]
         public EditContext EditContext { get; set; }
@@ -22,21 +22,19 @@ namespace ShortDash.Server.Components
         [Parameter]
         public EventCallback<EditContext> OnValidSubmit { get; set; }
 
-        public RenderFragment RenderFormElement(PropertyInfo propInfo) => builder =>
+        protected override void OnParametersSet()
         {
-            builder.OpenComponent(0, FormElementType);
-            builder.AddAttribute(1, nameof(FormElementComponent.Model), EditContext.Model);
-            builder.AddAttribute(2, nameof(FormElementComponent.ModelProperty), propInfo);
-            builder.CloseComponent();
-        };
+            base.OnParametersSet();
+            properties = GenerateProperties();
+        }
 
-        protected static int GetDisplayOrder(PropertyInfo property)
+        private static int GetDisplayOrder(PropertyInfo property)
         {
             var displayAttribute = property.GetCustomAttributes(typeof(DisplayAttribute), true).FirstOrDefault() as DisplayAttribute;
             return displayAttribute?.GetOrder() ?? 10000;
         }
 
-        protected PropertyInfo[] GenerateProperties()
+        private PropertyInfo[] GenerateProperties()
         {
             return EditContext.Model
                 .GetType()
@@ -45,10 +43,15 @@ namespace ShortDash.Server.Components
                 .ToArray();
         }
 
-        protected override void OnParametersSet()
+        private RenderFragment RenderFormElement(PropertyInfo propInfo)
         {
-            base.OnParametersSet();
-            Properties = GenerateProperties();
+            return builder =>
+                {
+                    builder.OpenComponent(0, FormElementType);
+                    builder.AddAttribute(1, nameof(FormElementComponent.Model), EditContext.Model);
+                    builder.AddAttribute(2, nameof(FormElementComponent.ModelProperty), propInfo);
+                    builder.CloseComponent();
+                };
         }
     }
 }

@@ -27,17 +27,17 @@ namespace ShortDash.Server.Components
         [Parameter]
         public EventCallback<DashboardCell> OnRemoveCell { get; set; }
 
-        protected Task MoveCellLeft()
+        private Task MoveCellLeft()
         {
             return OnMoveCellLeft.InvokeAsync(Cell);
         }
 
-        protected Task MoveCellRight()
+        private Task MoveCellRight()
         {
             return OnMoveCellRight.InvokeAsync(Cell);
         }
 
-        protected Task RemoveCell()
+        private Task RemoveCell()
         {
             return OnRemoveCell.InvokeAsync(Cell);
         }

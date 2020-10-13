@@ -15,16 +15,33 @@ namespace ShortDash.Server.Components
         [Parameter]
         public DeviceClaims DeviceClaims { get; set; }
 
-        public EditContext EditContext { get; set; }
-        protected List<Dashboard> Dashboards { get; set; }
+        private List<Dashboard> Dashboards { get; set; }
 
         [Inject]
-        protected DashboardService DashboardService { get; set; }
+        private DashboardService DashboardService { get; set; }
 
-        protected bool IsLoading => EditContext == null;
-        protected DeviceClaimsModel Model { get; set; }
+        private EditContext EditContext { get; set; }
+        private bool IsLoading => EditContext == null;
+        private DeviceClaimsModel Model { get; set; }
 
-        public void ReadClaims()
+        protected async override Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+
+            Model = new DeviceClaimsModel();
+            Dashboards = await DashboardService.GetDashboardsAsync();
+            ReadClaims();
+
+            EditContext = new EditContext(Model);
+            EditContext.OnFieldChanged += OnFieldChanged;
+        }
+
+        private void OnFieldChanged(object sender, FieldChangedEventArgs e)
+        {
+            UpdateClaims();
+        }
+
+        private void ReadClaims()
         {
             Model.IsAdministrator = DeviceClaims.Find(c => c.Type == ClaimTypes.Role && c.Value.Equals(Roles.Administrator)) != null;
 
@@ -35,7 +52,13 @@ namespace ShortDash.Server.Components
             }
         }
 
-        public void UpdateClaims()
+        private void ToggleDashboardAccess(int dashboardId)
+        {
+            Model.DashboardAccess[dashboardId] = !Model.DashboardAccess[dashboardId];
+            UpdateClaims();
+        }
+
+        private void UpdateClaims()
         {
             DeviceClaims.Clear();
             if (Model.IsAdministrator)
@@ -55,30 +78,7 @@ namespace ShortDash.Server.Components
             }
         }
 
-        protected async override Task OnParametersSetAsync()
-        {
-            await base.OnParametersSetAsync();
-
-            Model = new DeviceClaimsModel();
-            Dashboards = await DashboardService.GetDashboardsAsync();
-            ReadClaims();
-
-            EditContext = new EditContext(Model);
-            EditContext.OnFieldChanged += OnFieldChanged;
-        }
-
-        protected void ToggleDashboardAccess(int dashboardId)
-        {
-            Model.DashboardAccess[dashboardId] = !Model.DashboardAccess[dashboardId];
-            UpdateClaims();
-        }
-
-        private void OnFieldChanged(object sender, FieldChangedEventArgs e)
-        {
-            UpdateClaims();
-        }
-
-        protected class DeviceClaimsModel
+        private class DeviceClaimsModel
         {
             public Dictionary<int, bool> DashboardAccess { get; } = new Dictionary<int, bool>();
             public bool IsAdministrator { get; set; }

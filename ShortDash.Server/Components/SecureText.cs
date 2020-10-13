@@ -23,12 +23,12 @@ namespace ShortDash.Server.Components
         public string Value { get; set; }
 
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        private IJSRuntime JSRuntime { get; set; }
 
         [CascadingParameter]
-        protected ISecureContext SecureContext { get; set; }
+        private ISecureContext SecureContext { get; set; }
 
-        protected string UniqueId { get; private set; }
+        private string UniqueId { get; set; }
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
