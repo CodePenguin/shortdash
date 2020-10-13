@@ -24,7 +24,7 @@ namespace ShortDash.Server.Shared
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
-        [CascadingParameter(Name = "SecureContext")]
+        [CascadingParameter]
         public ISecureContext SecureContext { get; set; }
 
         protected List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();

@@ -31,7 +31,7 @@ namespace ShortDash.Server.Components
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
-        [CascadingParameter(Name = "SecureContext")]
+        [CascadingParameter]
         protected ISecureContext SecureContext { get; set; }
 
         protected bool ShowRetryMessage { get; set; }

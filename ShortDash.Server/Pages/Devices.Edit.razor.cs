@@ -24,6 +24,9 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         protected DashboardDevice DashboardDevice { get; set; }
         protected DeviceClaims DeviceClaims { get; set; }
 
@@ -52,7 +55,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to unlink this device?",
                 confirmLabel: "Unlink",
                 confirmClass: "btn-danger");
-            if (!confirmed)
+            if (!confirmed || !await SecureContext.ValidateUser())
             {
                 return;
             }
@@ -73,6 +76,10 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
+            if (!await SecureContext.ValidateUser())
+            {
+                return;
+            }
             var refreshClaims = !DeviceClaims.Equals(DashboardDevice.GetDeviceClaimsList());
             DashboardDevice.SetDeviceClaimsList(DeviceClaims);
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);

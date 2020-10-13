@@ -23,6 +23,9 @@ namespace ShortDash.Server.Components
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         [Inject]
         protected DashboardActionService DashboardActionService { get; set; }
 
@@ -33,7 +36,7 @@ namespace ShortDash.Server.Components
         // TODO: Implement toggle functionality
         protected async void ExecuteAction()
         {
-            if (EditMode || IsExecuting)
+            if (EditMode || IsExecuting || !await SecureContext.ValidateUser())
             {
                 return;
             }
@@ -56,19 +59,22 @@ namespace ShortDash.Server.Components
             StateHasChanged();
         }
 
-        protected Task ExecuteDashGroupAction()
+        protected async Task ExecuteDashGroupAction()
         {
+            if (!await SecureContext.ValidateUser())
+            {
+                return;
+            }
             var actionType = DashboardActionService.FindActionType(typeof(DashGroupAction).FullName);
             var parameters = DashboardActionService.GetActionParameters(actionType, DashboardAction.Parameters) as DashGroupParameters;
             if (parameters.DashGroupType == DashGroupType.Folder)
             {
-                return DashGroupActionDialog.ShowAsync(ModalService, DashboardAction);
+                await DashGroupActionDialog.ShowAsync(ModalService, DashboardAction);
             }
             else if (parameters.DashGroupType == DashGroupType.List)
             {
-                return DashboardActionService.Execute(DashboardAction, ToggleState);
+                await DashboardActionService.Execute(DashboardAction, ToggleState);
             }
-            return Task.CompletedTask;
         }
 
         protected override void OnParametersSet()

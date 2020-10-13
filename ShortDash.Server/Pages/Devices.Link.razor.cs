@@ -18,6 +18,10 @@ namespace ShortDash.Server.Pages
     {
         private const int DeviceLinkCodeLength = 6;
         public DeviceClaims DeviceClaims { get; private set; } = new DeviceClaims();
+
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         protected string DeviceLinkCode { get; set; }
 
         protected string DeviceLinkSecureUrl { get; set; }
@@ -75,8 +79,12 @@ namespace ShortDash.Server.Pages
             return base.OnParametersSetAsync();
         }
 
-        protected void StartLinking()
+        protected async void StartLinking()
         {
+            if (!await SecureContext.ValidateUser())
+            {
+                return;
+            }
             var baseCode = Math.Abs(Guid.NewGuid().ToString().GetHashCode() % Math.Pow(10, DeviceLinkCodeLength));
             DeviceLinkCode = baseCode.ToString().PadLeft(DeviceLinkCodeLength, '1');
             DeviceLinkSecureUrl = NavigationManager.ToAbsoluteUri("/?c=" + HttpUtility.UrlEncode(DeviceLinkCode)).ToString();

@@ -25,7 +25,7 @@ namespace ShortDash.Server.Components
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
-        [CascadingParameter(Name = "SecureContext")]
+        [CascadingParameter]
         protected ISecureContext SecureContext { get; set; }
 
         protected string UniqueId { get; private set; }

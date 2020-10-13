@@ -26,6 +26,9 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         protected ShortDashActionAttribute ActionAttribute { get; set; }
 
         protected EditContext ActionEditContext { get; set; }
@@ -67,7 +70,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this action?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed)
+            if (!confirmed || !await SecureContext.ValidateUser())
             {
                 return;
             }
@@ -92,7 +95,7 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            if (!ActionEditContext.Validate())
+            if (!ActionEditContext.Validate() || !await SecureContext.ValidateUser())
             {
                 return;
             }

@@ -19,7 +19,7 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
-        [CascadingParameter(Name = "SecureContext")]
+        [CascadingParameter]
         public ISecureContext SecureContext { get; set; }
 
         [Inject]

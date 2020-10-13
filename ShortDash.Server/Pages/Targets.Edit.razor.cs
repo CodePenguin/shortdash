@@ -22,6 +22,9 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         protected DashboardActionTarget DashboardActionTarget { get; set; }
 
         protected bool IsLoading => DashboardActionTarget == null;
@@ -44,7 +47,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this target?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed)
+            if (!confirmed || !await SecureContext.ValidateUser())
             {
                 return;
             }
@@ -73,6 +76,10 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
+            if (!await SecureContext.ValidateUser())
+            {
+                return;
+            }
             if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
             {
                 await DashboardService.AddDashboardActionTargetAsync(DashboardActionTarget);

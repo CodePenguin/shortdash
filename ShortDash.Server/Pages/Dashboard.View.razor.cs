@@ -25,6 +25,9 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         public IModalService ModalService { get; set; }
 
+        [CascadingParameter]
+        public ISecureContext SecureContext { get; set; }
+
         public string TextClass { get; set; } = "light";
         protected bool CanView { get; set; }
         protected Dashboard Dashboard { get; private set; }
@@ -58,7 +61,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this dashboard?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed)
+            if (!confirmed || !await SecureContext.ValidateUser())
             {
                 return;
             }
@@ -108,7 +111,7 @@ namespace ShortDash.Server.Pages
 
         protected async void SaveChanges()
         {
-            if (!DashboardEditContext.Validate())
+            if (!DashboardEditContext.Validate() || !await SecureContext.ValidateUser())
             {
                 return;
             }
