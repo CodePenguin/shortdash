@@ -1,5 +1,6 @@
 ﻿@page "/actions"
 @attribute [Authorize(Policy = Policies.EditActions)]
+@inherits PageBase
 
 <div class="page text-dark">
     <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>

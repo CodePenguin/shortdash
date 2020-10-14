@@ -1,5 +1,6 @@
 ﻿@page "/devices/{DashboardDeviceId}"
 @attribute [Authorize(Policy = Policies.EditDevices)]
+@inherits PageBase
 
 <div class="page">
     @if (IsLoading)

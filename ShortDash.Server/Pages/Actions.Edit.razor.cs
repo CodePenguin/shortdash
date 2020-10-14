@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Actions_Edit : ComponentBase
+    public partial class Actions_Edit : PageBase
     {
         private DashGroupActionInputGrid subActionsInputGrid;
 
@@ -32,23 +32,11 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DashboardActionService DashboardActionService { get; set; }
 
-        [Inject]
-        private DashboardService DashboardService { get; set; }
-
         private bool IsLoading => ActionEditContext == null;
-
-        [CascadingParameter]
-        private IModalService ModalService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
 
         private object Parameters { get; set; }
 
         private EditContext ParametersEditContext { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         protected async void ConfirmDelete()
         {
@@ -57,7 +45,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this action?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
+            if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
@@ -129,7 +117,7 @@ namespace ShortDash.Server.Pages
 
         private async void SaveChanges()
         {
-            if (!ActionEditContext.Validate() || !await SecureContext.ValidateUser())
+            if (!ActionEditContext.Validate() || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }

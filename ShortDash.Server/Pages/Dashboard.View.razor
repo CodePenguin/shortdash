@@ -1,12 +1,13 @@
 ﻿@page "/dashboard"
 @page "/dashboard/{DashboardId:int}"
 @attribute [Authorize(Policy = Policies.ViewDashboards)]
+@inherits PageBase
 
 <CascadingValue Value="DashboardService">
     @if (Dashboard == null || !CanView)
     {
         <div class="page">
-            <h3 class="alert alert-danger">This device does not have access to this dashboard.</h3>
+            <div class="alert alert-danger">This device does not have access to this dashboard.</div>
         </div>
     }
     else
@@ -18,14 +19,6 @@
                     <button type="button" class="btn btn-danger btn-sm mr-5" @onclick="ConfirmDelete">Delete</button>
                     <button type="button" class="btn btn-secondary btn-sm" @onclick="CancelChanges">Cancel</button>
                     <button type="button" class="btn btn-primary btn-sm" @onclick="SaveChanges">Save</button>
-                }
-                else
-                {
-                    <AuthorizeView Policy="EditDashboards">
-                        <button type="button" class="btn btn-outline-@TextClass btn-sm" @onclick="ToggleEditMode">
-                            Edit
-                        </button>
-                    </AuthorizeView>
                 }
             </div>
 
@@ -44,10 +37,6 @@
                         <ValidationMessage For="() => Dashboard.BackgroundColor" />
                     </div>
                 </EditForm>
-            }
-            else
-            {
-                <h3>@Dashboard.Name</h3>
             }
             <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" />
         </div>

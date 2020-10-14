@@ -1,6 +1,7 @@
 ﻿@page "/targets/{DashboardActionTargetId}"
 @page "/targets/new"
 @attribute [Authorize(Policy = Policies.EditTargets)]
+@inherits PageBase
 
 <div class="page">
     @if (IsLoading)

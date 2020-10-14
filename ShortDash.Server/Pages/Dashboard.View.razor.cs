@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -9,12 +10,13 @@ using ShortDash.Server.Services;
 using ShortDash.Server.Shared;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Dashboard_View : ComponentBase
+    public partial class Dashboard_View : PageBase
     {
         [Parameter]
         public int? DashboardId { get; set; }
@@ -32,19 +34,7 @@ namespace ShortDash.Server.Pages
 
         private EditContext DashboardEditContext { get; set; } = null;
 
-        [Inject]
-        private DashboardService DashboardService { get; set; }
-
         private bool EditMode { get; set; }
-
-        [CascadingParameter]
-        private IModalService ModalService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         private string TextClass { get; set; } = "light";
 
@@ -55,6 +45,11 @@ namespace ShortDash.Server.Pages
             Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
             DashboardEditContext = new EditContext(Dashboard);
             LoadDashboardCells();
+
+            if (await SecureContext.AuthorizeAsync(Policies.EditDashboards))
+            {
+                NavMenuManager.AddMenuButton("far fa-edit", EditButtonClickEvent);
+            }
 
             DashboardAttributes.Clear();
             RefreshStyles();
@@ -78,12 +73,24 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this dashboard?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
+            if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
             await DashboardService.DeleteDashboardAsync(Dashboard);
             NavigationManager.NavigateTo($"/");
+        }
+
+        private void EditButtonClickEvent()
+        {
+            if (!EditMode)
+            {
+                EditMode = true;
+            }
+            else
+            {
+                CancelChanges();
+            }
         }
 
         private void LoadDashboardCells()
@@ -95,6 +102,7 @@ namespace ShortDash.Server.Pages
 
         private void RefreshStyles()
         {
+            NavMenuManager.Subtitle = Dashboard.Name;
             if (Dashboard.BackgroundColor != null)
             {
                 DashboardAttributes["style"] = "background-color: " + Dashboard.BackgroundColor?.ToHtmlString();
@@ -109,7 +117,7 @@ namespace ShortDash.Server.Pages
 
         private async void SaveChanges()
         {
-            if (!DashboardEditContext.Validate() || !await SecureContext.ValidateUser())
+            if (!DashboardEditContext.Validate() || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
@@ -136,11 +144,6 @@ namespace ShortDash.Server.Pages
             EditMode = false;
             RefreshStyles();
             StateHasChanged();
-        }
-
-        private void ToggleEditMode()
-        {
-            EditMode = !EditMode;
         }
     }
 }

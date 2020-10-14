@@ -45,7 +45,7 @@ namespace ShortDash.Server.Components
         // TODO: Implement toggle functionality
         private async void ExecuteAction()
         {
-            if (EditMode || IsExecuting || !await SecureContext.ValidateUser())
+            if (EditMode || IsExecuting || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace ShortDash.Server.Components
 
         private async Task ExecuteDashGroupAction()
         {
-            if (!await SecureContext.ValidateUser())
+            if (!await SecureContext.ValidateUserAsync())
             {
                 return;
             }

@@ -103,6 +103,7 @@ namespace ShortDash.Server
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddScoped<DeviceLinkService>();
+            services.AddScoped<NavMenuManager>();
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Index : ComponentBase
+    public partial class Index : PageBase
     {
         [Inject]
         private AdminAccessCodeService AdministratorAccessCodeService { get; set; }
@@ -22,21 +22,9 @@ namespace ShortDash.Server.Pages
         private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 
         [Inject]
-        private DashboardService DashboardService { get; set; }
-
-        [Inject]
         private DeviceLinkService DeviceLinkService { get; set; }
 
         private bool IsFirstRun { get; set; }
-
-        [CascadingParameter]
-        private IModalService ModalService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         private bool ShowAdminDeviceLinkMessage { get; set; }
         private ClaimsPrincipal User { get; set; }
@@ -61,7 +49,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to unlink this device?",
                 confirmLabel: "Unlink",
                 confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
+            if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }

@@ -1,6 +1,7 @@
 ﻿@page "/actions/{DashboardActionId:int}"
 @page "/actions/new"
 @attribute [Authorize(Policy = Policies.EditActions)]
+@inherits PageBase
 
 @using ShortDash.Server.Actions
 

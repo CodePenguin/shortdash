@@ -14,7 +14,7 @@ using System.Web;
 
 namespace ShortDash.Server.Pages
 {
-    public sealed partial class Devices_Link : ComponentBase, IDisposable
+    public sealed partial class Devices_Link : PageBase, IDisposable
     {
         private const int DeviceLinkCodeLength = 6;
         private DeviceClaims DeviceClaims { get; set; } = new DeviceClaims();
@@ -26,12 +26,6 @@ namespace ShortDash.Server.Pages
         private string DeviceLinkUrl { get; set; }
 
         private bool Linking { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         public void Dispose()
         {
@@ -75,7 +69,7 @@ namespace ShortDash.Server.Pages
 
         private async void StartLinking()
         {
-            if (!await SecureContext.ValidateUser())
+            if (!await SecureContext.ValidateUserAsync())
             {
                 return;
             }

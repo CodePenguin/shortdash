@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -36,6 +37,9 @@ namespace ShortDash.Server.Components
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Inject]
+        private IAuthorizationService AuthorizationService { get; set; }
+
+        [Inject]
         private IEncryptedChannelService EncryptedChannelService { get; set; }
 
         private bool IsInitialized { get; set; }
@@ -48,6 +52,13 @@ namespace ShortDash.Server.Components
 
         [Inject]
         private NavigationManager NavigationManager { get; set; }
+
+        public async Task<bool> AuthorizeAsync(string policy)
+        {
+            var user = (await AuthenticationStateTask).User;
+            var result = await AuthorizationService.AuthorizeAsync(user, policy);
+            return result.Succeeded;
+        }
 
         public string Decrypt(string value)
         {
@@ -82,7 +93,7 @@ namespace ShortDash.Server.Components
             channelId = EncryptedChannelService.OpenChannel(publicKey);
         }
 
-        public async Task<bool> ValidateUser()
+        public async Task<bool> ValidateUserAsync()
         {
             var user = (await AuthenticationStateTask).User;
             if (!user.Identity.IsAuthenticated)
@@ -118,7 +129,7 @@ namespace ShortDash.Server.Components
                 await InitializeEncryptedChannel();
                 StateHasChanged();
             }
-            await ValidateUser();
+            await ValidateUserAsync();
         }
 
         protected override void OnInitialized()
@@ -147,7 +158,7 @@ namespace ShortDash.Server.Components
 
         private void DeviceUnlinkedEvent(object sender, DeviceUnlinkedEventArgs e)
         {
-            InvokeAsync(async () => await ValidateUser());
+            InvokeAsync(async () => await ValidateUserAsync());
         }
 
         private string GetServerPublicKey()
@@ -179,7 +190,7 @@ namespace ShortDash.Server.Components
 
         private async void LocationChanged(object sender, LocationChangedEventArgs e)
         {
-            await ValidateUser();
+            await ValidateUserAsync();
         }
     }
 }

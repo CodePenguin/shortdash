@@ -1,10 +1,20 @@
 ﻿<nav class="navbar navbar-dark navbar-expand bg-dark p-0 pl-3 pr-2">
     <a class="navbar-brand" href="">ShortDash</a>
+    @if (!string.IsNullOrWhiteSpace(NavMenuManager.Subtitle))
+    {
+        <span class="navbar-text">@NavMenuManager.Subtitle</span>
+    }
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
             <a class="nav-link float-right" href="#" @onclick="ToggleNavMenu" @onclick:preventDefault>
                 <span class="navbar-toggler-icon"></span>
             </a>
+            @foreach (var button in NavMenuManager.MenuBarButtons)
+            {
+                <a class="nav-link float-right" href="#" @onclick="button.Callback" @onclick:preventDefault>
+                    <span class="@button.Icon"></span>
+                </a>
+            }
             <div class="dropdown-menu dropdown-menu-right @NavMenuCssClass">
                 <NavLink class="dropdown-item" href="" Match="NavLinkMatch.All">
                     <span class="fas fa-home fa-fw" aria-hidden="true"></span> Home

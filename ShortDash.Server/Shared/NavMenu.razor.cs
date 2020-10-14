@@ -37,6 +37,9 @@ namespace ShortDash.Server.Shared
 
         private string NavMenuCssClass => showNavMenu ? "show" : "";
 
+        [Inject]
+        private NavMenuManager NavMenuManager { get; set; }
+
         private ClaimsPrincipal User { get; set; }
 
         public void Dispose()

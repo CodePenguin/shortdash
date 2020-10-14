@@ -8,15 +8,9 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Actions_List : ComponentBase
+    public partial class Actions_List : PageBase
     {
         private List<DashboardAction> DashboardActions { get; } = new List<DashboardAction>();
-
-        [Inject]
-        private DashboardService DashboardService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
 
         protected async override Task OnParametersSetAsync()
         {

@@ -14,26 +14,14 @@ using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Targets_Edit : ComponentBase
+    public partial class Targets_Edit : PageBase
     {
         [Parameter]
         public string DashboardActionTargetId { get; set; }
 
         private DashboardActionTarget DashboardActionTarget { get; set; }
 
-        [Inject]
-        private DashboardService DashboardService { get; set; }
-
         private bool IsLoading => DashboardActionTarget == null;
-
-        [CascadingParameter]
-        private IModalService ModalService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         protected async override Task OnParametersSetAsync()
         {
@@ -66,7 +54,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to delete this target?",
                 confirmLabel: "Delete",
                 confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
+            if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
@@ -86,7 +74,7 @@ namespace ShortDash.Server.Pages
 
         private async void SaveChanges()
         {
-            if (!await SecureContext.ValidateUser())
+            if (!await SecureContext.ValidateUserAsync())
             {
                 return;
             }

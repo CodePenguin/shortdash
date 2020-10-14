@@ -10,15 +10,9 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Devices_List : ComponentBase
+    public partial class Devices_List : PageBase
     {
         private List<DashboardDevice> DashboardDevices { get; } = new List<DashboardDevice>();
-
-        [Inject]
-        private DashboardService DashboardService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
 
         protected async override Task OnParametersSetAsync()
         {

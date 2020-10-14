@@ -16,15 +16,12 @@ using ShortDash.Server.Services;
 
 namespace ShortDash.Server.Pages
 {
-    public partial class Devices_Edit : ComponentBase
+    public partial class Devices_Edit : PageBase
     {
         [Parameter]
         public string DashboardDeviceId { get; set; }
 
         private DashboardDevice DashboardDevice { get; set; }
-
-        [Inject]
-        private DashboardService DashboardService { get; set; }
 
         private DeviceClaims DeviceClaims { get; set; }
 
@@ -32,15 +29,6 @@ namespace ShortDash.Server.Pages
         private DeviceLinkService DeviceLinkService { get; set; }
 
         private bool IsLoading => DashboardDevice == null;
-
-        [CascadingParameter]
-        private IModalService ModalService { get; set; }
-
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
-
-        [CascadingParameter]
-        private ISecureContext SecureContext { get; set; }
 
         private bool SuccessfullyLinked { get; set; }
 
@@ -67,7 +55,7 @@ namespace ShortDash.Server.Pages
                 message: "Are you sure you want to unlink this device?",
                 confirmLabel: "Unlink",
                 confirmClass: "btn-danger");
-            if (!confirmed || !await SecureContext.ValidateUser())
+            if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
@@ -83,7 +71,7 @@ namespace ShortDash.Server.Pages
 
         private async void SaveChanges()
         {
-            if (!await SecureContext.ValidateUser())
+            if (!await SecureContext.ValidateUserAsync())
             {
                 return;
             }
