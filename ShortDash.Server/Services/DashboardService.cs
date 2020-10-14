@@ -111,6 +111,20 @@ namespace ShortDash.Server.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<DashboardAction> GetDashboardActionCopyAsync(int dashboardActionId)
+        {
+            var action = await GetDashboardActionAsync(dashboardActionId);
+            dbContext.Entry(action).State = EntityState.Detached;
+            action.DashboardActionId = 0;
+            foreach (var child in action.DashboardSubActionChildren)
+            {
+                dbContext.Entry(child).State = EntityState.Detached;
+                child.DashboardActionParentId = 0;
+                child.DashboardActionParent = null;
+            }
+            return action;
+        }
+
         public async Task<List<DashboardAction>> GetDashboardActionsAsync()
         {
             return await dbContext.DashboardActions

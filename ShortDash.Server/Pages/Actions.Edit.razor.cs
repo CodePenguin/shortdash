@@ -23,6 +23,9 @@ namespace ShortDash.Server.Pages
         [Parameter]
         public int DashboardActionId { get; set; }
 
+        [Parameter]
+        public string Operation { get; set; } = "Edit";
+
         private ShortDashActionAttribute ActionAttribute { get; set; }
 
         private EditContext ActionEditContext { get; set; }
@@ -60,10 +63,20 @@ namespace ShortDash.Server.Pages
             ParametersEditContext = null;
             if (DashboardActionId > 0)
             {
-                await LoadDashboardAction();
+                if (NavigationManager.Uri.EndsWith("/copy"))
+                {
+                    Operation = "Copy";
+                    await LoadDashboardActionCopy();
+                }
+                else
+                {
+                    Operation = "Edit";
+                    await LoadDashboardAction();
+                }
             }
             else
             {
+                Operation = "New";
                 await Task.Run(() => NewDashboardAction());
             }
             ActionEditContext = new EditContext(DashboardAction);
@@ -83,10 +96,20 @@ namespace ShortDash.Server.Pages
             await Task.Run(() => RefreshParameters());
         }
 
+        private void CopyAction()
+        {
+            NavigationManager.NavigateTo($"/actions/{DashboardActionId}/copy");
+        }
+
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
+            RefreshParameters();
+        }
 
+        private async Task LoadDashboardActionCopy()
+        {
+            DashboardAction = await DashboardService.GetDashboardActionCopyAsync(DashboardActionId);
             RefreshParameters();
         }
 

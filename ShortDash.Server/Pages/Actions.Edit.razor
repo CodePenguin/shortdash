@@ -1,4 +1,5 @@
 ﻿@page "/actions/{DashboardActionId:int}"
+@page "/actions/{DashboardActionId:int}/{Operation}"
 @page "/actions/new"
 @attribute [Authorize(Policy = Policies.EditActions)]
 @inherits PageBase
@@ -17,7 +18,7 @@
 
             <fieldset>
                 <legend>
-                    Action
+                    @Operation Action
                 </legend>
                 @if (DashboardActionId == 0)
                 {
@@ -84,7 +85,10 @@
 
             @if (DashboardActionId != 0)
             {
-                <button type="button" class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+                <div class="float-left">
+                    <button type="button" class="btn btn-outline-danger" @onclick="ConfirmDelete">Delete</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CopyAction">Copy</button>
+                </div>
             }
 
             <div class="float-right">
