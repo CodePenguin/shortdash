@@ -1,4 +1,5 @@
 ﻿using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Components;
 using ShortDash.Server.Services;
@@ -21,6 +22,9 @@ namespace ShortDash.Server.Pages
 
         [CascadingParameter]
         protected ISecureContext SecureContext { get; set; }
+
+        [Inject]
+        protected IToastService ToastService { get; set; }
 
         protected override void OnParametersSet()
         {

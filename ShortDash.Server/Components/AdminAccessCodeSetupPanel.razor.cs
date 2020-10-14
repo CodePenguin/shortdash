@@ -25,7 +25,6 @@ namespace ShortDash.Server.Components
         private string DynamicCodeUrl => $"otpauth://totp/ShortDash?secret={DynamicCode}&issuer=Shortdash";
         private bool IsStaticSelected { get; set; }
         private AdminCodeModel Model { get; set; }
-        private bool PairedSuccessfully { get; set; }
         private bool ShowRetryMessage { get; set; }
         private string StaticCode { get; set; }
         private string TabDynamicClass => IsStaticSelected ? "" : "active";
@@ -77,7 +76,6 @@ namespace ShortDash.Server.Components
             }
 
             await AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
-            PairedSuccessfully = true;
             OnCompleted?.Invoke(this, new EventArgs());
         }
 

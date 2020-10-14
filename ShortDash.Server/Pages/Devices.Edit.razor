@@ -15,11 +15,6 @@
     {
         <h3>@DashboardDevice.Name</h3>
 
-        @if (SuccessfullyLinked)
-        {
-            <div class="alert alert-success"><span class="fas fa-check"></span> The device has been linked!</div>
-        }
-
         <EditForm Model="DashboardDevice" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
             <div class="form-group">

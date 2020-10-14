@@ -1,4 +1,5 @@
 using Blazored.Modal;
+using Blazored.Toast;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,7 +29,7 @@ namespace ShortDash.Server
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             dbContext.Database.Migrate();
 
@@ -96,6 +97,7 @@ namespace ShortDash.Server
             services.AddServerSideBlazor();
             services.AddSignalR();
             services.AddBlazoredModal();
+            services.AddBlazoredToast();
             services.AddHttpContextAccessor();
             services.AddScoped<AdminAccessCodeService>();
             services.AddScoped<AuthenticationEvents>();

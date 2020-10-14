@@ -50,6 +50,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DashboardService.DeleteDashboardActionAsync(DashboardAction);
+            ToastService.ShowInfo("The action has been deleted.", "DELETED");
             NavigationManager.NavigateTo($"/actions");
         }
 

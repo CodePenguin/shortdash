@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Blazored.Toast.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
@@ -17,13 +18,16 @@ namespace ShortDash.Server.Services
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<ActionService> logger;
         private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
+        private readonly IToastService toastService;
 
         public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider,
-            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService encryptedChannelService) : base(logger, pluginService, serviceProvider)
+            IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService encryptedChannelService,
+            IToastService toastService) : base(logger, pluginService, serviceProvider)
         {
             this.logger = logger;
             this.targetsHubContext = targetsHubContext;
             this.encryptedChannelService = encryptedChannelService;
+            this.toastService = toastService;
         }
 
         public Task Execute(DashboardAction dashboardAction, bool toggleState)
@@ -42,7 +46,7 @@ namespace ShortDash.Server.Services
                 var channelId = encryptedChannelService.GetChannelId(targetId);
                 if (channelId == null)
                 {
-                    // TODO: Handle target is not connected scenario
+                    toastService.ShowError($"The Target {targetId} is not connected.");
                     return Task.CompletedTask;
                 }
                 var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, parameters);

@@ -59,7 +59,8 @@ namespace ShortDash.Server.Pages
                 return;
             }
             StopLinking();
-            NavigationManager.NavigateTo("/devices/" + HttpUtility.UrlEncode(deviceId) + "?linked=1");
+            ToastService.ShowSuccess("The device has been linked!", "LINKED");
+            NavigationManager.NavigateTo("/devices/" + HttpUtility.UrlEncode(deviceId));
         }
 
         private void DeviceLinkedEvent(object sender, DeviceLinkedEventArgs eventArgs)

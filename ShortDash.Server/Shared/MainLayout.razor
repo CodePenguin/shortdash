@@ -1,5 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration
 
 <NavMenu />
+<BlazoredToasts Position="ToastPosition.BottomCenter"
+                IconType="IconType.FontAwesome"
+                InfoIcon="fas fa-info-circle"
+                SuccessIcon="fas fa-check-circle"
+                ErrorIcon="fas fa-exclamation-triangle" />
 
 @Body

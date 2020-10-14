@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
@@ -30,17 +31,11 @@ namespace ShortDash.Server.Pages
 
         private bool IsLoading => DashboardDevice == null;
 
-        private bool SuccessfullyLinked { get; set; }
-
         protected async override Task OnParametersSetAsync()
         {
             DashboardDevice = null;
             DeviceClaims = null;
             await LoadDashboardDevice();
-
-            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            QueryHelpers.ParseQuery(uri.Query).TryGetValue("linked", out var linkedValue);
-            SuccessfullyLinked = !string.IsNullOrWhiteSpace(linkedValue);
         }
 
         private void CancelChanges()
@@ -60,6 +55,7 @@ namespace ShortDash.Server.Pages
                 return;
             }
             await DeviceLinkService.UnlinkDevice(DashboardDevice.DashboardDeviceId);
+            ToastService.ShowInfo("The device has been unlinked.", "UNLINKED");
             NavigationManager.NavigateTo("/devices");
         }
 

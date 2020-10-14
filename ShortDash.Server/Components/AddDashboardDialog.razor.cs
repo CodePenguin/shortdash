@@ -17,7 +17,7 @@ namespace ShortDash.Server.Components
 
         public static Task<ModalResult> ShowAsync(IModalService modalService)
         {
-            var modal = modalService.Show<AddDashboardDialog>("Add a dashboard");
+            var modal = modalService.Show<AddDashboardDialog>("New Dashboard");
             return modal.Result;
         }
 
