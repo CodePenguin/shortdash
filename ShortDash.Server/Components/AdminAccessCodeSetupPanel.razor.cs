@@ -41,7 +41,7 @@ namespace ShortDash.Server.Components
             return base.OnParametersSetAsync();
         }
 
-        protected async void PairDevice()
+        protected void PairDevice()
         {
             ShowRetryMessage = false;
             if (!AdminCodeEditContext.Validate())
@@ -75,7 +75,7 @@ namespace ShortDash.Server.Components
                 return;
             }
 
-            await AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
+            AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
             OnCompleted?.Invoke(this, new EventArgs());
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
@@ -48,11 +49,14 @@ namespace ShortDash.Target
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDataProtection()
+                .SetApplicationName("ShortDash.Target");
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
             services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
-            services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetHubClientEncryptedChannelService));
+            services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetEncryptedChannelService));
             services.AddSingleton<PluginService>();
             services.AddSingleton<ActionService>();
             services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();

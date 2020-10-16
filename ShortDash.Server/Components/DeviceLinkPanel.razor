@@ -13,7 +13,7 @@
                         <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
                     }
                     <div class="form-group">
-                        <SecureInputText type="number" class="form-control form-control-lg" placeholder="Enter Device Code" @bind-Value="@Model.DeviceLinkCode" />
+                        <SecureInputText type="text" class="form-control form-control-lg" placeholder="Enter Device Code" @bind-Value="@Model.DeviceLinkCode" />
                         <ValidationMessage For="() => Model.DeviceLinkCode" />
                     </div>
 

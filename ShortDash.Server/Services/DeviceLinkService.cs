@@ -67,7 +67,7 @@ namespace ShortDash.Server.Services
             {
                 claims.AddRange(request.DeviceClaims);
             }
-            else if (await IsValidAdminDeviceLinkCode(deviceLinkCode))
+            else if (IsValidAdminDeviceLinkCode(deviceLinkCode))
             {
                 claims.Add(new DeviceClaim(ClaimTypes.Role, Roles.Administrator));
             }
@@ -157,9 +157,9 @@ namespace ShortDash.Server.Services
             return encryptedChannelService.LocalEncryptSigned(response);
         }
 
-        private async Task<bool> IsValidAdminDeviceLinkCode(string deviceLinkCode)
+        private bool IsValidAdminDeviceLinkCode(string deviceLinkCode)
         {
-            return await adminAccessCodeService.IsValidAccessCode(deviceLinkCode);
+            return adminAccessCodeService.IsValidAccessCode(deviceLinkCode);
         }
     }
 }

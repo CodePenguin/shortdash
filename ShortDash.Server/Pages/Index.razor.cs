@@ -33,7 +33,7 @@ namespace ShortDash.Server.Pages
         {
             await base.OnParametersSetAsync();
             ShowAdminDeviceLinkMessage = false;
-            IsFirstRun = !await AdministratorAccessCodeService.IsInitialized();
+            IsFirstRun = !AdministratorAccessCodeService.IsInitialized();
             User = (await AuthenticationStateTask).User;
 
             if (User.Identity.IsAuthenticated)

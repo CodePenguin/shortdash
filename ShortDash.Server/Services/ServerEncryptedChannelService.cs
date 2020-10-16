@@ -12,6 +12,6 @@ namespace ShortDash.Server.Services
         {
         }
 
-        protected override string KeyPurpose => typeof(ServerEncryptedChannelService).FullName;
+        protected override string KeyPurpose => "ServerEncryptedChannelService";
     }
 }

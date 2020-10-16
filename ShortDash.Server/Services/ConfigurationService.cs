@@ -7,91 +7,110 @@ namespace ShortDash.Server.Services
     public class ConfigurationService
     {
         private readonly DashboardService dashboardService;
-
-#pragma warning disable IDE0052 // Remove unread private members
-        private readonly IDataProtector dataProtector;
-#pragma warning restore IDE0052 // Remove unread private members
+        private readonly IDataProtectionProvider dataProtectionProvider;
 
         public ConfigurationService(DashboardService dashboardService, IDataProtectionProvider dataProtectionProvider)
         {
             this.dashboardService = dashboardService;
-            dataProtector = dataProtectionProvider.CreateProtector(typeof(ConfigurationService).FullName);
+            this.dataProtectionProvider = dataProtectionProvider;
         }
 
-        public async Task<T> GetSectionAsync<T>() where T : new()
+        public string GetSection(string sectionId)
         {
-            return await GetSectionAsync<T>(false);
+            return GetSection(sectionId, false);
         }
 
-        public async Task<T> GetSecureSectionAsync<T>() where T : new()
+        public T GetSection<T>(string sectionId) where T : new()
         {
-            return await GetSectionAsync<T>(true);
+            return GetSection<T>(sectionId, false);
         }
 
-        public async Task SetSectionAsync<T>(T data) where T : new()
+        public string GetSecureSection(string sectionId)
         {
-            await SetSectionAsync(data, false);
+            return GetSection(sectionId, true);
         }
 
-        public async Task SetSecureSectionAsync<T>(T data) where T : new()
+        public T GetSecureSection<T>(string sectionId) where T : new()
         {
-            await SetSectionAsync(data, true);
+            return GetSection<T>(sectionId, true);
         }
 
-        private async Task<T> GetSectionAsync<T>(bool secure) where T : new()
+        public void SetSection(string sectionId, string sectionData)
         {
-            var sectionName = GetSectionName<T>();
-            var configurationSection = await dashboardService.GetConfigurationSectionAsync(sectionName);
-            if (configurationSection == null)
+            SetSection(sectionId, sectionData, false);
+        }
+
+        public void SetSection(string sectionId, object data)
+        {
+            SetSection(sectionId, data, false);
+        }
+
+        public void SetSecureSection(string sectionId, string sectionData)
+        {
+            SetSection(sectionId, sectionData, true);
+        }
+
+        public void SetSecureSection(string sectionId, object data)
+        {
+            SetSection(sectionId, data, true);
+        }
+
+        public void SetSecureSectionAsync(string sectionId, string sectionData)
+        {
+            SetSection(sectionId, sectionData, true);
+        }
+
+        private IDataProtector GetDataProtector(string purpose)
+        {
+            return dataProtectionProvider.CreateProtector("ConfigurationService." + purpose);
+        }
+
+        private string GetSection(string sectionId, bool secure)
+        {
+            var data = dashboardService.GetConfigurationSection(sectionId);
+            return secure ? Unprotect(sectionId, data) : data;
+        }
+
+        private T GetSection<T>(string sectionId, bool secure) where T : new()
+        {
+            var data = GetSection(sectionId, secure);
+            if (string.IsNullOrWhiteSpace(data))
             {
                 return new T();
             }
-            var data = secure ? Unprotect(configurationSection.Data) : configurationSection.Data;
             return JsonSerializer.Deserialize<T>(data);
         }
 
-        private string GetSectionName<T>()
+        private string Protect(string sectionId, string value)
         {
-            return typeof(T).FullName;
-        }
-
-        private string Protect(string value)
-        {
-#if DEBUG
-            return value;
-#else
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+            var dataProtector = GetDataProtector(sectionId);
             return dataProtector.Protect(value);
-#endif
         }
 
-        private async Task SetSectionAsync<T>(T data, bool secure) where T : new()
+        private void SetSection(string sectionId, string sectionData, bool secure)
         {
-            var sectionName = GetSectionName<T>();
+            var data = secure ? Protect(sectionId, sectionData) : sectionData;
+            dashboardService.SetConfigurationSection(sectionId, data);
+        }
+
+        private void SetSection(string sectionId, object data, bool secure)
+        {
             var sectionData = JsonSerializer.Serialize(data);
-            var configurationSection = await dashboardService.GetConfigurationSectionAsync(sectionName);
-            if (configurationSection == null)
-            {
-                configurationSection = new Data.ConfigurationSection
-                {
-                    ConfigurationSectionId = sectionName,
-                    Data = secure ? Protect(sectionData) : sectionData
-                };
-                await dashboardService.AddConfigurationSectionAsync(configurationSection);
-            }
-            else
-            {
-                configurationSection.Data = secure ? Protect(sectionData) : sectionData;
-                await dashboardService.UpdateConfigurationSectionAsync(configurationSection);
-            }
+            SetSection(sectionId, sectionData, secure);
         }
 
-        private string Unprotect(string value)
+        private string Unprotect(string sectionId, string value)
         {
-#if DEBUG
-            return value;
-#else
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+            var dataProtector = GetDataProtector(sectionId);
             return dataProtector.Unprotect(value);
-#endif
         }
     }
 }

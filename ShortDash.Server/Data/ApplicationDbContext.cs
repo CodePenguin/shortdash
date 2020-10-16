@@ -48,7 +48,7 @@ namespace ShortDash.Server.Data
                 {
                     DashboardActionTargetId = DashboardActionTarget.ServerTargetId,
                     Name = "ShortDash Server",
-                    PublicKey = "----"
+                    PublicKey = null
                 }
             };
         }

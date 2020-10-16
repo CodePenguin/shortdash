@@ -31,7 +31,7 @@
                 <li>
                     <p>Verify that the code you stored is correct by entering it below:</p>
                     <div class="form-group">
-                        <SecureInputText type="number" @bind-Value="Model.UserCode" class="form-control" placeholder="Enter code here" />
+                        <SecureInputText @bind-Value="Model.UserCode" class="form-control" placeholder="Enter code here" />
                         <ValidationMessage For="() => Model.UserCode" />
                     </div>
                     @if (ShowRetryMessage)
@@ -63,7 +63,7 @@
                 <li>
                     <p>Verify that your authenticator app is correctly paired by entering a code it generates below:</p>
                     <div class="form-group">
-                        <SecureInputText type="number" @bind-Value="Model.UserCode" class="form-control" placeholder="Enter generated code here" />
+                        <SecureInputText @bind-Value="Model.UserCode" class="form-control" placeholder="Enter generated code here" />
                         <ValidationMessage For="() => Model.UserCode" />
                     </div>
                     @if (ShowRetryMessage)

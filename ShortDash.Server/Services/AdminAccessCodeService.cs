@@ -13,15 +13,15 @@ namespace ShortDash.Server.Services
             this.configurationService = configurationService;
         }
 
-        public async Task<bool> IsInitialized()
+        public bool IsInitialized()
         {
-            var adminAccessCode = await configurationService.GetSecureSectionAsync<AdminAccessCode>();
+            var adminAccessCode = configurationService.GetSecureSection<AdminAccessCode>(ConfigurationSections.AdminAccessCode);
             return adminAccessCode != null && !string.IsNullOrWhiteSpace(adminAccessCode.Data);
         }
 
-        public async Task<bool> IsValidAccessCode(string accessCode)
+        public bool IsValidAccessCode(string accessCode)
         {
-            var administratorAccessCode = await configurationService.GetSecureSectionAsync<AdminAccessCode>();
+            var administratorAccessCode = configurationService.GetSecureSection<AdminAccessCode>(ConfigurationSections.AdminAccessCode);
             var data = administratorAccessCode.Data;
             if (string.IsNullOrWhiteSpace(data))
             {
@@ -35,14 +35,14 @@ namespace ShortDash.Server.Services
             };
         }
 
-        public async Task SaveAccessCode(AdminAccessCodeType accessCodeType, string data)
+        public void SaveAccessCode(AdminAccessCodeType accessCodeType, string data)
         {
             var adminAccessCode = new AdminAccessCode
             {
                 AccessCodeType = accessCodeType,
                 Data = data
             };
-            await configurationService.SetSecureSectionAsync(adminAccessCode);
+            configurationService.SetSecureSection(ConfigurationSections.AdminAccessCode, adminAccessCode);
         }
 
         private bool IsValidDynamicTotpAccessCode(string accessCode, string data)

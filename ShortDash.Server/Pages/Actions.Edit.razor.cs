@@ -18,7 +18,9 @@ namespace ShortDash.Server.Pages
 {
     public partial class Actions_Edit : PageBase
     {
+#pragma warning disable IDE0044 // Add readonly modifier
         private DashGroupActionInputGrid subActionsInputGrid;
+#pragma warning restore IDE0044 // Add readonly modifier
 
         [Parameter]
         public int DashboardActionId { get; set; }

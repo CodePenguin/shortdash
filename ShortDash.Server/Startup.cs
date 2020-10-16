@@ -2,6 +2,7 @@ using Blazored.Modal;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -66,6 +67,9 @@ namespace ShortDash.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDataProtection()
+                .SetApplicationName("ShortDash.Server");
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
@@ -109,7 +113,7 @@ namespace ShortDash.Server
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
-            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
+            services.AddTransient(typeof(IKeyStoreService), typeof(ConfigurationKeyStoreService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
             services.AddResponseCompression(opts =>
             {

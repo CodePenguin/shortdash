@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using ShortDash.Core.Extensions;
+using ShortDash.Core.Services;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
-namespace ShortDash.Core.Services
+namespace ShortDash.Target.Services
 {
     public class FileKeyStoreService : IKeyStoreService
     {
@@ -49,33 +50,25 @@ namespace ShortDash.Core.Services
 
         private IDataProtector GetDataProtector(string purpose)
         {
-            return dataProtectionProvider.CreateProtector(purpose);
+            return dataProtectionProvider.CreateProtector("FileKeyStoreService." + purpose);
         }
 
         private string Protect(string purpose, string value)
         {
             var protector = GetDataProtector(purpose);
-#if DEBUG
-            return value;
-#else
             return protector.Protect(value);
-#endif
         }
 
         private string PurposeToFileName(string purpose)
         {
             var normalizedPurpose = Regex.Replace(purpose, @"[^\w.-]", "");
-            return Path.Combine(AppContext.BaseDirectory, normalizedPurpose + ".key");
+            return Path.Combine(AppContext.BaseDirectory, "ShortDash.Target." + normalizedPurpose + ".key");
         }
 
         private string Unprotect(string purpose, string value)
         {
             var protector = GetDataProtector(purpose);
-#if DEBUG
-            return value;
-#else
             return protector.Unprotect(value);
-#endif
         }
     }
 }
