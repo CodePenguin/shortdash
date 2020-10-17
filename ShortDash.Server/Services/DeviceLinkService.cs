@@ -46,7 +46,7 @@ namespace ShortDash.Server.Services
         public async void DeviceLinked(LinkDeviceResponse response)
         {
             var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(response.DeviceId);
-            if (dashboardDevice == null)
+            if (dashboardDevice == null || !dashboardService.VerifySignature(dashboardDevice))
             {
                 return;
             }
