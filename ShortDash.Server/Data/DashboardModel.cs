@@ -55,9 +55,8 @@ namespace ShortDash.Server.Data
         public virtual DashboardActionTarget DashboardActionTarget { get; set; }
         public string DashboardActionTargetId { get; set; }
         public virtual List<DashboardSubAction> DashboardSubActionChildren { get; set; } = new List<DashboardSubAction>();
-
         public virtual List<DashboardSubAction> DashboardSubActionParents { get; set; } = new List<DashboardSubAction>();
-
+        public string DataSignature { get; set; }
         public string Icon { get; set; } = "";
 
         [Required]
@@ -69,8 +68,8 @@ namespace ShortDash.Server.Data
     public class DashboardActionTarget
     {
         public const string ServerTargetId = "000000";
-
         public string DashboardActionTargetId { get; set; }
+        public string DataSignature { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -91,6 +90,7 @@ namespace ShortDash.Server.Data
     public class DashboardDevice
     {
         public string DashboardDeviceId { get; set; }
+        public string DataSignature { get; set; }
         public string DeviceClaims { get; set; }
         public DateTime LastSeenDateTime { get; set; }
         public DateTime LinkedDateTime { get; set; }

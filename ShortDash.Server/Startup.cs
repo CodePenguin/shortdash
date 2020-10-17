@@ -29,7 +29,6 @@ namespace ShortDash.Server
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             dbContext.Database.Migrate();
@@ -63,8 +62,6 @@ namespace ShortDash.Server
             });
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDataProtection()
@@ -108,17 +105,17 @@ namespace ShortDash.Server
             services.AddScoped<ConfigurationService>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
+            services.AddScoped<DataSignatureManager>();
             services.AddScoped<DeviceLinkService>();
+            services.AddScoped<FormGeneratorPropertyMapper>();
             services.AddScoped<NavMenuManager>();
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
-            services.AddSingleton<FormGeneratorPropertyMapper>();
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IKeyStoreService), typeof(ConfigurationKeyStoreService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));
             services.AddResponseCompression(opts =>
             {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
             });
         }
     }

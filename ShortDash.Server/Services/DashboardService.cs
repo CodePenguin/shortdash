@@ -10,15 +10,18 @@ namespace ShortDash.Server.Services
 {
     public class DashboardService
     {
+        private readonly DataSignatureManager dataSignatureManager;
         private readonly ApplicationDbContext dbContext;
 
-        public DashboardService(ApplicationDbContext dbContext)
+        public DashboardService(ApplicationDbContext dbContext, DataSignatureManager dataSignatureManager)
         {
             this.dbContext = dbContext;
+            this.dataSignatureManager = dataSignatureManager;
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
         {
+            dataSignatureManager.GenerateSignature(dashboardAction);
             dbContext.Add(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
@@ -27,6 +30,7 @@ namespace ShortDash.Server.Services
         public async Task<DashboardActionTarget> AddDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
             dashboardActionTarget.DashboardActionTargetId = GenerateDashboardActionTargetId();
+            dataSignatureManager.GenerateSignature(dashboardActionTarget);
             dbContext.Add(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
             return dashboardActionTarget;
@@ -41,6 +45,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> AddDashboardDeviceAsync(DashboardDevice dashboardDevice)
         {
+            dataSignatureManager.GenerateSignature(dashboardDevice);
             dbContext.Add(dashboardDevice);
             await dbContext.SaveChangesAsync();
             return dashboardDevice;
@@ -96,9 +101,9 @@ namespace ShortDash.Server.Services
             return configurationSection?.Data;
         }
 
-        public async Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
+        public Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
-            return await dbContext.DashboardActions
+            return dbContext.DashboardActions
                 .Include(a => a.DashboardSubActionChildren)
                 .ThenInclude(c => c.DashboardActionChild)
                 .Where(a => a.DashboardActionId == dashboardActionId)
@@ -119,28 +124,28 @@ namespace ShortDash.Server.Services
             return action;
         }
 
-        public async Task<List<DashboardAction>> GetDashboardActionsAsync()
+        public Task<List<DashboardAction>> GetDashboardActionsAsync()
         {
-            return await dbContext.DashboardActions
+            return dbContext.DashboardActions
                 .OrderBy(a => a.Label)
                 .ToListAsync();
         }
 
-        public async Task<DashboardActionTarget> GetDashboardActionTargetAsync(string dashboardActionTargetId)
+        public Task<DashboardActionTarget> GetDashboardActionTargetAsync(string dashboardActionTargetId)
         {
-            return await dbContext.DashboardActionTargets
+            return dbContext.DashboardActionTargets
                 .Where(t => t.DashboardActionTargetId == dashboardActionTargetId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<DashboardActionTarget>> GetDashboardActionTargetsAsync()
+        public Task<List<DashboardActionTarget>> GetDashboardActionTargetsAsync()
         {
-            return await dbContext.DashboardActionTargets.ToListAsync();
+            return dbContext.DashboardActionTargets.ToListAsync();
         }
 
-        public async Task<Dashboard> GetDashboardAsync(int dashboardId)
+        public Task<Dashboard> GetDashboardAsync(int dashboardId)
         {
-            return await dbContext.Dashboards
+            return dbContext.Dashboards
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
                 .ThenInclude(a => a.DashboardSubActionChildren)
@@ -150,21 +155,21 @@ namespace ShortDash.Server.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<DashboardDevice> GetDashboardDeviceAsync(string dashboardDeviceId)
+        public Task<DashboardDevice> GetDashboardDeviceAsync(string dashboardDeviceId)
         {
-            return await dbContext.DashboardDevices
+            return dbContext.DashboardDevices
                 .Where(d => d.DashboardDeviceId == dashboardDeviceId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<DashboardDevice>> GetDashboardDevicesAsync()
+        public Task<List<DashboardDevice>> GetDashboardDevicesAsync()
         {
-            return await dbContext.DashboardDevices.ToListAsync();
+            return dbContext.DashboardDevices.ToListAsync();
         }
 
-        public async Task<List<Dashboard>> GetDashboardsAsync()
+        public Task<List<Dashboard>> GetDashboardsAsync()
         {
-            return await dbContext.Dashboards.ToListAsync();
+            return dbContext.Dashboards.ToListAsync();
         }
 
         public void SetConfigurationSection(string configurationSectionId, string data)
@@ -198,6 +203,7 @@ namespace ShortDash.Server.Services
                     dbContext.Remove(subAction);
                 }
             }
+            dataSignatureManager.GenerateSignature(dashboardAction);
             dbContext.Update(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
@@ -205,6 +211,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardActionTarget> UpdateDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
+            dataSignatureManager.GenerateSignature(dashboardActionTarget);
             dbContext.Update(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
             return dashboardActionTarget;
@@ -226,9 +233,15 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> UpdateDashboardDeviceAsync(DashboardDevice dashboardDevice)
         {
+            dataSignatureManager.GenerateSignature(dashboardDevice);
             dbContext.Update(dashboardDevice);
             await dbContext.SaveChangesAsync();
             return dashboardDevice;
+        }
+
+        public bool VerifySignature(object data)
+        {
+            return !dataSignatureManager.VerifySignature(data);
         }
 
         private string GenerateDashboardActionTargetId()
