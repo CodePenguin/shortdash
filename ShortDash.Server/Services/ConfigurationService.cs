@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using ShortDash.Server.Data;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -6,12 +8,12 @@ namespace ShortDash.Server.Services
 {
     public class ConfigurationService
     {
-        private readonly DashboardService dashboardService;
         private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly ApplicationDbContextFactory dbContextFactory;
 
-        public ConfigurationService(DashboardService dashboardService, IDataProtectionProvider dataProtectionProvider)
+        public ConfigurationService(ApplicationDbContextFactory dbContextFactory, IDataProtectionProvider dataProtectionProvider)
         {
-            this.dashboardService = dashboardService;
+            this.dbContextFactory = dbContextFactory;
             this.dataProtectionProvider = dataProtectionProvider;
         }
 
@@ -60,6 +62,15 @@ namespace ShortDash.Server.Services
             SetSection(sectionId, sectionData, true);
         }
 
+        private string GetConfigurationSectionData(string configurationSectionId)
+        {
+            using var dbContext = dbContextFactory.CreateDbContext();
+            var configurationSection = dbContext.ConfigurationSections
+                .Where(s => s.ConfigurationSectionId == configurationSectionId)
+                .FirstOrDefault();
+            return configurationSection?.Data;
+        }
+
         private IDataProtector GetDataProtector(string purpose)
         {
             return dataProtectionProvider.CreateProtector("ConfigurationService." + purpose);
@@ -67,7 +78,7 @@ namespace ShortDash.Server.Services
 
         private string GetSection(string sectionId, bool secure)
         {
-            var data = dashboardService.GetConfigurationSection(sectionId);
+            var data = GetConfigurationSectionData(sectionId);
             return secure ? Unprotect(sectionId, data) : data;
         }
 
@@ -94,13 +105,36 @@ namespace ShortDash.Server.Services
         private void SetSection(string sectionId, string sectionData, bool secure)
         {
             var data = secure ? Protect(sectionId, sectionData) : sectionData;
-            dashboardService.SetConfigurationSection(sectionId, data);
+            StoreConfigurationSectionData(sectionId, data);
         }
 
         private void SetSection(string sectionId, object data, bool secure)
         {
             var sectionData = JsonSerializer.Serialize(data);
             SetSection(sectionId, sectionData, secure);
+        }
+
+        private void StoreConfigurationSectionData(string configurationSectionId, string data)
+        {
+            using var dbContext = dbContextFactory.CreateDbContext();
+            var configurationSection = dbContext.ConfigurationSections
+                .Where(s => s.ConfigurationSectionId == configurationSectionId)
+                .FirstOrDefault();
+            if (configurationSection == null)
+            {
+                configurationSection = new ConfigurationSection
+                {
+                    ConfigurationSectionId = configurationSectionId,
+                    Data = data
+                };
+                dbContext.Add(configurationSection);
+            }
+            else
+            {
+                configurationSection.Data = data;
+                dbContext.Update(configurationSection);
+            }
+            dbContext.SaveChanges();
         }
 
         private string Unprotect(string sectionId, string value)

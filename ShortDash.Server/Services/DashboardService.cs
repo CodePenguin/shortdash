@@ -11,16 +11,17 @@ namespace ShortDash.Server.Services
     public class DashboardService
     {
         private readonly DataSignatureManager dataSignatureManager;
-        private readonly ApplicationDbContext dbContext;
+        private readonly ApplicationDbContextFactory dbContextFactory;
 
-        public DashboardService(ApplicationDbContext dbContext, DataSignatureManager dataSignatureManager)
+        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager)
         {
-            this.dbContext = dbContext;
+            this.dbContextFactory = dbContextFactory;
             this.dataSignatureManager = dataSignatureManager;
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dataSignatureManager.GenerateSignature(dashboardAction);
             dbContext.Add(dashboardAction);
             await dbContext.SaveChangesAsync();
@@ -29,7 +30,8 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardActionTarget> AddDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
-            dashboardActionTarget.DashboardActionTargetId = GenerateDashboardActionTargetId();
+            using var dbContext = dbContextFactory.CreateDbContext();
+            dashboardActionTarget.DashboardActionTargetId = GenerateDashboardActionTargetId(dbContext);
             dataSignatureManager.GenerateSignature(dashboardActionTarget);
             dbContext.Add(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
@@ -38,6 +40,7 @@ namespace ShortDash.Server.Services
 
         public async Task<Dashboard> AddDashboardAsync(Dashboard dashboard)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Add(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
@@ -45,6 +48,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> AddDashboardDeviceAsync(DashboardDevice dashboardDevice)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dataSignatureManager.GenerateSignature(dashboardDevice);
             dbContext.Add(dashboardDevice);
             await dbContext.SaveChangesAsync();
@@ -53,6 +57,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> DeleteDashboardActionAsync(DashboardDevice dashboardDevice)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboardDevice);
             await dbContext.SaveChangesAsync();
             return dashboardDevice;
@@ -60,6 +65,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardAction> DeleteDashboardActionAsync(DashboardAction dashboardAction)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
@@ -67,6 +73,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardActionTarget> DeleteDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
             return dashboardActionTarget;
@@ -74,6 +81,7 @@ namespace ShortDash.Server.Services
 
         public async Task<Dashboard> DeleteDashboardAsync(Dashboard dashboard)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
@@ -81,6 +89,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardCell> DeleteDashboardCellAsync(DashboardCell dashboardCell)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboardCell);
             await dbContext.SaveChangesAsync();
             return dashboardCell;
@@ -88,21 +97,15 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> DeleteDashboardDeviceAsync(DashboardDevice dashboardDevice)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Remove(dashboardDevice);
             await dbContext.SaveChangesAsync();
             return dashboardDevice;
         }
 
-        public string GetConfigurationSection(string configurationSectionId)
-        {
-            var configurationSection = dbContext.ConfigurationSections
-                .Where(s => s.ConfigurationSectionId == configurationSectionId)
-                .FirstOrDefault();
-            return configurationSection?.Data;
-        }
-
         public Task<DashboardAction> GetDashboardActionAsync(int dashboardActionId)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardActions
                 .Include(a => a.DashboardSubActionChildren)
                 .ThenInclude(c => c.DashboardActionChild)
@@ -112,6 +115,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardAction> GetDashboardActionCopyAsync(int dashboardActionId)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             var action = await GetDashboardActionAsync(dashboardActionId);
             dbContext.Entry(action).State = EntityState.Detached;
             action.DashboardActionId = 0;
@@ -126,6 +130,7 @@ namespace ShortDash.Server.Services
 
         public Task<List<DashboardAction>> GetDashboardActionsAsync()
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardActions
                 .OrderBy(a => a.Label)
                 .ToListAsync();
@@ -133,6 +138,7 @@ namespace ShortDash.Server.Services
 
         public Task<DashboardActionTarget> GetDashboardActionTargetAsync(string dashboardActionTargetId)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardActionTargets
                 .Where(t => t.DashboardActionTargetId == dashboardActionTargetId)
                 .FirstOrDefaultAsync();
@@ -140,11 +146,13 @@ namespace ShortDash.Server.Services
 
         public Task<List<DashboardActionTarget>> GetDashboardActionTargetsAsync()
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardActionTargets.ToListAsync();
         }
 
         public Task<Dashboard> GetDashboardAsync(int dashboardId)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.Dashboards
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
@@ -157,6 +165,7 @@ namespace ShortDash.Server.Services
 
         public Task<DashboardDevice> GetDashboardDeviceAsync(string dashboardDeviceId)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardDevices
                 .Where(d => d.DashboardDeviceId == dashboardDeviceId)
                 .FirstOrDefaultAsync();
@@ -164,38 +173,19 @@ namespace ShortDash.Server.Services
 
         public Task<List<DashboardDevice>> GetDashboardDevicesAsync()
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.DashboardDevices.ToListAsync();
         }
 
         public Task<List<Dashboard>> GetDashboardsAsync()
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.Dashboards.ToListAsync();
-        }
-
-        public void SetConfigurationSection(string configurationSectionId, string data)
-        {
-            var configurationSection = dbContext.ConfigurationSections
-                .Where(s => s.ConfigurationSectionId == configurationSectionId)
-                .FirstOrDefault();
-            if (configurationSection == null)
-            {
-                configurationSection = new ConfigurationSection
-                {
-                    ConfigurationSectionId = configurationSectionId,
-                    Data = data
-                };
-                dbContext.Add(configurationSection);
-            }
-            else
-            {
-                configurationSection.Data = data;
-                dbContext.Update(configurationSection);
-            }
-            dbContext.SaveChanges();
         }
 
         public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction, List<DashboardSubAction> subActionRemovalList = null)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             if (subActionRemovalList != null)
             {
                 foreach (var subAction in subActionRemovalList)
@@ -211,6 +201,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardActionTarget> UpdateDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dataSignatureManager.GenerateSignature(dashboardActionTarget);
             dbContext.Update(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
@@ -219,6 +210,7 @@ namespace ShortDash.Server.Services
 
         public async Task<Dashboard> UpdateDashboardAsync(Dashboard dashboard, List<DashboardCell> cellRemovalList = null)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             if (cellRemovalList != null)
             {
                 foreach (var cell in cellRemovalList)
@@ -233,6 +225,7 @@ namespace ShortDash.Server.Services
 
         public async Task<DashboardDevice> UpdateDashboardDeviceAsync(DashboardDevice dashboardDevice)
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             dataSignatureManager.GenerateSignature(dashboardDevice);
             dbContext.Update(dashboardDevice);
             await dbContext.SaveChangesAsync();
@@ -244,7 +237,7 @@ namespace ShortDash.Server.Services
             return dataSignatureManager.VerifySignature(data);
         }
 
-        private string GenerateDashboardActionTargetId()
+        private string GenerateDashboardActionTargetId(ApplicationDbContext dbContext)
         {
             const string characterSpace = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var r = new Random();

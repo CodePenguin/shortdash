@@ -100,6 +100,7 @@ namespace ShortDash.Server
             services.AddBlazoredModal();
             services.AddBlazoredToast();
             services.AddHttpContextAccessor();
+            services.AddScoped<ApplicationDbContextFactory>();
             services.AddScoped<AdminAccessCodeService>();
             services.AddScoped<AuthenticationEvents>();
             services.AddScoped<ConfigurationService>();
