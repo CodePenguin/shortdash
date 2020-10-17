@@ -52,7 +52,7 @@ namespace ShortDash.Server.Data
                 return new AuthenticationValidationResult();
             }
             var dashboardDevice = await dashboardService.GetDashboardDeviceAsync(user.Identity.Name);
-            if (dashboardDevice == null)
+            if (dashboardDevice == null || !dashboardService.VerifySignature(dashboardDevice))
             {
                 return new AuthenticationValidationResult();
             }

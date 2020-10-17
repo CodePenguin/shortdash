@@ -15,6 +15,9 @@ namespace ShortDash.Server.Components
         [Parameter]
         public DeviceClaims DeviceClaims { get; set; }
 
+        [Parameter]
+        public bool Disabled { get; set; }
+
         private List<Dashboard> Dashboards { get; set; }
 
         [Inject]

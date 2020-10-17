@@ -136,6 +136,12 @@ namespace ShortDash.Server.Services
                 return null;
             }
 
+            if (!dashboardService.VerifySignature(dashboardDevice))
+            {
+                logger.LogDebug($"Invalid device data signature: {response.DeviceId}");
+                return null;
+            }
+
             if (!dashboardDevice.GetDeviceClaimsList().Equals(response.DeviceClaims))
             {
                 logger.LogDebug("Claims in access token did not match.");

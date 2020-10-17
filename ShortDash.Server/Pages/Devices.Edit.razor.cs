@@ -29,6 +29,7 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DeviceLinkService DeviceLinkService { get; set; }
 
+        private bool IsDataSignatureValid { get; set; }
         private bool IsLoading => DashboardDevice == null;
 
         protected async override Task OnParametersSetAsync()
@@ -63,14 +64,16 @@ namespace ShortDash.Server.Pages
         {
             DashboardDevice = await DashboardService.GetDashboardDeviceAsync(DashboardDeviceId);
             DeviceClaims = DashboardDevice.GetDeviceClaimsList();
+            IsDataSignatureValid = DashboardService.VerifySignature(DashboardDevice);
         }
 
         private async void SaveChanges()
         {
-            if (!await SecureContext.ValidateUserAsync())
+            if (!await SecureContext.ValidateUserAsync() || !IsDataSignatureValid)
             {
                 return;
             }
+
             var refreshClaims = !DeviceClaims.Equals(DashboardDevice.GetDeviceClaimsList());
             DashboardDevice.SetDeviceClaimsList(DeviceClaims);
             await DashboardService.UpdateDashboardDeviceAsync(DashboardDevice);

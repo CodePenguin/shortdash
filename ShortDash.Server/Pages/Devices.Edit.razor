@@ -17,19 +17,32 @@
 
         <EditForm Model="DashboardDevice" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
+
+            @if (!IsDataSignatureValid)
+            {
+                <div class="alert alert-danger">
+                    <h3><span class="fas fa-exclamation-triangle"></span> Invalid data signature</h3>
+                    The data signature for this device could not be verified which means the identity/permissions could have been modified outside of ShortDash.
+                    This device will need to be linked again to prevent unauthorized acess.
+                </div>
+            }
+
             <div class="form-group">
                 <label for="DashboardDeviceName">Name</label>
-                <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardDeviceName" />
+                <InputText @bind-Value="DashboardDevice.Name" class="form-control" id="DashboardDeviceName" disabled="@(!IsDataSignatureValid)" />
                 <ValidationMessage For="() => DashboardDevice.Name" />
             </div>
-            <DeviceClaimsEditPanel DeviceClaims="DeviceClaims" />
+            <DeviceClaimsEditPanel DeviceClaims="DeviceClaims" Disabled="@(!IsDataSignatureValid)" />
 
             <button class="btn btn-outline-danger float-left" type="button" @onclick="ConfirmUnlink">Unlink</button>
 
-            <div class="float-right">
-                <button type="button" class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
+            @if (IsDataSignatureValid)
+            {
+                <div class="float-right">
+                    <button type="button" class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            }
         </EditForm>
     }
 </div>
