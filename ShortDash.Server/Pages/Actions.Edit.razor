@@ -16,6 +16,15 @@
         <EditForm EditContext="@ActionEditContext">
             <DataAnnotationsValidator />
 
+            @if (!IsDataSignatureValid)
+            {
+                <div class="alert alert-danger">
+                    <h3><span class="fas fa-exclamation-triangle"></span> Invalid data signature</h3>
+                    The data signature for this action could not be verified which means it could have been modified outside of ShortDash and contain malicious content.
+                    This action will not be allowed to execute until you verify all parameters and save the changes.
+                </div>
+            }
+
             <fieldset>
                 <legend>
                     @Operation Action

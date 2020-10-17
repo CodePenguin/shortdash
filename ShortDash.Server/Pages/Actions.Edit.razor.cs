@@ -37,6 +37,7 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DashboardActionService DashboardActionService { get; set; }
 
+        private bool IsDataSignatureValid { get; set; }
         private bool IsLoading => ActionEditContext == null;
 
         private object Parameters { get; set; }
@@ -63,6 +64,7 @@ namespace ShortDash.Server.Pages
         {
             ActionEditContext = null;
             ParametersEditContext = null;
+            IsDataSignatureValid = true;
             if (DashboardActionId > 0)
             {
                 if (NavigationManager.Uri.EndsWith("/copy"))
@@ -106,6 +108,7 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
+            IsDataSignatureValid = DashboardService.VerifySignature(DashboardAction);
             RefreshParameters();
         }
 
@@ -151,6 +154,18 @@ namespace ShortDash.Server.Pages
             if (DashboardAction.DashboardActionId == 0 && string.IsNullOrWhiteSpace(DashboardAction.ActionTypeName))
             {
                 return;
+            }
+
+            if (!IsDataSignatureValid)
+            {
+                var confirmed = await DangerConfirmDialog.ShowAsync(ModalService,
+                    title: "Invalid data signature",
+                    message: "The data signature for this action could not be verified.  Saving the changes will store a valid signature and allow this action to be executed.  Are you sure you want to continue?",
+                    confirmLabel: "Keep Changes");
+                if (!confirmed)
+                {
+                    return;
+                }
             }
 
             if (ParametersEditContext != null)

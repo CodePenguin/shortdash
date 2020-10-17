@@ -20,6 +20,12 @@ namespace ShortDash.Server.Components
         public RenderFragment ChildContent { get; set; }
 
         [Parameter]
+        public string HeaderClass { get; set; } = "";
+
+        [Parameter]
+        public string HeaderIcon { get; set; } = "";
+
+        [Parameter]
         public string OkClass { get; set; } = "btn-primary";
 
         [Parameter]

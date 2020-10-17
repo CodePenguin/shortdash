@@ -15,6 +15,7 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
+        private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<ActionService> logger;
         private readonly IHubContext<TargetsHub, ITargetsHub> targetsHubContext;
@@ -22,16 +23,22 @@ namespace ShortDash.Server.Services
 
         public DashboardActionService(ILogger<ActionService> logger, PluginService pluginService, IServiceProvider serviceProvider,
             IHubContext<TargetsHub, ITargetsHub> targetsHubContext, IEncryptedChannelService encryptedChannelService,
-            IToastService toastService) : base(logger, pluginService, serviceProvider)
+            DashboardService dashboardService, IToastService toastService) : base(logger, pluginService, serviceProvider)
         {
             this.logger = logger;
             this.targetsHubContext = targetsHubContext;
             this.encryptedChannelService = encryptedChannelService;
+            this.dashboardService = dashboardService;
             this.toastService = toastService;
         }
 
         public Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
+            if (!dashboardService.VerifySignature(dashboardAction))
+            {
+                toastService.ShowError("Invalid data signature.");
+                return Task.CompletedTask;
+            }
             // Forward targeted actions to the specific target
             if (dashboardAction.DashboardActionTargetId != DashboardActionTarget.ServerTargetId)
             {

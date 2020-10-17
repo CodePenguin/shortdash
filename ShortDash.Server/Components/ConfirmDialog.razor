@@ -1,3 +1,9 @@
-﻿<BaseDialog TResult="bool" Result="true" OkClass="@ConfirmClass" OkLabel="@ConfirmLabel">
+﻿@inherits BaseDialog<bool>
+<BaseDialog TResult="bool"
+            Result="true"
+            HeaderClass="@HeaderClass"
+            HeaderIcon="@HeaderIcon"
+            OkClass="@OkClass"
+            OkLabel="@OkLabel">
     @Message
 </BaseDialog>

@@ -241,7 +241,7 @@ namespace ShortDash.Server.Services
 
         public bool VerifySignature(object data)
         {
-            return !dataSignatureManager.VerifySignature(data);
+            return dataSignatureManager.VerifySignature(data);
         }
 
         private string GenerateDashboardActionTargetId()

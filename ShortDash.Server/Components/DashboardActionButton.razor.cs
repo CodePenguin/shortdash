@@ -70,10 +70,6 @@ namespace ShortDash.Server.Components
 
         private async Task ExecuteDashGroupAction()
         {
-            if (!await SecureContext.ValidateUserAsync())
-            {
-                return;
-            }
             var actionType = DashboardActionService.FindActionType(typeof(DashGroupAction).FullName);
             var parameters = DashboardActionService.GetActionParameters(actionType, DashboardAction.Parameters) as DashGroupParameters;
             if (parameters.DashGroupType == DashGroupType.Folder)
