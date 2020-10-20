@@ -1,5 +1,4 @@
 ﻿@page "/targets/{DashboardActionTargetId}"
-@page "/targets/new"
 @attribute [Authorize(Policy = Policies.EditTargets)]
 @inherits PageBase
 
@@ -10,34 +9,30 @@
     }
     else
     {
-        @if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
-        {
-            <h3>New Target</h3>
-        }
-        else
-        {
-            <h3>@DashboardActionTarget.Name</h3>
-        }
+        <h3>@DashboardActionTarget.Name</h3>
 
         <EditForm Model="DashboardActionTarget" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
+
+            @if (!IsDataSignatureValid)
+            {
+                <div class="alert alert-danger">
+                    <h3><span class="fas fa-exclamation-triangle"></span> Invalid data signature</h3>
+                    The data signature for this target could not be verified which means the identity could have been modified outside of ShortDash.
+                    This target's identity will need to be re-established to prevent unauthorized access.
+                </div>
+            }
+
             <div class="form-group">
-                <label for="DashboardName">Name</label>
-                <InputText @bind-Value="DashboardActionTarget.Name" class="form-control" id="DashboardName" />
+                <label for="TargetName">Name</label>
+                <InputText @bind-Value="DashboardActionTarget.Name" class="form-control" id="TargetName" />
                 <ValidationMessage For="() => DashboardActionTarget.Name" />
             </div>
             <div class="form-group disabled">
-                <label for="ActionType">Target ID</label>
-                @if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
-                {
-                    <div class="alert alert-info"><span class="fas fa-info-circle"></span> A Target ID will be generated once this target is saved.</div>
-                }
-                else
-                {
-                    <input type="text" class="form-control" value="@DashboardActionTarget.DashboardActionTargetId" disabled />
-                }
+                <label for="TargetID">ID</label>
+                <input type="text" class="form-control" value="@DashboardActionTarget.DashboardActionTargetId" disabled />
             </div>
-            <button type="button" class="btn btn-outline-danger float-left" @onclick="ConfirmDelete">Delete</button>
+            <button type="button" class="btn btn-outline-danger float-left" @onclick="ConfirmUnlink">Unlink</button>
 
             <div class="float-right">
                 <button type="button" class="btn btn-secondary" @onclick=CancelChanges>Cancel</button>

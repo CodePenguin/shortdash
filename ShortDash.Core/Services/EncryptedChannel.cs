@@ -16,7 +16,7 @@ namespace ShortDash.Core.Services
             aes = Aes.Create();
             rsa = RSA.Create();
             rsa.ImportPublicKey(receiverPublicKey);
-            ReceiverId = rsa.FingerPrint();
+            ReceiverId = rsa.Fingerprint();
         }
 
         ~EncryptedChannel()

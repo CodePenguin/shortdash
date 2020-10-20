@@ -22,11 +22,18 @@ namespace ShortDash.Core.Extensions
             return PublicKeyPrefix + Convert.ToBase64String(key) + PublicKeySuffix;
         }
 
-        public static string FingerPrint(this RSA rsa)
+        public static string Fingerprint(this RSA rsa)
         {
             using var sha = SHA1.Create();
             var hash = sha.ComputeHash(rsa.ExportSubjectPublicKeyInfo());
             return Convert.ToBase64String(hash);
+        }
+
+        public static string GetPublicKeyFingerprint(string publicKey)
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportPublicKey(publicKey);
+            return rsa.Fingerprint();
         }
 
         public static void ImportPrivateKey(this RSA rsa, string privateKey)

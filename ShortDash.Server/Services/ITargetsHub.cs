@@ -5,9 +5,11 @@ namespace ShortDash.Server.Services
 {
     public interface ITargetsHub
     {
-        Task Authenticate(string challenge, string publicKey);
+        Task Authenticate(string encryptedChallenge);
 
         Task ExecuteAction(string encryptedParameters);
+
+        Task Identify(string publicKey);
 
         Task LogDebug(string category, string message, params object[] args);
 
@@ -20,5 +22,7 @@ namespace ShortDash.Server.Services
         Task ReceiveMessage(string user, string message);
 
         Task TargetAuthenticated(string encryptedKey);
+
+        Task UnlinkTarget(string encryptedParameters);
     }
 }

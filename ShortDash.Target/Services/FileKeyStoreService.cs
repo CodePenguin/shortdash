@@ -22,6 +22,15 @@ namespace ShortDash.Target.Services
             return File.Exists(PurposeToFileName(purpose));
         }
 
+        public void RemoveKey(string purpose)
+        {
+            var keyFileName = PurposeToFileName(purpose);
+            if (File.Exists(keyFileName))
+            {
+                File.Delete(keyFileName);
+            }
+        }
+
         public string RetrieveKey(string purpose, bool autoGenerate = true)
         {
             if (!HasKey(purpose))

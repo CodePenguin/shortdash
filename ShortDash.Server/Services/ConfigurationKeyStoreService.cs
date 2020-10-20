@@ -24,6 +24,13 @@ namespace ShortDash.Core.Services
             return !string.IsNullOrWhiteSpace(RetrieveKey(purpose, false));
         }
 
+        public void RemoveKey(string purpose)
+        {
+            using var scope = serviceScopeFactory.CreateScope();
+            var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
+            configurationService.RemoveSection(ConfigurationSections.Key(purpose));
+        }
+
         public string RetrieveKey(string purpose, bool autoGenerate = true)
         {
             using var scope = serviceScopeFactory.CreateScope();

@@ -36,6 +36,7 @@ namespace ShortDash.Server.Pages
         {
             DashboardDevice = null;
             DeviceClaims = null;
+            IsDataSignatureValid = true;
             await LoadDashboardDevice();
         }
 

@@ -31,7 +31,6 @@ namespace ShortDash.Server.Services
         public async Task<DashboardActionTarget> AddDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            dashboardActionTarget.DashboardActionTargetId = GenerateDashboardActionTargetId(dbContext);
             dataSignatureManager.GenerateSignature(dashboardActionTarget);
             dbContext.Add(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
@@ -74,6 +73,14 @@ namespace ShortDash.Server.Services
         public async Task<DashboardActionTarget> DeleteDashboardActionTargetAsync(DashboardActionTarget dashboardActionTarget)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
+            var targetedActions = await dbContext.DashboardActions
+                .Where(a => a.DashboardActionTargetId == dashboardActionTarget.DashboardActionTargetId)
+                .ToListAsync();
+            foreach (var action in targetedActions)
+            {
+                action.DashboardActionTargetId = DashboardActionTarget.ServerTargetId;
+                dbContext.Update(action);
+            }
             dbContext.Remove(dashboardActionTarget);
             await dbContext.SaveChangesAsync();
             return dashboardActionTarget;
@@ -235,28 +242,6 @@ namespace ShortDash.Server.Services
         public bool VerifySignature(object data)
         {
             return dataSignatureManager.VerifySignature(data);
-        }
-
-        private string GenerateDashboardActionTargetId(ApplicationDbContext dbContext)
-        {
-            const string characterSpace = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var r = new Random();
-            var attempts = 1000;
-            while (attempts > 0)
-            {
-                var targetId = "";
-                for (var i = 0; i < 6; i++)
-                {
-                    targetId += characterSpace[r.Next(characterSpace.Length - 1)];
-                }
-                var target = dbContext.DashboardActionTargets.Where(t => t.DashboardActionTargetId == targetId).FirstOrDefault();
-                if (target == null)
-                {
-                    return targetId;
-                }
-                attempts -= 1;
-            }
-            throw new Exception("Failed to generate new Target ID");
         }
     }
 }

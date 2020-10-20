@@ -55,7 +55,11 @@
     return {
         initChannel: function (serverPublicKey, base64data) {
             _.setServerPublicKey(serverPublicKey);
-            base64data = base64data.substring(4);
+            var challengeIndex = base64data.indexOf(":");
+            var challengeType = "N/A";
+            if (challengeIndex >= -1) challengeType = base64data.substring(0, challengeIndex);
+            if (challengeType !== "RSA") throw "Unsupported challenge type: " + challengeType;
+            base64data = base64data.substring(challengeIndex + 1);
             var decryptedChallenge = _.rsaDecrypt(base64data);
             var encryptedChallenge = _.rsaEncrypt(decryptedChallenge);
             return encryptedChallenge;

@@ -11,27 +11,53 @@
             <div class="card-body bg-warning">
                 <p class="card-text">
                     The connection to the ShortDash server has not been configured.<br />
-                    Update the TargetId and ServerUrl settings in the appsettings.json file and then restart the application.
+                    Update the ServerUrl setting in the appsettings.json file and then restart the application.
                 </p>
             </div>
         }
         <div class="card-body">
-            <p class="card-text">
-                Server URL: @(!string.IsNullOrEmpty(TargetHubClient.ServerUrl) ? TargetHubClient.ServerUrl : "Not Configured")
-            </p>
-            <p class="card-text">
-                Target ID: @(!string.IsNullOrEmpty(TargetHubClient.TargetId) ? TargetHubClient.TargetId : "Not Configured")
-            </p>
-            <p class="card-text">
-                Last Connection: @LastConnection.ToDisplayString()
-            </p>
-            <p class="card-text">
-                Last Connection Attempt: @LastConnectionAttempt.ToDisplayString()
-            </p>
+            <dl class="row">
+                <dt class="col-sm-3">Target ID</dt>
+                <dd class="col-sm-9">@TargetId</dd>
+                <dt class="col-sm-3">Server URL</dt>
+                <dd class="col-sm-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
+                <dt class="col-sm-3">Server ID</dt>
+                <dd class="col-sm-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
+                <dt class="col-sm-3">Last Connection</dt>
+                <dd class="col-sm-9">@LastConnection.ToDisplayString()</dd>
+            </dl>
+            @if (!Linked)
+            {
+                <div class="text-center">
+                    <EditForm Model="Model" OnValidSubmit="StartLinking">
+                        <DataAnnotationsValidator />
+
+                        <h5 class="alert alert-info">Verify the Server ID matches and then enter the code from the ShortDash Server below.</h5>
+
+                        <div class="form-group">
+                            <InputText type="text" class="form-control form-control-lg" placeholder="Enter Link Code" @bind-Value="@Model.TargetLinkCode" />
+                            <ValidationMessage For="() => Model.TargetLinkCode" />
+                        </div>
+
+                        <button class="btn btn-secondary" type="button" @onclick="CancelLinking">Cancel</button>
+                        <button class="btn btn-primary" type="submit" disabled="@Linking">
+                            @if (Linking)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+                            }
+                            Link
+                        </button>
+                    </EditForm>
+                </div>
+            }
         </div>
-        <div class="card-footer text-light bg-@ConnectionStatusClass">
+        <div class="card-footer text-light bg-@GetConnectionStatusClass()">
             <p class="card-text text-center">
-                <h5>@TargetHubClient.ConnectionStatus()</h5>
+                <h5>@GetConnectionStatus()</h5>
+                @if (!IsConnected)
+                {
+                    <span class="text-dark">Last retry: @LastConnectionAttempt.ToDisplayString()</span>
+                }
             </p>
         </div>
     </div>

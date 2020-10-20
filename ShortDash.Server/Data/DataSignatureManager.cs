@@ -84,11 +84,15 @@ namespace ShortDash.Server.Data
 
         private string GenerateSignatureData(DashboardAction action)
         {
-            return $"{action.ActionTypeName}:{action.DashboardActionId}:{action.Parameters}";
+            return $"{action.ActionTypeName}:{action.DashboardActionTargetId}:{action.Parameters}";
         }
 
         private string GetSignatureFromObject(object data)
         {
+            if (data == null)
+            {
+                return null;
+            }
             return data switch
             {
                 DashboardAction action => action.DataSignature,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
 using ShortDash.Core.Services;
@@ -9,9 +10,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShortDash.Target.Services
 {
@@ -20,7 +23,7 @@ namespace ShortDash.Target.Services
         private readonly ActionService actionService;
         private readonly ConnectionSettings connectionSettings;
         private readonly IEncryptedChannelService encryptedChannelService;
-        private readonly string keyPurpose = typeof(TargetHubClient).FullName;
+        private readonly string keyPurpose = "ServerPublic";
         private readonly IKeyStoreService keyStore;
         private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
@@ -49,6 +52,8 @@ namespace ShortDash.Target.Services
             Dispose(false);
         }
 
+        public event EventHandler OnAuthenticated;
+
         public event EventHandler OnClosed;
 
         public event EventHandler OnConnected;
@@ -59,8 +64,14 @@ namespace ShortDash.Target.Services
 
         public event EventHandler OnReconnecting;
 
+        public event EventHandler OnUnlinked;
+
+        public bool Authenticated { get; private set; }
         public DateTime LastConnectionAttemptDateTime { get; private set; }
         public DateTime LastConnectionDateTime { get; private set; }
+        public bool Linked { get; private set; }
+        public bool Linking { get; private set; }
+        public string ServerId { get; private set; }
         public string ServerUrl { get; private set; }
         public string TargetId { get; private set; }
 
@@ -85,6 +96,7 @@ namespace ShortDash.Target.Services
                     }
                     catch when (cancellationToken.IsCancellationRequested)
                     {
+                        Linking = false;
                         return;
                     }
                     catch (Exception ex)
@@ -158,12 +170,16 @@ namespace ShortDash.Target.Services
             {
                 await connection.StopAsync();
                 await connection.DisposeAsync();
+                connection = null;
             }
 
-            TargetId = connectionSettings?.TargetId;
+            TargetId = encryptedChannelService.SenderId();
             ServerUrl = connectionSettings?.ServerUrl.Trim('/');
+            Linked = keyStore.HasKey(keyPurpose);
+            ServerId = Linked ? GetServerId(keyStore.RetrieveKey(keyPurpose)) : null;
+            Authenticated = false;
 
-            if (string.IsNullOrEmpty(TargetId) && string.IsNullOrEmpty(ServerUrl))
+            if (string.IsNullOrEmpty(ServerUrl))
             {
                 logger.LogWarning("Server connection has not been initialized.");
                 return;
@@ -172,7 +188,7 @@ namespace ShortDash.Target.Services
             logger.LogDebug("Server: " + ServerUrl);
             logger.LogDebug("Target ID: " + TargetId);
 
-            var hubUrl = ServerUrl + "/targetshub?targetId=" + Uri.EscapeUriString(TargetId);
+            var hubUrl = ServerUrl + "/targetshub?targetId=" + HttpUtility.UrlEncode(TargetId);
             connection = new HubConnectionBuilder()
                 .WithUrl(hubUrl)
                 .WithAutomaticReconnect(retryPolicy)
@@ -182,9 +198,37 @@ namespace ShortDash.Target.Services
             connection.Reconnected += Reconnected;
             connection.Reconnecting += Reconnecting;
 
-            connection.On<string, string>("Authenticate", Authenticate);
+            connection.On<string>("Authenticate", Authenticate);
             connection.On<string>("ExecuteAction", ExecuteAction);
+            connection.On<string>("Identify", Identify);
             connection.On<string>("TargetAuthenticated", TargetAuthenticated);
+            connection.On<string>("UnlinkTarget", UnlinkTarget);
+        }
+
+        public void StartLinking(string targetLinkCode)
+        {
+            if (Linked || Linking || string.IsNullOrWhiteSpace(pendingServerKey))
+            {
+                return;
+            }
+            Linking = true;
+            var name = $"{Environment.MachineName} ({RuntimeInformation.OSDescription})";
+            var parameters = new LinkTargetParameters
+            {
+                PublicKey = encryptedChannelService.ExportPublicKey(),
+                Name = name,
+                TargetId = TargetId,
+                TargetLinkCode = targetLinkCode
+            };
+            var encryptedParameters = encryptedChannelService.LocalEncryptForPublicKey(pendingServerKey, parameters);
+            connection.SendAsync("LinkTarget", encryptedParameters);
+        }
+
+        public void StopLinking()
+        {
+            Authenticated = false;
+            Linked = false;
+            Linking = false;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -196,32 +240,23 @@ namespace ShortDash.Target.Services
             disposed = true;
         }
 
-        private void Authenticate(string challenge, string serverPublicKey)
+        private void Authenticate(string challenge)
         {
             logger.LogDebug("Received authentication request...");
-            var isNewRegistration = !string.IsNullOrEmpty(serverPublicKey);
-            if (!keyStore.HasKey(keyPurpose))
+            if (!Linking && !keyStore.HasKey(keyPurpose))
             {
-                if (serverPublicKey == null)
-                {
-                    logger.LogWarning("The server expected this target to have been registered already.");
-                    return;
-                }
-                pendingServerKey = serverPublicKey;
-            }
-            else if (!string.IsNullOrEmpty(serverPublicKey))
-            {
-                logger.LogWarning("The server attempted to authenticate as new target.");
+                logger.LogWarning("The server expected this target to have been registered already.");
                 return;
             }
-            var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverPublicKey ?? keyStore.RetrieveKey(keyPurpose));
+            var serverKey = !string.IsNullOrEmpty(pendingServerKey) ? pendingServerKey : keyStore.RetrieveKey(keyPurpose);
+            var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverKey);
             if (string.IsNullOrEmpty(challengeResponse))
             {
                 logger.LogError("The authentication request could not be verified.");
                 return;
             }
             logger.LogDebug("Sending authentication response...");
-            connection.SendAsync("Authenticate", challengeResponse, isNewRegistration ? encryptedChannelService.ExportPublicKey() : null);
+            connection.SendAsync("Authenticate", challengeResponse);
         }
 
         private Task Closed(Exception error)
@@ -236,10 +271,6 @@ namespace ShortDash.Target.Services
             logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
             OnConnected?.Invoke(this, EventArgs.Empty);
-            if (!keyStore.HasKey(keyPurpose))
-            {
-                connection.SendAsync("Register", encryptedChannelService.ExportPublicKey());
-            }
         }
 
         private void Connecting()
@@ -282,6 +313,24 @@ namespace ShortDash.Target.Services
             // TODO: Send the result back to the server
         }
 
+        private string GetServerId(string publicKey)
+        {
+            return RSAExtensions.GetPublicKeyFingerprint(publicKey);
+        }
+
+        private void Identify(string serverPublicKey)
+        {
+            logger.LogDebug("Received public key from server.");
+            ServerId = GetServerId(serverPublicKey);
+            pendingServerKey = serverPublicKey;
+            if (keyStore.HasKey(keyPurpose))
+            {
+                logger.LogWarning("The server attempted to authenticate as new target.");
+                UnlinkTarget();
+                return;
+            }
+        }
+
         private Task Reconnected(string message)
         {
             logger.LogDebug("Reconnected!");
@@ -294,6 +343,7 @@ namespace ShortDash.Target.Services
         {
             encryptedChannelService.CloseChannel(serverChannelId);
             serverChannelId = null;
+            Authenticated = false;
             logger.LogDebug("Reconnecting...");
             LastConnectionAttemptDateTime = DateTime.Now;
             OnReconnecting?.Invoke(this, EventArgs.Empty);
@@ -321,6 +371,36 @@ namespace ShortDash.Target.Services
             }
             logger.LogDebug("Received session key from server.");
             serverChannelId = encryptedChannelService.OpenChannel(keyStore.RetrieveKey(keyPurpose, false), encryptedKey);
+            ServerId = encryptedChannelService.ReceiverId(serverChannelId);
+            Authenticated = true;
+            Linked = true;
+            Linking = false;
+            OnAuthenticated?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void UnlinkTarget()
+        {
+            if (pendingServerKey == null)
+            {
+                pendingServerKey = keyStore.RetrieveKey(keyPurpose, false);
+            }
+            keyStore.RemoveKey(keyPurpose);
+            Authenticated = false;
+            Linked = false;
+            Linking = false;
+            OnUnlinked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void UnlinkTarget(string encryptedParameters)
+        {
+            logger.LogDebug($"Received unlink target request");
+            var parameters = DecryptParameters<UnlinkTargetParameters>(encryptedParameters);
+            if (parameters == null || parameters.TargetId != TargetId)
+            {
+                logger.LogError("Invalid UnlinkTargetParameters parameters");
+                return;
+            }
+            UnlinkTarget();
         }
     }
 }

@@ -21,9 +21,9 @@ namespace ShortDash.Server.Pages
             DashboardActionTargets.AddRange(list.Where(o => !o.DashboardActionTargetId.Equals(DashboardActionTarget.ServerTargetId)).OrderBy(o => o.Name).ToList());
         }
 
-        private void AddTarget()
+        private void LinkTarget()
         {
-            NavigationManager.NavigateTo($"/targets/new");
+            NavigationManager.NavigateTo($"/targets/link");
         }
     }
 }

@@ -71,6 +71,10 @@ namespace ShortDash.Server.Data
         public string DashboardActionTargetId { get; set; }
         public string DataSignature { get; set; }
 
+        public DateTime LastSeenDateTime { get; set; }
+
+        public DateTime LinkedDateTime { get; set; }
+
         [Required]
         public string Name { get; set; }
 

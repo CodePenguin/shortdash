@@ -26,6 +26,8 @@
 
         void ImportPrivateKey(string privateKeyXml);
 
+        string LocalEncryptForPublicKey(string publicKey, object data);
+
         string LocalEncryptSigned(string data);
 
         string LocalEncryptSigned(object parameters);
@@ -38,13 +40,17 @@
 
         void RegisterChannelAlias(string channelId, string alias);
 
+        string SenderId();
+
         bool TryDecrypt(string channelId, string encryptedPacket, out string data);
 
         bool TryDecryptVerify(string channelId, string encryptedPacket, out string data);
 
-        bool TryDecryptVerify<TDataType>(string channelId, string encryptedPacket, out TDataType data);
+        bool TryDecryptVerify<TParameterType>(string channelId, string encryptedPacket, out TParameterType parameters);
 
-        bool TryLocalDecryptVerify<TParameterType>(string encryptedParameters, out TParameterType data);
+        bool TryLocalDecrypt<TParameterType>(string encryptedPacket, out TParameterType parameters);
+
+        bool TryLocalDecryptVerify<TParameterType>(string encryptedPacket, out TParameterType parameters);
 
         bool TryLocalDecryptVerify(string encryptedPacket, out string data);
 

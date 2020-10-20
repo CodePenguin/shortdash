@@ -4,6 +4,8 @@
     {
         bool HasKey(string purpose);
 
+        void RemoveKey(string purpose);
+
         string RetrieveKey(string purpose, bool autoGenerate = true);
 
         void StoreKey(string purpose, string key);

@@ -13,7 +13,7 @@ namespace ShortDash.Core.Services
     public abstract class EncryptedChannelService : IEncryptedChannelService
     {
         private const char CommandDelimiter = ':';
-        private const string EncryptedChallengePrefix = "RSA:";
+        private const string RSAChallengeType = "RSA";
         private static readonly IDictionary<string, string> ChannelAliases = new ConcurrentDictionary<string, string>();
         private static readonly IDictionary<string, EncryptedChannel> Channels = new ConcurrentDictionary<string, EncryptedChannel>();
         private readonly RSA rsa;
@@ -92,29 +92,22 @@ namespace ShortDash.Core.Services
             using var aes = Aes.Create();
             rawChallenge = Convert.ToBase64String(aes.IV.Concat(aes.Key).ToArray());
             byte[] challenge;
-            var isEncryptedChallenge = !string.IsNullOrEmpty(publicKey);
-            if (isEncryptedChallenge)
-            {
-                // If the public key is known, generate a specific challenge for that key
-                using var challengeRsa = RSA.Create();
-                challengeRsa.ImportPublicKey(publicKey);
-                challenge = challengeRsa.Encrypt(Encoding.UTF8.GetBytes(rawChallenge), RSAEncryptionPadding.Pkcs1);
-            }
-            else
-            {
-                // If the challenge is for a new registration, send an unencrypted challenge
-                challenge = Encoding.UTF8.GetBytes(rawChallenge);
-            }
-            // Add the encrypted challenge prefix if applicable
-            return (isEncryptedChallenge ? EncryptedChallengePrefix : string.Empty) + Convert.ToBase64String(challenge);
+            using var challengeRsa = RSA.Create();
+            challengeRsa.ImportPublicKey(publicKey);
+            challenge = challengeRsa.Encrypt(Encoding.UTF8.GetBytes(rawChallenge), RSAEncryptionPadding.Pkcs1);
+            return RSAChallengeType + CommandDelimiter + Convert.ToBase64String(challenge);
         }
 
         public string GenerateChallengeResponse(string challenge, string publicKey)
         {
             try
             {
-                var isEncryptedChallenge = IsEncryptedChallenge(challenge, out var data);
-                var decryptedBytes = isEncryptedChallenge ? rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1) : data;
+                var challengeType = GetChallengeType(challenge, out var data);
+                if (challengeType != RSAChallengeType)
+                {
+                    throw new NotSupportedException($"Unsupported challenge type: {challengeType}");
+                }
+                var decryptedBytes = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
                 var decryptedChallenge = Encoding.UTF8.GetString(decryptedBytes);
                 using var challengeRsa = RSA.Create();
                 challengeRsa.ImportPublicKey(publicKey);
@@ -127,11 +120,6 @@ namespace ShortDash.Core.Services
             }
         }
 
-        public string GenerateUniqueChannelId()
-        {
-            return Guid.NewGuid().ToString("N");
-        }
-
         public string GetChannelId(string alias)
         {
             return !string.IsNullOrWhiteSpace(alias) && ChannelAliases.TryGetValue(alias, out var channelId) ? channelId : null;
@@ -140,6 +128,22 @@ namespace ShortDash.Core.Services
         public void ImportPrivateKey(string privateKey)
         {
             rsa.ImportPrivateKey(privateKey);
+        }
+
+        public string LocalEncryptForPublicKey(string publicKey, string data)
+        {
+            using var publicRsa = RSA.Create();
+            publicRsa.ImportPublicKey(publicKey);
+            using var aes = Aes.Create();
+            var encryptedKey = publicRsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
+            var encryptedData = aes.Encrypt(data);
+            return Convert.ToBase64String(encryptedKey) + CommandDelimiter + Convert.ToBase64String(encryptedData);
+        }
+
+        public string LocalEncryptForPublicKey(string publicKey, object parameters)
+        {
+            var data = JsonSerializer.Serialize(parameters);
+            return LocalEncryptForPublicKey(publicKey, data);
         }
 
         public string LocalEncryptSigned(string data)
@@ -189,6 +193,11 @@ namespace ShortDash.Core.Services
             ChannelAliases.Add(alias, channelId);
         }
 
+        public string SenderId()
+        {
+            return rsa.Fingerprint();
+        }
+
         public bool TryDecrypt(string channelId, string encryptedPacket, out string data)
         {
             data = null;
@@ -235,14 +244,53 @@ namespace ShortDash.Core.Services
             }
         }
 
-        public bool TryDecryptVerify<TParameterType>(string channelId, string encryptedParameters, out TParameterType data)
+        public bool TryDecryptVerify<TParameterType>(string channelId, string encryptedParameters, out TParameterType parameters)
         {
             if (!TryDecryptVerify(channelId, encryptedParameters, out var decryptedParameters))
             {
-                data = default;
+                parameters = default;
                 return false;
             }
-            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            parameters = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            return true;
+        }
+
+        public bool TryLocalDecrypt(string encryptedPacket, out string data)
+        {
+            data = null;
+            try
+            {
+                if (encryptedPacket == null)
+                {
+                    return false;
+                }
+                var packetParts = encryptedPacket.Split(CommandDelimiter);
+                if (packetParts.Length != 2)
+                {
+                    return false;
+                }
+                var encryptedKey = Convert.FromBase64String(packetParts[0]);
+                var encryptedData = Convert.FromBase64String(packetParts[1]);
+                var decryptedKey = rsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
+                using var aes = Aes.Create();
+                aes.Key = decryptedKey;
+                data = aes.Decrypt(encryptedData);
+                return true;
+            }
+            catch (CryptographicException)
+            {
+                return false;
+            }
+        }
+
+        public bool TryLocalDecrypt<TParameterType>(string encryptedPacket, out TParameterType parameters)
+        {
+            if (!TryLocalDecrypt(encryptedPacket, out var decryptedData))
+            {
+                parameters = default;
+                return false;
+            }
+            parameters = JsonSerializer.Deserialize<TParameterType>(decryptedData);
             return true;
         }
 
@@ -279,14 +327,14 @@ namespace ShortDash.Core.Services
             }
         }
 
-        public bool TryLocalDecryptVerify<TParameterType>(string encryptedParameters, out TParameterType data)
+        public bool TryLocalDecryptVerify<TParameterType>(string encryptedPacket, out TParameterType parameters)
         {
-            if (!TryLocalDecryptVerify(encryptedParameters, out var decryptedParameters))
+            if (!TryLocalDecryptVerify(encryptedPacket, out var decryptedData))
             {
-                data = default;
+                parameters = default;
                 return false;
             }
-            data = JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+            parameters = JsonSerializer.Deserialize<TParameterType>(decryptedData);
             return true;
         }
 
@@ -306,15 +354,22 @@ namespace ShortDash.Core.Services
             return rawChallenge.Equals(compareChallenge);
         }
 
-        private bool IsEncryptedChallenge(string challenge, out byte[] data)
+        private static string GenerateUniqueChannelId()
         {
-            var isEncryptedChallenge = challenge.StartsWith(EncryptedChallengePrefix);
-            if (isEncryptedChallenge)
+            return Guid.NewGuid().ToString("N");
+        }
+
+        private string GetChallengeType(string challenge, out byte[] data)
+        {
+            var challengeTypeIndex = challenge.IndexOf(CommandDelimiter);
+            if (challengeTypeIndex == -1)
             {
-                challenge = challenge[EncryptedChallengePrefix.Length..];
+                data = Array.Empty<byte>();
+                return "N/A";
             }
-            data = Convert.FromBase64String(challenge);
-            return isEncryptedChallenge;
+            var dataIndex = challengeTypeIndex + 1;
+            data = Convert.FromBase64String(challenge[dataIndex..]);
+            return challenge[..challengeTypeIndex];
         }
 
         private byte[] RsaSign(byte[] data)

@@ -2,22 +2,25 @@
 @attribute [Authorize(Policy = Policies.EditTargets)]
 @inherits PageBase
 
+@using ShortDash.Core.Extensions
+@using System.Web
+
 <div class="page text-dark">
-    <button @onclick="AddTarget" class="btn btn-outline-primary float-right">Add</button>
+    <button @onclick="LinkTarget" class="btn btn-outline-primary float-right">Link</button>
     <h3><span class="fas fa-crosshairs"></span> Targets</h3>
 
     @if (DashboardActionTargets.Count == 0)
     {
-        <div class="alert alert-info">
-            <span class="fas fa-info-circle"></span> You do not have any targets yet.  Click "Add" to create a new one.
-        </div>
+        <h5 class="alert alert-info">
+            You do not have any targets yet.  Click "Link" to start adding a new one.
+        </h5>
     }
 
     <div class="container-fluid mt-4">
         <div class="row">
             @foreach (var target in DashboardActionTargets)
             {
-                var link = $"targets/{target.DashboardActionTargetId}";
+                var link = $"targets/{HttpUtility.UrlEncode(target.DashboardActionTargetId)}";
                 <div class="col-lg-3">
                     <div class="card mb-4">
                         <div class="card-header">
@@ -27,10 +30,13 @@
                         </div>
                         <div class="card-body">
                             <div class="card-text">
-                                Target ID: @target.DashboardActionTargetId
+                                ID: @target.DashboardActionTargetId
                             </div>
                             <div class="card-text">
-                                Last Connection: N/A
+                                Linked: @target.LinkedDateTime.ToDisplayString()
+                            </div>
+                            <div class="card-text">
+                                Last Connection: @target.LastSeenDateTime.ToDisplayString()
                             </div>
                         </div>
                     </div>

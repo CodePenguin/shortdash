@@ -110,6 +110,7 @@ namespace ShortDash.Server
             services.AddScoped<DeviceLinkService>();
             services.AddScoped<FormGeneratorPropertyMapper>();
             services.AddScoped<NavMenuManager>();
+            services.AddScoped<TargetLinkService>();
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<PluginService>();
             services.AddTransient(typeof(IKeyStoreService), typeof(ConfigurationKeyStoreService));

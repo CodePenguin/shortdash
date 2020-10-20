@@ -1,0 +1,31 @@
+﻿@page "/targets/link"
+@attribute [Authorize(Policy = Policies.EditTargets)]
+@inherits PageBase
+
+<div class="page container">
+    <div class="card">
+        <div class="card-header">
+            Link Target
+        </div>
+        <div class="card-body">
+            <div class="card-text">
+                <h5 class="alert alert-info">Navigate to the ShortDash Target page on the target machine and enter the code below.</h5>
+            </div>
+
+            <div class="card-text text-center">
+                <h1><SecureText Value="@TargetLinkCode.Separate(3)"></SecureText></h1>
+                Server ID: @ServerId
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="StartLinking" disabled="@Linking">
+                @if (Linking)
+                {
+                    <span class="spinner-border spinner-border-sm"></span>
+                }
+                Link
+            </button>
+        </div>
+    </div>
+</div>

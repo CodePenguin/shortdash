@@ -7,6 +7,5 @@ namespace ShortDash.Target.Shared
         public const string Key = "Connection";
 
         public string ServerUrl { get; set; }
-        public string TargetId { get; set; }
     }
 }

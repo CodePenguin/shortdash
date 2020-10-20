@@ -20,12 +20,16 @@ namespace ShortDash.Server.Pages
         public string DashboardActionTargetId { get; set; }
 
         private DashboardActionTarget DashboardActionTarget { get; set; }
-
+        private bool IsDataSignatureValid { get; set; }
         private bool IsLoading => DashboardActionTarget == null;
+
+        [Inject]
+        private TargetLinkService TargetLinkService { get; set; }
 
         protected async override Task OnParametersSetAsync()
         {
             DashboardActionTarget = null;
+            IsDataSignatureValid = true;
             if (!string.IsNullOrWhiteSpace(DashboardActionTargetId))
             {
                 if (DashboardActionTargetId == DashboardActionTarget.ServerTargetId)
@@ -47,25 +51,26 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo("/targets");
         }
 
-        private async void ConfirmDelete()
+        private async void ConfirmUnlink()
         {
             var confirmed = await ConfirmDialog.ShowAsync(ModalService,
-                title: "Delete Target",
-                message: "Are you sure you want to delete this target?",
-                confirmLabel: "Delete",
+                title: "Unlink Target",
+                message: "Are you sure you want to unlink this target?",
+                confirmLabel: "Unlink",
                 confirmClass: "btn-danger");
             if (!confirmed || !await SecureContext.ValidateUserAsync())
             {
                 return;
             }
-            await DashboardService.DeleteDashboardActionTargetAsync(DashboardActionTarget);
-            ToastService.ShowInfo("The target has been deleted.", "DELETED");
+            await TargetLinkService.UnlinkTarget(DashboardActionTarget.DashboardActionTargetId);
+            ToastService.ShowInfo("The target has been unlinked.", "UNLINKED");
             NavigationManager.NavigateTo("/targets");
         }
 
         private async Task LoadDashboardActionTarget()
         {
             DashboardActionTarget = await DashboardService.GetDashboardActionTargetAsync(DashboardActionTargetId);
+            IsDataSignatureValid = DashboardService.VerifySignature(DashboardActionTarget);
         }
 
         private void NewDashboardActionTarget()

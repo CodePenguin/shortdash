@@ -37,6 +37,19 @@ namespace ShortDash.Server.Services
             return GetSection<T>(sectionId, true);
         }
 
+        public void RemoveSection(string sectionId)
+        {
+            using var dbContext = dbContextFactory.CreateDbContext();
+            var configurationSection = dbContext.ConfigurationSections
+                .Where(s => s.ConfigurationSectionId == sectionId)
+                .FirstOrDefault();
+            if (configurationSection != null)
+            {
+                dbContext.Remove(configurationSection);
+                dbContext.SaveChanges();
+            }
+        }
+
         public void SetSection(string sectionId, string sectionData)
         {
             SetSection(sectionId, sectionData, false);
