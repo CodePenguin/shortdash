@@ -79,6 +79,7 @@ namespace ShortDash.Server.Services
             foreach (var action in targetedActions)
             {
                 action.DashboardActionTargetId = DashboardActionTarget.ServerTargetId;
+                dataSignatureManager.GenerateSignature(action);
                 dbContext.Update(action);
             }
             dbContext.Remove(dashboardActionTarget);
