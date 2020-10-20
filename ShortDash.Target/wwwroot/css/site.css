@@ -38,3 +38,15 @@ app {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+#components-reconnect-modal,
+#components-reconnect-modal .reconnect-datetime {
+    display: none;
+}
+
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected,
+#components-reconnect-modal.components-reconnect-rejected .reconnect-datetime {
+    display: block;
+}
