@@ -6,7 +6,7 @@
         <div class="card-header text-center">
             <h5 class="card-text">ShortDash Target</h5>
         </div>
-        @if (string.IsNullOrEmpty(ServerUrl))
+        @if (!ServerConfigured)
         {
             <div class="card-body bg-warning">
                 <p class="card-text">
@@ -26,7 +26,7 @@
                 <dt class="col-sm-3">Last Connection</dt>
                 <dd class="col-sm-9">@LastConnection.ToDisplayString()</dd>
             </dl>
-            @if (!Linked)
+            @if (!IsLinked && IsConnected)
             {
                 <div class="text-center">
                     <EditForm Model="Model" OnValidSubmit="StartLinking">
@@ -40,8 +40,8 @@
                         </div>
 
                         <button class="btn btn-secondary" type="button" @onclick="CancelLinking">Cancel</button>
-                        <button class="btn btn-primary" type="submit" disabled="@Linking">
-                            @if (Linking)
+                        <button class="btn btn-primary" type="submit" disabled="@(IsLinking || !IsConnected)">
+                            @if (IsLinking)
                             {
                                 <span class="spinner-border spinner-border-sm"></span>
                             }
@@ -51,14 +51,17 @@
                 </div>
             }
         </div>
-        <div class="card-footer text-light bg-@GetConnectionStatusClass()">
-            <p class="card-text text-center">
-                <h5>@GetConnectionStatus()</h5>
-                @if (!IsConnected)
-                {
-                    <span class="text-dark">Last retry: @LastConnectionAttempt.ToDisplayString()</span>
-                }
-            </p>
-        </div>
+        @if (ServerConfigured)
+        {
+            <div class="card-footer text-light bg-@GetConnectionStatusClass()">
+                <p class="card-text text-center">
+                    <h5>@GetConnectionStatus()</h5>
+                    @if (!IsConnected)
+                    {
+                        <span class="text-dark">Last retry: @LastConnectionAttempt.ToDisplayString()</span>
+                    }
+                </p>
+            </div>
+        }
     </div>
 </div>

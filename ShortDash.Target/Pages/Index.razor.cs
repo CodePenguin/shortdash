@@ -11,23 +11,16 @@ namespace ShortDash.Target.Pages
     public partial class Index : ComponentBase, IDisposable
     {
         private bool wasDisposed;
-        public bool IsConnected => TargetHubClient.IsConnected();
-
+        private bool IsConnected => TargetHubClient.IsConnected();
         private DateTime LastConnection => TargetHubClient.LastConnectionDateTime;
-
         private DateTime LastConnectionAttempt => TargetHubClient.LastConnectionAttemptDateTime;
-
-        private bool Linked => TargetHubClient.Linked;
-
-        private bool Linking => TargetHubClient.Linking;
-
         private string ServerId => TargetHubClient.ServerId;
-
         private string ServerUrl => TargetHubClient.ServerUrl;
-
         private string TargetId => TargetHubClient.TargetId;
-
+        private bool IsLinked => TargetHubClient.Linked;
+        private bool IsLinking => TargetHubClient.Linking;
         private TargetLinkModel Model { get; set; } = new TargetLinkModel();
+        private bool ServerConfigured => !string.IsNullOrWhiteSpace(TargetHubClient.ServerUrl);
 
         [Inject]
         private TargetHubClient TargetHubClient { get; set; }
@@ -66,7 +59,7 @@ namespace ShortDash.Target.Pages
 
         private void CancelLinking()
         {
-            if (Linking)
+            if (IsLinking)
             {
                 TargetHubClient.StopLinking();
             }
@@ -88,7 +81,7 @@ namespace ShortDash.Target.Pages
             {
                 return "Authenticated";
             }
-            return "Connected - Pending " + (Linked ? "Authentication" : "Link");
+            return "Connected - Pending " + (IsLinked ? "Authentication" : "Link");
         }
 
         private string GetConnectionStatusClass()
@@ -103,7 +96,7 @@ namespace ShortDash.Target.Pages
 
         private void StartLinking()
         {
-            if (Linking)
+            if (IsLinking)
             {
                 return;
             }
