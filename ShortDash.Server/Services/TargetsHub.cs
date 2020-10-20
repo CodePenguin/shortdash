@@ -90,7 +90,7 @@ namespace ShortDash.Server.Services
                 return;
             }
             logger.LogDebug($"Attempting to link target {targetId}...");
-            if (!await targetLinkService.LinkTarget(parameters.TargetLinkCode, parameters.TargetId, parameters.Name, parameters.PublicKey))
+            if (!await targetLinkService.LinkTarget(parameters.TargetLinkCode, parameters.TargetId, parameters.Name, parameters.Platform, parameters.PublicKey))
             {
                 return;
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShortDash.Core.Extensions;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -48,6 +49,7 @@ namespace ShortDash.Server.Data
                 {
                     DashboardActionTargetId = DashboardActionTarget.ServerTargetId,
                     Name = "ShortDash Server",
+                    Platform = EnvironmentExtensions.Platform(),
                     PublicKey = null
                 }
             };

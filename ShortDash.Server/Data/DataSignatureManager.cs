@@ -68,7 +68,7 @@ namespace ShortDash.Server.Data
             {
                 return null;
             }
-            return $"{target.DashboardActionTargetId}:{target.PublicKey}";
+            return $"{target.DashboardActionTargetId}:{target.Platform}:{target.PublicKey}";
         }
 
         private string GenerateSignatureData(object data)

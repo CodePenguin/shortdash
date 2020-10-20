@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
+using ShortDash.Core.Plugins;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
@@ -42,7 +43,7 @@ namespace ShortDash.Server.Services
             Requests.TryRemove(request.TargetLinkCode, out _);
         }
 
-        public async Task<bool> LinkTarget(string targetLinkCode, string targetId, string name, string publicKey)
+        public async Task<bool> LinkTarget(string targetLinkCode, string targetId, string name, string platform, string publicKey)
         {
             if (string.IsNullOrWhiteSpace(targetLinkCode) || !Requests.TryRemove(targetLinkCode, out var _))
             {
@@ -60,6 +61,7 @@ namespace ShortDash.Server.Services
 
             dashboardActionTarget.DashboardActionTargetId = targetId;
             dashboardActionTarget.Name = name;
+            dashboardActionTarget.Platform = platform;
             dashboardActionTarget.PublicKey = publicKey;
             dashboardActionTarget.LastSeenDateTime = DateTime.Now;
             dashboardActionTarget.LinkedDateTime = dashboardActionTarget.LastSeenDateTime;

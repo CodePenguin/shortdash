@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using ShortDash.Server.Extensions;
-using ShortDash.Server.Shared;
+﻿using ShortDash.Server.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace ShortDash.Server.Data
@@ -78,6 +74,7 @@ namespace ShortDash.Server.Data
         [Required]
         public string Name { get; set; }
 
+        public string Platform { get; set; }
         public string PublicKey { get; set; }
     }
 

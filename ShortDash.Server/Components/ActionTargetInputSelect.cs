@@ -50,7 +50,7 @@ namespace ShortDash.Server.Components
             Options.Clear();
             foreach (var target in targets)
             {
-                Options.Add(new KeyValuePair<string, string>(target.DashboardActionTargetId, target.Name));
+                Options.Add(new KeyValuePair<string, string>(target.DashboardActionTargetId, $"{target.Name} ({target.Platform})"));
             }
             Options.Sort((a, b) => a.Value.CompareTo(b.Value));
             if (string.IsNullOrWhiteSpace(CurrentValueAsString))

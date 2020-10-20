@@ -15,7 +15,7 @@
     }
     else
     {
-        <h3>@DashboardActionTarget.Name</h3>
+        <h3><span class="@DashboardActionTarget.Platform.PlatformToIconClass()"></span> @DashboardActionTarget.Name</h3>
 
         <EditForm Model="DashboardActionTarget" OnValidSubmit="SaveChanges">
             <DataAnnotationsValidator />
@@ -37,6 +37,10 @@
             <div class="form-group disabled">
                 <label for="TargetID">ID</label>
                 <input type="text" class="form-control" value="@DashboardActionTarget.DashboardActionTargetId" disabled />
+            </div>
+            <div class="form-group disabled">
+                <label for="Platform">Platform</label>
+                <input type="text" class="form-control" value="@DashboardActionTarget.Platform" disabled />
             </div>
             <button type="button" class="btn btn-outline-danger float-left" @onclick="ConfirmUnlink">Unlink</button>
 

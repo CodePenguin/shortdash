@@ -212,11 +212,11 @@ namespace ShortDash.Target.Services
                 return;
             }
             Linking = true;
-            var name = $"{Environment.MachineName} ({RuntimeInformation.OSDescription})";
             var parameters = new LinkTargetParameters
             {
                 PublicKey = encryptedChannelService.ExportPublicKey(),
-                Name = name,
+                Name = Environment.MachineName,
+                Platform = EnvironmentExtensions.Platform(),
                 TargetId = TargetId,
                 TargetLinkCode = targetLinkCode
             };
