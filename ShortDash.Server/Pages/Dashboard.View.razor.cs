@@ -25,24 +25,25 @@ namespace ShortDash.Server.Pages
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         private bool CanView { get; set; }
-
         private Dashboard Dashboard { get; set; }
-
         private Dictionary<string, object> DashboardAttributes { get; set; } = new Dictionary<string, object>();
-
         private List<DashboardCell> DashboardCells { get; } = new List<DashboardCell>();
-
         private EditContext DashboardEditContext { get; set; } = null;
-
         private bool EditMode { get; set; }
-
+        private bool IsLoading { get; set; }
         private string TextClass { get; set; } = "light";
 
         protected async override Task OnParametersSetAsync()
         {
+            IsLoading = true;
             DashboardId ??= 1;
             CanView = await CanViewDashboard();
             Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
+            if (Dashboard == null)
+            {
+                IsLoading = false;
+                return;
+            }
             DashboardEditContext = new EditContext(Dashboard);
             LoadDashboardCells();
 
@@ -53,6 +54,7 @@ namespace ShortDash.Server.Pages
 
             DashboardAttributes.Clear();
             RefreshStyles();
+            IsLoading = false;
         }
 
         private void CancelChanges()

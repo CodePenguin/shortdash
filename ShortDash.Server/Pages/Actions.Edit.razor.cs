@@ -38,7 +38,7 @@ namespace ShortDash.Server.Pages
         private DashboardActionService DashboardActionService { get; set; }
 
         private bool IsDataSignatureValid { get; set; }
-        private bool IsLoading => ActionEditContext == null;
+        private bool IsLoading { get; set; }
 
         private object Parameters { get; set; }
 
@@ -62,6 +62,7 @@ namespace ShortDash.Server.Pages
 
         protected async override Task OnParametersSetAsync()
         {
+            IsLoading = true;
             ActionEditContext = null;
             ParametersEditContext = null;
             IsDataSignatureValid = true;
@@ -83,7 +84,11 @@ namespace ShortDash.Server.Pages
                 Operation = "New";
                 await Task.Run(() => NewDashboardAction());
             }
-            ActionEditContext = new EditContext(DashboardAction);
+            if (DashboardAction != null)
+            {
+                ActionEditContext = new EditContext(DashboardAction);
+            }
+            IsLoading = false;
         }
 
         private void CancelChanges()
@@ -108,6 +113,10 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
+            if (DashboardAction == null)
+            {
+                return;
+            }
             IsDataSignatureValid = DashboardService.VerifySignature(DashboardAction);
             RefreshParameters();
         }
@@ -115,6 +124,10 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardActionCopy()
         {
             DashboardAction = await DashboardService.GetDashboardActionCopyAsync(DashboardActionId);
+            if (DashboardAction == null)
+            {
+                return;
+            }
             RefreshParameters();
         }
 

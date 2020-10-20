@@ -4,7 +4,17 @@
 @inherits PageBase
 
 <CascadingValue Value="DashboardService">
-    @if (Dashboard == null || !CanView)
+    @if (IsLoading)
+    {
+        <PageLoadingComponent />
+    }
+    else if (Dashboard == null)
+    {
+        <div class="page">
+            <h3 class="alert alert-danger">This dashboard does not seem to exist anymore.</h3>
+        </div>
+    }
+    else if (!CanView)
     {
         <div class="page">
             <div class="alert alert-danger">This device does not have access to this dashboard.</div>

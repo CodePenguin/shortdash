@@ -7,6 +7,12 @@
     {
         <PageLoadingComponent />
     }
+    else if (DashboardActionTarget == null)
+    {
+        <div class="page">
+            <h3 class="alert alert-danger">This target does not seem to exist anymore.</h3>
+        </div>
+    }
     else
     {
         <h3>@DashboardActionTarget.Name</h3>

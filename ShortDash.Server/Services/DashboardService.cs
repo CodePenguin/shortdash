@@ -125,6 +125,10 @@ namespace ShortDash.Server.Services
         {
             using var dbContext = dbContextFactory.CreateDbContext();
             var action = await GetDashboardActionAsync(dashboardActionId);
+            if (action == null)
+            {
+                return null;
+            }
             dbContext.Entry(action).State = EntityState.Detached;
             action.DashboardActionId = 0;
             foreach (var child in action.DashboardSubActionChildren)

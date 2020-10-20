@@ -21,29 +21,23 @@ namespace ShortDash.Server.Pages
 
         private DashboardActionTarget DashboardActionTarget { get; set; }
         private bool IsDataSignatureValid { get; set; }
-        private bool IsLoading => DashboardActionTarget == null;
+        private bool IsLoading { get; set; }
 
         [Inject]
         private TargetLinkService TargetLinkService { get; set; }
 
         protected async override Task OnParametersSetAsync()
         {
+            IsLoading = true;
             DashboardActionTarget = null;
             IsDataSignatureValid = true;
-            if (!string.IsNullOrWhiteSpace(DashboardActionTargetId))
+            if (DashboardActionTargetId == DashboardActionTarget.ServerTargetId)
             {
-                if (DashboardActionTargetId == DashboardActionTarget.ServerTargetId)
-                {
-                    NavigationManager.NavigateTo("/targets");
-                    return;
-                }
-
-                await LoadDashboardActionTarget();
+                NavigationManager.NavigateTo("/targets");
+                return;
             }
-            else
-            {
-                await Task.Run(() => NewDashboardActionTarget());
-            }
+            await LoadDashboardActionTarget();
+            IsLoading = false;
         }
 
         private void CancelChanges()
@@ -70,12 +64,11 @@ namespace ShortDash.Server.Pages
         private async Task LoadDashboardActionTarget()
         {
             DashboardActionTarget = await DashboardService.GetDashboardActionTargetAsync(DashboardActionTargetId);
+            if (DashboardActionTarget == null)
+            {
+                return;
+            }
             IsDataSignatureValid = DashboardService.VerifySignature(DashboardActionTarget);
-        }
-
-        private void NewDashboardActionTarget()
-        {
-            DashboardActionTarget = new DashboardActionTarget();
         }
 
         private async void SaveChanges()
@@ -84,14 +77,7 @@ namespace ShortDash.Server.Pages
             {
                 return;
             }
-            if (string.IsNullOrWhiteSpace(DashboardActionTarget.DashboardActionTargetId))
-            {
-                await DashboardService.AddDashboardActionTargetAsync(DashboardActionTarget);
-            }
-            else
-            {
-                await DashboardService.UpdateDashboardActionTargetAsync(DashboardActionTarget);
-            }
+            await DashboardService.UpdateDashboardActionTargetAsync(DashboardActionTarget);
             NavigationManager.NavigateTo("/targets");
         }
     }
