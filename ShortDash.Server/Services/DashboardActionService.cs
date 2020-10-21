@@ -32,39 +32,40 @@ namespace ShortDash.Server.Services
             this.toastService = toastService;
         }
 
-        public Task Execute(DashboardAction dashboardAction, bool toggleState)
+        public async Task Execute(DashboardAction dashboardAction, bool toggleState)
         {
             if (!dashboardService.VerifySignature(dashboardAction))
             {
                 toastService.ShowError("Invalid data signature.");
-                return Task.CompletedTask;
+                return;
             }
             // Forward targeted actions to the specific target
-            if (dashboardAction.DashboardActionTargetId != DashboardActionTarget.ServerTargetId)
+            var targetId = dashboardAction.DashboardActionTargetId;
+            var actionTypeName = dashboardAction.ActionTypeName;
+            var parameters = dashboardAction.Parameters;
+
+            try
             {
-                var targetId = dashboardAction.DashboardActionTargetId;
-                logger.LogDebug($"Forwarding action to Target {targetId}: {dashboardAction.ActionTypeName}");
-                var parameters = new ExecuteActionParameters
+                if (targetId != DashboardActionTarget.ServerTargetId)
                 {
-                    ActionTypeName = dashboardAction.ActionTypeName,
-                    Parameters = dashboardAction.Parameters,
-                    ToggleState = toggleState
-                };
-                var channelId = encryptedChannelService.GetChannelId(targetId);
-                if (channelId == null)
-                {
-                    toastService.ShowError($"The Target {targetId} is not connected.");
-                    return Task.CompletedTask;
+                    await ExecuteOnTarget(targetId, actionTypeName, parameters, toggleState);
+                    return;
                 }
-                var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, parameters);
-                return targetsHubContext.Clients.Groups(targetId).ExecuteAction(encryptedParameters);
+                // Handle non-targeted actions at the server
+                if (actionTypeName == typeof(DashGroupAction).FullName)
+                {
+                    await ExecuteGroupAction(dashboardAction);
+                    return;
+                }
+                await Execute(actionTypeName, parameters, toggleState);
+                return;
             }
-            // Handle non-targeted actions at the server
-            if (dashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
+            catch (Exception ex)
             {
-                return ExecuteGroupAction(dashboardAction);
+                logger.LogError(ex, "Exception executing action");
+                toastService.ShowError($"An error occurred while executing the action: {ex.Message}");
+                return;
             }
-            return Execute(dashboardAction.ActionTypeName, dashboardAction.Parameters, toggleState);
         }
 
         protected override void RegisterActions()
@@ -75,15 +76,34 @@ namespace ShortDash.Server.Services
             base.RegisterActions();
         }
 
-        private Task ExecuteGroupAction(DashboardAction dashboardAction)
+        private async Task ExecuteGroupAction(DashboardAction dashboardAction)
         {
             logger.LogDebug($"Executing Group Action: {dashboardAction.Label}");
             foreach (var subAction in dashboardAction.DashboardSubActionChildren)
             {
                 var toggleState = false;
-                Execute(subAction.DashboardActionChild, toggleState);
+                await Execute(subAction.DashboardActionChild, toggleState);
             }
-            return Task.CompletedTask;
+            return;
+        }
+
+        private Task ExecuteOnTarget(string targetId, string actionTypeName, string parameters, bool toggleState)
+        {
+            logger.LogDebug($"Forwarding action to Target {targetId}: {actionTypeName}");
+            var executeActionParameters = new ExecuteActionParameters
+            {
+                ActionTypeName = actionTypeName,
+                Parameters = parameters,
+                ToggleState = toggleState
+            };
+            var channelId = encryptedChannelService.GetChannelId(targetId);
+            if (channelId == null)
+            {
+                toastService.ShowError($"The Target {targetId} is not connected.");
+                return Task.CompletedTask;
+            }
+            var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, executeActionParameters);
+            return targetsHubContext.Clients.Groups(targetId).ExecuteAction(encryptedParameters);
         }
     }
 }
