@@ -147,7 +147,8 @@ namespace ShortDash.Server.Pages
             ActionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
             if (ActionAttribute != null && ActionAttribute.ParametersType != null)
             {
-                Parameters = JsonSerializer.Deserialize(DashboardAction.Parameters, ActionAttribute.ParametersType);
+                var serializedParameters = string.IsNullOrWhiteSpace(DashboardAction.Parameters) ? "{}" : DashboardService.UnprotectData<DashboardAction>(DashboardAction.Parameters);
+                Parameters = JsonSerializer.Deserialize(serializedParameters, ActionAttribute.ParametersType);
                 ParametersEditContext = new EditContext(Parameters);
             }
             else
@@ -188,7 +189,8 @@ namespace ShortDash.Server.Pages
                     return;
                 }
 
-                DashboardAction.Parameters = JsonSerializer.Serialize(Parameters);
+                var serializedParameters = JsonSerializer.Serialize(Parameters);
+                DashboardAction.Parameters = DashboardService.ProtectData<DashboardAction>(serializedParameters);
             }
 
             List<DashboardSubAction> subActionRemovalList = null;

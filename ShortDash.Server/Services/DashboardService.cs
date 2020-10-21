@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using ShortDash.Server.Data;
 using System;
@@ -10,13 +11,15 @@ namespace ShortDash.Server.Services
 {
     public class DashboardService
     {
+        private readonly IDataProtectionProvider dataProtectionProvider;
         private readonly DataSignatureManager dataSignatureManager;
         private readonly ApplicationDbContextFactory dbContextFactory;
 
-        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager)
+        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager, IDataProtectionProvider dataProtectionProvider)
         {
             this.dbContextFactory = dbContextFactory;
             this.dataSignatureManager = dataSignatureManager;
+            this.dataProtectionProvider = dataProtectionProvider;
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
@@ -193,6 +196,18 @@ namespace ShortDash.Server.Services
         {
             using var dbContext = dbContextFactory.CreateDbContext();
             return dbContext.Dashboards.ToListAsync();
+        }
+
+        public string ProtectData<T>(string data)
+        {
+            var protector = dataProtectionProvider.CreateProtector(typeof(T).Name);
+            return protector.Protect(data);
+        }
+
+        public string UnprotectData<T>(string data)
+        {
+            var protector = dataProtectionProvider.CreateProtector(typeof(T).Name);
+            return protector.Unprotect(data);
         }
 
         public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction, List<DashboardSubAction> subActionRemovalList = null)

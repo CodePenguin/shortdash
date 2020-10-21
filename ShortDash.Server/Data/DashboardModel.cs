@@ -58,7 +58,7 @@ namespace ShortDash.Server.Data
         [Required]
         public string Label { get; set; }
 
-        public string Parameters { get; set; } = "{}";
+        public string Parameters { get; set; }
     }
 
     public class DashboardActionTarget
