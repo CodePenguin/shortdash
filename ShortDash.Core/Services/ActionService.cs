@@ -32,6 +32,22 @@ namespace ShortDash.Core.Services
 
         private Dictionary<string, Type> ActionTypes { get; } = new Dictionary<string, Type>();
 
+        public static ShortDashActionAttribute GetActionAttribute(Type actionType)
+        {
+            return actionType?.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
+        }
+
+        public static ShortDashActionDefaultSettingsAttribute GetActionDefaultSettingsAttribute(Type actionType)
+        {
+            return actionType?.GetCustomAttribute<ShortDashActionDefaultSettingsAttribute>() ?? new ShortDashActionDefaultSettingsAttribute();
+        }
+
+        public static object GetActionParameters(Type actionType, string parameters)
+        {
+            var actionAttribute = GetActionAttribute(actionType);
+            return JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
+        }
+
         public Task<ActionResult> Execute(string actionTypeName, string parameters, bool toggleState)
         {
             var actionType = FindActionType(actionTypeName);
@@ -85,26 +101,10 @@ namespace ShortDash.Core.Services
             return GetActionAttribute(actionType);
         }
 
-        public ShortDashActionAttribute GetActionAttribute(Type actionType)
-        {
-            return actionType?.GetCustomAttribute<ShortDashActionAttribute>() ?? new ShortDashActionAttribute();
-        }
-
-        public ShortDashActionDefaultSettingsAttribute GetActionDefaultSettingsAttribute(Type actionType)
-        {
-            return actionType?.GetCustomAttribute<ShortDashActionDefaultSettingsAttribute>() ?? new ShortDashActionDefaultSettingsAttribute();
-        }
-
         public ShortDashActionDefaultSettingsAttribute GetActionDefaultSettingsAttribute(string actionTypeName)
         {
             var actionType = FindActionType(actionTypeName);
             return GetActionDefaultSettingsAttribute(actionType);
-        }
-
-        public object GetActionParameters(Type actionType, string parameters)
-        {
-            var actionAttribute = GetActionAttribute(actionType);
-            return JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
         }
 
         public IList<Type> GetActionTypes()

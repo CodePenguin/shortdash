@@ -32,6 +32,16 @@ namespace ShortDash.Core.Services
 
         protected abstract string KeyPurpose { get; }
 
+        public static string LocalEncryptForPublicKey(string publicKey, string data)
+        {
+            using var publicRsa = RSA.Create();
+            publicRsa.ImportPublicKey(publicKey);
+            using var aes = Aes.Create();
+            var encryptedKey = publicRsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
+            var encryptedData = aes.Encrypt(data);
+            return Convert.ToBase64String(encryptedKey) + CommandDelimiter + Convert.ToBase64String(encryptedData);
+        }
+
         public void CloseChannel(string channelId)
         {
             if (!string.IsNullOrWhiteSpace(channelId))
@@ -128,16 +138,6 @@ namespace ShortDash.Core.Services
         public void ImportPrivateKey(string privateKey)
         {
             rsa.ImportPrivateKey(privateKey);
-        }
-
-        public string LocalEncryptForPublicKey(string publicKey, string data)
-        {
-            using var publicRsa = RSA.Create();
-            publicRsa.ImportPublicKey(publicKey);
-            using var aes = Aes.Create();
-            var encryptedKey = publicRsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
-            var encryptedData = aes.Encrypt(data);
-            return Convert.ToBase64String(encryptedKey) + CommandDelimiter + Convert.ToBase64String(encryptedData);
         }
 
         public string LocalEncryptForPublicKey(string publicKey, object parameters)

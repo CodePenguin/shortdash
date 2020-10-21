@@ -29,10 +29,8 @@ namespace ShortDash.Plugins.Core.Common
                 request.ContentType = !string.IsNullOrWhiteSpace(parameters.ContentType) ? parameters.ContentType : GetDefaultContentType(request.Method);
                 if (!string.IsNullOrEmpty(parameters.Data))
                 {
-                    using (var writer = new StreamWriter(request.GetRequestStream()))
-                    {
-                        writer.Write(parameters.Data);
-                    }
+                    using var writer = new StreamWriter(request.GetRequestStream());
+                    writer.Write(parameters.Data);
                 }
                 request.GetResponse();
                 return true;
