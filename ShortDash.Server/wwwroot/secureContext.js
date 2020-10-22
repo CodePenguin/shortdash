@@ -2,25 +2,35 @@
     // Internal functions
     var _ = {
         getClientPublicKey: function () {
-            return localStorage.getItem("SecureContextClientPublicKey");
+            var privateKey = this.getClientPrivateKey();
+            if (privateKey === null) return null;
+            var publicKey = forge.pki.rsa.setPublicKey(privateKey.n, privateKey.e);
+            var publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+            return publicKeyPem;
         },
 
         getClientPrivateKey: function () {
-            return localStorage.getItem("SecureContextClientPrivateKey");
+            var privateKey = localStorage.getItem("SecureContextClientPrivateKey");
+            if (privateKey === null) return null;
+            return forge.pki.decryptRsaPrivateKey(privateKey, _.getClientUniqueId());
+        },
+
+        getClientUniqueId: function () {
+            var data = localStorage.getItem("SecureContextClientUniqueId");
+            return forge.util.decode64(data);
         },
 
         getServerPublicKey: function () {
-            return localStorage.getItem("SecureContextServerPublicKey");
+            return sessionStorage.getItem("SecureContextServerPublicKey");
         },
 
-        getSessionkey: function () {
+        getSessionKey: function () {
             var key = sessionStorage.getItem("SecureContextSessionKey");
             return forge.util.decode64(key);
         },
 
         rsaDecrypt: function (value) {
-            var privateKeyPem = this.getClientPrivateKey();
-            var privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+            var privateKey = this.getClientPrivateKey();
             var decodedBytes = forge.util.decode64(value);
             return privateKey.decrypt(decodedBytes);
         },
@@ -38,17 +48,17 @@
         },
 
         setServerPublicKey: function (publicKey) {
-            localStorage.setItem("SecureContextServerPublicKey", publicKey);
+            sessionStorage.setItem("SecureContextServerPublicKey", publicKey);
         },
     };
 
     // Initialize context
     if (_.getClientPublicKey() === null) {
+        var uniqueId = forge.random.getBytesSync(256);
         var keypair = forge.pki.rsa.generateKeyPair({ bits: 2048, e: 0x10001 });
-        var privateKey = forge.pki.privateKeyToPem(keypair.privateKey);
-        var publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
+        var privateKey = forge.pki.encryptRsaPrivateKey(keypair.privateKey, uniqueId);
+        localStorage.setItem("SecureContextClientUniqueId", forge.util.encode64(uniqueId));
         localStorage.setItem("SecureContextClientPrivateKey", privateKey);
-        localStorage.setItem("SecureContextClientPublicKey", publicKey);
     }
 
     // Public functions
@@ -71,7 +81,7 @@
             var iv = forge.util.hexToBytes(dataHex.slice(0, 32));
             var encryptedBytes = forge.util.hexToBytes(dataHex.slice(32));
             var buffer = forge.util.createBuffer(encryptedBytes, "raw");
-            var decipher = forge.cipher.createDecipher("AES-CBC", _.getSessionkey());
+            var decipher = forge.cipher.createDecipher("AES-CBC", _.getSessionKey());
             decipher.start({ iv: iv });
             decipher.update(buffer);
             decipher.finish();
@@ -81,7 +91,7 @@
         encrypt: function (data) {
             var buffer = forge.util.createBuffer(data, "utf8");
             var iv = forge.random.getBytesSync(16);
-            var cipher = forge.cipher.createCipher("AES-CBC", _.getSessionkey());
+            var cipher = forge.cipher.createCipher("AES-CBC", _.getSessionKey());
             cipher.start({ iv: iv });
             cipher.update(buffer);
             cipher.finish();
