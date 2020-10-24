@@ -10,7 +10,13 @@ namespace ShortDash.Plugins.Core.Windows
 
         private const uint KeyEventKeyUp = 0x0002;
 
-        public abstract bool Execute(object parametersObject, ref bool toggleState);
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
+        {
+            ExecuteKeyboardAction();
+            return new ShortDashActionResult { Success = true, ToggleState = toggleState };
+        }
+
+        public abstract void ExecuteKeyboardAction();
 
         protected static void PressKey(byte keyCode)
         {

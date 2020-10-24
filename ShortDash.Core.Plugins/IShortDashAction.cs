@@ -2,6 +2,6 @@
 {
     public interface IShortDashAction
     {
-        bool Execute(object parameters, ref bool toggleState);
+        ShortDashActionResult Execute(object parameters, bool toggleState);
     }
 }

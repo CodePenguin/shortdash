@@ -1,5 +1,9 @@
 ﻿using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http.Features;
+using ShortDash.Core.Models;
+using ShortDash.Core.Plugins;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -12,8 +16,10 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public partial class DashboardActionButton : ComponentBase
+    public sealed partial class DashboardActionButton : ComponentBase
     {
+        private List<Guid> pendingRequests = new List<Guid>();
+
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
 
@@ -21,7 +27,13 @@ namespace ShortDash.Server.Components
         public bool EditMode { get; set; }
 
         [Inject]
+        protected IToastService ToastService { get; set; }
+
+        [Inject]
         private DashboardActionService DashboardActionService { get; set; }
+
+        [Inject]
+        private DashboardService DashboardService { get; set; }
 
         private bool IsExecuting { get; set; } = false;
 
@@ -35,11 +47,26 @@ namespace ShortDash.Server.Components
 
         private bool ToggleState { get; set; } = false;
 
+        public void Dispose()
+        {
+            CancelPendingRequests();
+        }
+
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
             IsExecuting = false;
             ToggleState = false;
+            CancelPendingRequests();
+        }
+
+        private void CancelPendingRequests()
+        {
+            foreach (var requestId in pendingRequests)
+            {
+                DashboardActionService.CancelExecuteActionRequest(requestId);
+            }
+            pendingRequests.Clear();
         }
 
         // TODO: Implement toggle functionality
@@ -52,14 +79,16 @@ namespace ShortDash.Server.Components
 
             IsExecuting = true;
             ToggleState = !IsToggle || !ToggleState;
-
             if (DashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
             {
                 await ExecuteDashGroupAction();
             }
             else
             {
-                await DashboardActionService.Execute(DashboardAction, ToggleState);
+                var requestId = Guid.NewGuid();
+                pendingRequests.Add(requestId);
+                var result = await DashboardActionService.Execute(requestId, DashboardAction, ToggleState);
+                HandleActionExecutedResult(result);
             }
 
             // Intentional delay so the execution indicator has time to display for super fast operations
@@ -71,14 +100,44 @@ namespace ShortDash.Server.Components
         private async Task ExecuteDashGroupAction()
         {
             var actionType = DashboardActionService.FindActionType(typeof(DashGroupAction).FullName);
-            var parameters = DashboardActionService.GetActionParameters(actionType, DashboardAction.Parameters) as DashGroupParameters;
+            var decryptedParameters = string.IsNullOrWhiteSpace(DashboardAction.Parameters) ? "{}" : DashboardService.UnprotectData<DashboardAction>(DashboardAction.Parameters);
+            var parameters = DashboardActionService.GetActionParameters(actionType, decryptedParameters) as DashGroupParameters;
             if (parameters.DashGroupType == DashGroupType.Folder)
             {
                 await DashGroupActionDialog.ShowAsync(ModalService, DashboardAction);
             }
             else if (parameters.DashGroupType == DashGroupType.List)
             {
-                await DashboardActionService.Execute(DashboardAction, ToggleState);
+                var tasks = new List<Task<ShortDashActionResult>>();
+                foreach (var subAction in DashboardAction.DashboardSubActionChildren)
+                {
+                    var toggleState = false;
+                    var requestId = Guid.NewGuid();
+                    pendingRequests.Add(requestId);
+                    var task = DashboardActionService.Execute(requestId, subAction.DashboardActionChild, toggleState);
+                    tasks.Add(task);
+                }
+                var results = await Task.WhenAll(tasks.ToArray());
+                foreach (var result in results)
+                {
+                    HandleActionExecutedResult(result);
+                }
+            }
+        }
+
+        private void HandleActionExecutedResult(ShortDashActionResult result)
+        {
+            if (string.IsNullOrEmpty(result.UserMessage))
+            {
+                return;
+            }
+            if (result.Success)
+            {
+                ToastService.ShowSuccess(result.UserMessage);
+            }
+            else
+            {
+                ToastService.ShowError(result.UserMessage);
             }
         }
 

@@ -9,9 +9,9 @@ namespace ShortDash.Server.Actions
         Label = "Separator")]
     public class DashSeparatorAction : IShortDashAction
     {
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
-            return true;
+            return new ShortDashActionResult { Success = true, ToggleState = toggleState };
         }
     }
 }

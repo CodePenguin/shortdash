@@ -19,7 +19,7 @@ namespace ShortDash.Plugins.Core.Common
             this.logger = logger;
         }
 
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
             var parameters = parametersObject as WebRequestParameters;
             try
@@ -33,12 +33,12 @@ namespace ShortDash.Plugins.Core.Common
                     writer.Write(parameters.Data);
                 }
                 request.GetResponse();
-                return true;
+                return new ShortDashActionResult { Success = true, ToggleState = toggleState };
             }
             catch (Exception ex)
             {
                 logger.LogError($"Web Request Error: {ex.Message}");
-                return false;
+                return new ShortDashActionResult { UserMessage = ex.Message };
             }
         }
 

@@ -27,13 +27,24 @@ namespace ShortDash.Server.Services
         private readonly TargetLinkService targetLinkService;
 
         public TargetsHub(ILogger<TargetsHub> logger, ILoggerFactory loggerFactory, IEncryptedChannelService encryptedChannelService,
-            DashboardService dashboardService, TargetLinkService targetLinkService)
+             DashboardService dashboardService, TargetLinkService targetLinkService)
         {
             this.logger = logger;
             this.loggerFactory = loggerFactory;
             this.encryptedChannelService = encryptedChannelService;
             this.dashboardService = dashboardService;
             this.targetLinkService = targetLinkService;
+        }
+
+        public Task ActionExecuted(string encryptedParameters)
+        {
+            var channelId = GetChannelId();
+            if (channelId == null || !encryptedChannelService.TryDecryptVerify<ActionExecutedParameters>(channelId, encryptedParameters, out var parameters))
+            {
+                return default;
+            }
+            DashboardActionService.HandleActionExecuted(parameters.RequestId, parameters.Result);
+            return Task.CompletedTask;
         }
 
         public async Task Authenticate(string challengeResponse)

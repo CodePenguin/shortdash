@@ -23,11 +23,11 @@ namespace ShortDash.Server.Actions
             this.navigationManager = navigationManager;
         }
 
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
             var parameters = parametersObject as DashLinkParameters;
             navigationManager.NavigateTo($"/dashboard/{parameters.DashboardId}");
-            return true;
+            return new ShortDashActionResult { Success = true, ToggleState = toggleState };
         }
 
         private class DashLinkParameters

@@ -17,11 +17,10 @@ namespace ShortDash.Plugins.Core.Windows
             this.logger = logger;
         }
 
-        public override bool Execute(object parametersObject, ref bool toggleState)
+        public override void ExecuteKeyboardAction()
         {
             logger.LogDebug("Sending mute volume keyboard events.");
             PressKey(0xAD /* VK_VOLUME_MUTE */);
-            return true;
         }
     }
 }

@@ -10,12 +10,6 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Core.Services
 {
-    public struct ActionResult
-    {
-        public bool Success;
-        public bool ToggleState;
-    }
-
     public class ActionService
     {
         private readonly ILogger logger;
@@ -48,21 +42,29 @@ namespace ShortDash.Core.Services
             return JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
         }
 
-        public Task<ActionResult> Execute(string actionTypeName, string parameters, bool toggleState)
+        public Task<ShortDashActionResult> Execute(string actionTypeName, string parameters, bool toggleState)
         {
             var actionType = FindActionType(actionTypeName);
             if (actionType == null)
             {
-                logger.LogError($"Unregistered action type: {actionTypeName}");
-                return Task.FromResult(new ActionResult { Success = false, ToggleState = toggleState });
+                var errorMessage = $"Unregistered action type: {actionTypeName}";
+                logger.LogError(errorMessage);
+                return Task.FromResult(new ShortDashActionResult { UserMessage = errorMessage });
             }
             logger.LogDebug($"Executing action: {actionType.FullName}");
             return Task.Run(() =>
             {
                 var action = GetAction(actionType);
                 var parametersObject = GetActionParameters(action.GetType(), parameters);
-                var success = action.Execute(parametersObject, ref toggleState);
-                return new ActionResult { Success = success, ToggleState = toggleState };
+                try
+                {
+                    return action.Execute(parametersObject, toggleState);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"Error while executing action: {actionTypeName}");
+                    return new ShortDashActionResult { UserMessage = ex.Message };
+                }
             });
         }
 

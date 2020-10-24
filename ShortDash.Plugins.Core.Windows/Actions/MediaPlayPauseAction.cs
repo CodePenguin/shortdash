@@ -17,11 +17,10 @@ namespace ShortDash.Plugins.Core.Windows
             this.logger = logger;
         }
 
-        public override bool Execute(object parametersObject, ref bool toggleState)
+        public override void ExecuteKeyboardAction()
         {
             logger.LogDebug("Sending play/pause keyboard events.");
             PressKey(0xB3 /* VK_MEDIA_PLAY_PAUSE */);
-            return true;
         }
     }
 }

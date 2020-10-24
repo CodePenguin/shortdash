@@ -1,4 +1,5 @@
 ﻿using ShortDash.Core.Plugins;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
@@ -17,11 +18,9 @@ namespace ShortDash.Plugins.Core.Common
             this.logger = logger;
         }
 
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
             var parameters = parametersObject as ExecuteProcessParameters;
-
-            logger.LogDebug($"Executing {parameters.FileName}.");
             using var process = new Process();
             process.StartInfo.FileName = parameters.FileName;
             process.StartInfo.Arguments = parameters.Arguments;
@@ -29,9 +28,18 @@ namespace ShortDash.Plugins.Core.Common
             process.StartInfo.WorkingDirectory = parameters.WorkingDirectory;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
             process.StartInfo.UseShellExecute = true;
-            process.Start();
-            // TODO: Handle ExecuteProcess error scenarios
-            return true;
+            try
+            {
+                process.Start();
+                process.WaitForExit();
+                logger.LogDebug($"Process exited with code {process.ExitCode}");
+                return new ShortDashActionResult { Success = true, ToggleState = toggleState };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Unable to execute process: {ex}");
+                return new ShortDashActionResult { UserMessage = ex.Message };
+            }
         }
     }
 

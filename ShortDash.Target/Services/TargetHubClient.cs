@@ -309,8 +309,14 @@ namespace ShortDash.Target.Services
                 logger.LogError("Invalid ExecuteAction parameters");
                 return;
             }
-            var result = await actionService.Execute(parameters.ActionTypeName, parameters.Parameters, parameters.ToggleState);
-            // TODO: Send the result back to the server
+            var resultParameters = new ActionExecutedParameters
+            {
+                RequestId = parameters.RequestId,
+                Result = await actionService.Execute(parameters.ActionTypeName, parameters.Parameters, parameters.ToggleState)
+            };
+            logger.LogDebug($"Sending action result for: {parameters.ActionTypeName}");
+            encryptedParameters = EncryptParameters(resultParameters);
+            await connection.SendAsync("ActionExecuted", encryptedParameters);
         }
 
         private string GetServerId(string publicKey)

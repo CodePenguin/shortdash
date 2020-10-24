@@ -24,10 +24,10 @@ namespace ShortDash.Server.Actions
         Icon = "fas fa-project-diagram")]
     public class DashGroupAction : IShortDashAction
     {
-        public bool Execute(object parametersObject, ref bool toggleState)
+        public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
             // Intentionally left blank as this type of action is handled in the DashboardActionService
-            return true;
+            return new ShortDashActionResult { Success = true, ToggleState = toggleState };
         }
     }
 
