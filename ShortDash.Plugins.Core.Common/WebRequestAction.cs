@@ -30,6 +30,7 @@ namespace ShortDash.Plugins.Core.Common
         [Display(
             Name = "Data",
             Order = 4)]
+        [FormInput(TypeName = "InputTextArea")]
         public string Data { get; set; } = null;
 
         [Display(

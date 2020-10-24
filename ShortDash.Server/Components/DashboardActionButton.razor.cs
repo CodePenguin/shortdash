@@ -31,9 +31,6 @@ namespace ShortDash.Server.Components
         private bool ToggleState => IsToggle && DashboardAction.ToggleState;
 
         [Inject]
-        protected IToastService ToastService { get; set; }
-
-        [Inject]
         private DashboardActionService DashboardActionService { get; set; }
 
         [Inject]
@@ -48,6 +45,9 @@ namespace ShortDash.Server.Components
 
         [CascadingParameter]
         private ISecureContext SecureContext { get; set; }
+
+        [Inject]
+        private IToastService ToastService { get; set; }
 
         public void Dispose()
         {

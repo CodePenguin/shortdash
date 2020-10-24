@@ -33,7 +33,7 @@ namespace ShortDash.Server.Actions
         private class DashLinkParameters
         {
             [Display(Name = "Dashboard")]
-            [FormInput(Type = typeof(DashboardInputSelect))]
+            [FormInput(TypeName = nameof(DashboardInputSelect))]
             public int DashboardId { get; set; }
         }
     }

@@ -10,6 +10,7 @@ namespace ShortDash.Server.Components
     public class FormGeneratorPropertyMapper
     {
         private readonly Dictionary<string, Type> componentMappings = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> componentsList = new Dictionary<string, Type>();
 
         public FormGeneratorPropertyMapper()
         {
@@ -23,11 +24,27 @@ namespace ShortDash.Server.Components
                     { typeof(Color).ToString(), typeof(InputColor) },
                     { typeof(Enum).ToString(), typeof(EnumInputSelect<>) }
                 };
+
+            componentsList = new Dictionary<string, Type>()
+                {
+                    { nameof(DashboardInputSelect), typeof(DashboardInputSelect) },
+                    { nameof(InputTextArea), typeof(InputTextArea) }
+                };
         }
 
-        public Type GetComponent(string key)
+        public Type GetComponentByName(string componentName)
         {
-            componentMappings.TryGetValue(key, out var component);
+            if (string.IsNullOrWhiteSpace(componentName))
+            {
+                return null;
+            }
+            componentsList.TryGetValue(componentName, out var component);
+            return component;
+        }
+
+        public Type GetComponentByType(string typeName)
+        {
+            componentMappings.TryGetValue(typeName, out var component);
             return component;
         }
     }
