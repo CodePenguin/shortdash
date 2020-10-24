@@ -1,9 +1,9 @@
 ﻿<a href="" @onclick="ExecuteAction" @onclick:preventDefault>
-    <DashboardActionIcon DashboardAction="@DashboardAction" IsExecuting="IsExecuting" ToggleState="ToggleState" />
+    <DashboardActionIcon DashboardAction="DashboardAction" IsExecuting="IsExecuting" ToggleState="DashboardAction.ToggleState" />
 </a>
 @if (ShouldShowCaption())
 {
     <div class="grid-icon-caption">
-        @DashboardAction.Label
+        @Label
     </div>
 }

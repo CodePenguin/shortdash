@@ -16,7 +16,7 @@ namespace ShortDash.Server.Services
 {
     public class DashboardActionService : ActionService
     {
-        private static readonly ConcurrentDictionary<Guid, TaskCompletionSource<ShortDashActionResult>> PendingExecutionActionRequests = new ConcurrentDictionary<Guid, TaskCompletionSource<ShortDashActionResult>>();
+        private static readonly ConcurrentDictionary<Guid, ShortDashActionResultCallback> PendingExecuteActionRequests = new ConcurrentDictionary<Guid, ShortDashActionResultCallback>();
         private readonly DashboardService dashboardService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly ILogger<ActionService> logger;
@@ -32,27 +32,28 @@ namespace ShortDash.Server.Services
             this.dashboardService = dashboardService;
         }
 
+        public delegate void ShortDashActionResultCallback(Guid requestId, ShortDashActionResult result);
+
         public static void CancelExecuteActionRequest(Guid requestId)
         {
-            if (PendingExecutionActionRequests.TryRemove(requestId, out var taskSource))
-            {
-                taskSource.TrySetCanceled();
-            }
+            PendingExecuteActionRequests.TryRemove(requestId, out _);
         }
 
         public static void HandleActionExecuted(Guid requestId, ShortDashActionResult result)
         {
-            if (PendingExecutionActionRequests.TryRemove(requestId, out var taskSource))
+            if (PendingExecuteActionRequests.TryRemove(requestId, out var callback))
             {
-                taskSource.SetResult(result);
+                callback.Invoke(requestId, result);
             }
         }
 
-        public async Task<ShortDashActionResult> Execute(Guid requestId, DashboardAction dashboardAction, bool toggleState)
+        public void Execute(Guid requestId, DashboardAction dashboardAction, bool toggleState, ShortDashActionResultCallback callback)
         {
+            RegisterExecuteActionRequest(requestId, callback);
             if (!dashboardService.VerifySignature(dashboardAction))
             {
-                return new ShortDashActionResult { UserMessage = "Invalid data signature" };
+                HandleActionExecuted(requestId, new ShortDashActionResult { UserMessage = "Invalid data signature" });
+                return;
             }
 
             try
@@ -64,18 +65,17 @@ namespace ShortDash.Server.Services
                 // Forward targeted actions to the specific target
                 if (targetId != DashboardActionTarget.ServerTargetId)
                 {
-                    var taskCompletionSource = RegisterExecutionActionRequest(requestId);
-                    await ExecuteOnTarget(requestId, targetId, actionTypeName, parameters, toggleState);
-                    return await taskCompletionSource.Task;
+                    ExecuteOnTarget(requestId, targetId, actionTypeName, parameters, toggleState);
+                    return;
                 }
                 // Execute actions on the server
-                return await Execute(actionTypeName, parameters, toggleState);
+                var result = Execute(actionTypeName, parameters, toggleState);
+                HandleActionExecuted(requestId, result);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Exception executing action");
-                CancelExecuteActionRequest(requestId);
-                return new ShortDashActionResult { UserMessage = $"An error occurred while executing the action: {ex.Message}" };
+                HandleActionExecuted(requestId, new ShortDashActionResult { UserMessage = $"An error occurred while executing the action: {ex.Message}" });
             }
         }
 
@@ -97,14 +97,12 @@ namespace ShortDash.Server.Services
             HandleActionExecuted(requestId, result);
         }
 
-        private static TaskCompletionSource<ShortDashActionResult> RegisterExecutionActionRequest(Guid requestId)
+        private static void RegisterExecuteActionRequest(Guid requestId, ShortDashActionResultCallback callback)
         {
-            var taskCompletionSource = new TaskCompletionSource<ShortDashActionResult>();
-            PendingExecutionActionRequests[requestId] = taskCompletionSource;
-            return taskCompletionSource;
+            PendingExecuteActionRequests[requestId] = callback;
         }
 
-        private async Task ExecuteOnTarget(Guid requestId, string targetId, string actionTypeName, string parameters, bool toggleState)
+        private async void ExecuteOnTarget(Guid requestId, string targetId, string actionTypeName, string parameters, bool toggleState)
         {
             var target = await dashboardService.GetDashboardActionTargetAsync(targetId);
             if (target == null)

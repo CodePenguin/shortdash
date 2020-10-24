@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ShortDash.Core.Services
 {
@@ -42,30 +41,27 @@ namespace ShortDash.Core.Services
             return JsonSerializer.Deserialize(parameters, actionAttribute.ParametersType ?? typeof(object));
         }
 
-        public Task<ShortDashActionResult> Execute(string actionTypeName, string parameters, bool toggleState)
+        public ShortDashActionResult Execute(string actionTypeName, string parameters, bool toggleState)
         {
             var actionType = FindActionType(actionTypeName);
             if (actionType == null)
             {
                 var errorMessage = $"Unregistered action type: {actionTypeName}";
                 logger.LogError(errorMessage);
-                return Task.FromResult(new ShortDashActionResult { UserMessage = errorMessage });
+                return new ShortDashActionResult { UserMessage = errorMessage };
             }
             logger.LogDebug($"Executing action: {actionType.FullName}");
-            return Task.Run(() =>
+            var action = GetAction(actionType);
+            var parametersObject = GetActionParameters(action.GetType(), parameters);
+            try
             {
-                var action = GetAction(actionType);
-                var parametersObject = GetActionParameters(action.GetType(), parameters);
-                try
-                {
-                    return action.Execute(parametersObject, toggleState);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"Error while executing action: {actionTypeName}");
-                    return new ShortDashActionResult { UserMessage = ex.Message };
-                }
-            });
+                return action.Execute(parametersObject, toggleState);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Error while executing action: {actionTypeName}");
+                return new ShortDashActionResult { UserMessage = ex.Message };
+            }
         }
 
         public Type FindActionType(string actionTypeName)

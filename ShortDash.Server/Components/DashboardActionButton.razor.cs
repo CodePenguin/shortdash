@@ -18,13 +18,17 @@ namespace ShortDash.Server.Components
 {
     public sealed partial class DashboardActionButton : ComponentBase
     {
-        private List<Guid> pendingRequests = new List<Guid>();
+        private readonly Dictionary<Guid, DashboardAction> pendingRequests = new Dictionary<Guid, DashboardAction>();
 
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
 
         [Parameter]
         public bool EditMode { get; set; }
+
+        private string Label => ToggleState ? DashboardAction.ToggleLabel : DashboardAction.Label;
+
+        private bool ToggleState => IsToggle && DashboardAction.ToggleState;
 
         [Inject]
         protected IToastService ToastService { get; set; }
@@ -45,8 +49,6 @@ namespace ShortDash.Server.Components
         [CascadingParameter]
         private ISecureContext SecureContext { get; set; }
 
-        private bool ToggleState { get; set; } = false;
-
         public void Dispose()
         {
             CancelPendingRequests();
@@ -56,20 +58,21 @@ namespace ShortDash.Server.Components
         {
             base.OnParametersSet();
             IsExecuting = false;
-            ToggleState = false;
             CancelPendingRequests();
+
+            var actionAttribute = DashboardActionService.GetActionAttribute(DashboardAction.ActionTypeName);
+            IsToggle = actionAttribute.Toggle;
         }
 
         private void CancelPendingRequests()
         {
-            foreach (var requestId in pendingRequests)
+            foreach (var requestId in pendingRequests.Keys)
             {
                 DashboardActionService.CancelExecuteActionRequest(requestId);
             }
             pendingRequests.Clear();
         }
 
-        // TODO: Implement toggle functionality
         private async void ExecuteAction()
         {
             if (EditMode || IsExecuting || !await SecureContext.ValidateUserAsync())
@@ -78,7 +81,6 @@ namespace ShortDash.Server.Components
             }
 
             IsExecuting = true;
-            ToggleState = !IsToggle || !ToggleState;
             if (DashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
             {
                 await ExecuteDashGroupAction();
@@ -86,15 +88,9 @@ namespace ShortDash.Server.Components
             else
             {
                 var requestId = Guid.NewGuid();
-                pendingRequests.Add(requestId);
-                var result = await DashboardActionService.Execute(requestId, DashboardAction, ToggleState);
-                HandleActionExecutedResult(result);
+                pendingRequests.Add(requestId, DashboardAction);
+                DashboardActionService.Execute(requestId, DashboardAction, ToggleState, HandleActionExecutedResultCallback);
             }
-
-            // Intentional delay so the execution indicator has time to display for super fast operations
-            await Task.Delay(100);
-            IsExecuting = false;
-            StateHasChanged();
         }
 
         private async Task ExecuteDashGroupAction()
@@ -108,37 +104,45 @@ namespace ShortDash.Server.Components
             }
             else if (parameters.DashGroupType == DashGroupType.List)
             {
-                var tasks = new List<Task<ShortDashActionResult>>();
                 foreach (var subAction in DashboardAction.DashboardSubActionChildren)
                 {
-                    var toggleState = false;
+                    var subDashboardAction = subAction.DashboardActionChild;
+                    var subIsToggle = DashboardActionService.GetActionAttribute(subDashboardAction.ActionTypeName).Toggle;
+                    var subToggleState = subIsToggle && subDashboardAction.ToggleState;
                     var requestId = Guid.NewGuid();
-                    pendingRequests.Add(requestId);
-                    var task = DashboardActionService.Execute(requestId, subAction.DashboardActionChild, toggleState);
-                    tasks.Add(task);
-                }
-                var results = await Task.WhenAll(tasks.ToArray());
-                foreach (var result in results)
-                {
-                    HandleActionExecutedResult(result);
+                    pendingRequests[requestId] = subDashboardAction;
+                    DashboardActionService.Execute(requestId, subDashboardAction, subToggleState, HandleActionExecutedResultCallback);
                 }
             }
         }
 
-        private void HandleActionExecutedResult(ShortDashActionResult result)
+        private async void HandleActionExecutedResult(Guid requestId, ShortDashActionResult result)
         {
-            if (string.IsNullOrEmpty(result.UserMessage))
+            if (!string.IsNullOrEmpty(result.UserMessage))
             {
-                return;
+                if (result.Success)
+                {
+                    ToastService.ShowSuccess(result.UserMessage);
+                }
+                else
+                {
+                    ToastService.ShowError(result.UserMessage);
+                }
             }
-            if (result.Success)
+            if (pendingRequests.TryGetValue(requestId, out var dashboardAction) && result.Success)
             {
-                ToastService.ShowSuccess(result.UserMessage);
+                dashboardAction.ToggleState = result.ToggleState;
+                await DashboardService.UpdateDashboardActionAsync(dashboardAction);
             }
-            else
-            {
-                ToastService.ShowError(result.UserMessage);
-            }
+            // Intentional delay so the execution indicator has time to display for super fast operations
+            await Task.Delay(100);
+            IsExecuting = pendingRequests.Count == 0;
+            StateHasChanged();
+        }
+
+        private void HandleActionExecutedResultCallback(Guid requestId, ShortDashActionResult result)
+        {
+            InvokeAsync(() => HandleActionExecutedResult(requestId, result));
         }
 
         private bool ShouldShowCaption()

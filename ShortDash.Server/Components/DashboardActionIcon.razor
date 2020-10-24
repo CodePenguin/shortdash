@@ -8,20 +8,20 @@
 }
 else
 {
-    <div class="grid-icon rounded text-center text-@TextClass @GetActiveStateClass()" @attributes="CellAttributes">
+    <div class="grid-icon rounded text-center text-@TextClass" @attributes="CellAttributes">
         <div class="grid-icon-content d-table-cell align-middle">
             @if (HasIcon())
             {
-                <span class="icon @DashboardAction.Icon"></span>
+                <span class="icon @Icon"></span>
             }
             else if (HasImage())
             {
-                <img src="/assets/@DashboardAction.Icon" alt="@DashboardAction.Label" class="rounded" />
+                <img src="/assets/@Icon" alt="@Label" class="rounded" />
             }
             else
             {
                 <span>
-                    @DashboardAction.Label
+                    @Label
                 </span>
             }
         </div>

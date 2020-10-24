@@ -1,8 +1,5 @@
 ﻿using ShortDash.Core.Plugins;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Net;
 
 namespace ShortDash.Plugins.Core.Common
 {
@@ -10,41 +7,16 @@ namespace ShortDash.Plugins.Core.Common
             Title = "Web Request",
             Description = "Execute a web request.",
             ParametersType = typeof(WebRequestParameters))]
-    public class WebRequestAction : IShortDashAction
+    public class WebRequestAction : WebRequestActionBase, IShortDashAction
     {
-        private readonly IShortDashPluginLogger<WebRequestAction> logger;
-
-        public WebRequestAction(IShortDashPluginLogger<WebRequestAction> logger)
+        public WebRequestAction(IShortDashPluginLogger<WebRequestAction> logger) : base(logger)
         {
-            this.logger = logger;
         }
 
         public ShortDashActionResult Execute(object parametersObject, bool toggleState)
         {
             var parameters = parametersObject as WebRequestParameters;
-            try
-            {
-                var request = WebRequest.Create(parameters.Url);
-                request.Method = parameters.Method?.ToUpper();
-                request.ContentType = !string.IsNullOrWhiteSpace(parameters.ContentType) ? parameters.ContentType : GetDefaultContentType(request.Method);
-                if (!string.IsNullOrEmpty(parameters.Data))
-                {
-                    using var writer = new StreamWriter(request.GetRequestStream());
-                    writer.Write(parameters.Data);
-                }
-                request.GetResponse();
-                return new ShortDashActionResult { Success = true, ToggleState = toggleState };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Web Request Error: {ex.Message}");
-                return new ShortDashActionResult { UserMessage = ex.Message };
-            }
-        }
-
-        private string GetDefaultContentType(string method)
-        {
-            return !method.Equals("GET") ? "application/x-www-form-urlencoded" : "";
+            return ExecuteWebRequest(parameters.Url, parameters.Method, parameters.ContentType, parameters.Data);
         }
     }
 

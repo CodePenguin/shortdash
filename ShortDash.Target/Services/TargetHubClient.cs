@@ -300,7 +300,7 @@ namespace ShortDash.Target.Services
             return encryptedChannelService.EncryptSigned(serverChannelId, data);
         }
 
-        private async void ExecuteAction(string encryptedParameters)
+        private void ExecuteAction(string encryptedParameters)
         {
             var parameters = DecryptParameters<ExecuteActionParameters>(encryptedParameters);
             logger.LogDebug($"Received execute action request: {parameters.ActionTypeName}");
@@ -312,11 +312,11 @@ namespace ShortDash.Target.Services
             var resultParameters = new ActionExecutedParameters
             {
                 RequestId = parameters.RequestId,
-                Result = await actionService.Execute(parameters.ActionTypeName, parameters.Parameters, parameters.ToggleState)
+                Result = actionService.Execute(parameters.ActionTypeName, parameters.Parameters, parameters.ToggleState)
             };
             logger.LogDebug($"Sending action result for: {parameters.ActionTypeName}");
             encryptedParameters = EncryptParameters(resultParameters);
-            await connection.SendAsync("ActionExecuted", encryptedParameters);
+            connection.SendAsync("ActionExecuted", encryptedParameters);
         }
 
         private string GetServerId(string publicKey)

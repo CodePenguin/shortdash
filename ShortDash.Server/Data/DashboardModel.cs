@@ -59,6 +59,22 @@ namespace ShortDash.Server.Data
         public string Label { get; set; }
 
         public string Parameters { get; set; }
+
+        [NotMapped]
+        public Color? ToggleBackgroundColor { get; set; }
+
+        [Column("ToggleBackgroundColor")]
+        public string ToggleBackgroundColorHtmlValue
+        {
+            get => ToggleBackgroundColor?.ToHtmlString();
+            set => ToggleBackgroundColor = ColorExtensions.FromHtmlString(value);
+        }
+
+        public string ToggleIcon { get; set; } = "";
+
+        public string ToggleLabel { get; set; }
+
+        public bool ToggleState { get; set; }
     }
 
     public class DashboardActionTarget

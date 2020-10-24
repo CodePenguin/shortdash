@@ -38,7 +38,10 @@ namespace ShortDash.Server.Pages
         private DashboardActionService DashboardActionService { get; set; }
 
         private bool IsDataSignatureValid { get; set; }
+
         private bool IsLoading { get; set; }
+
+        private bool IsToggle => DashboardActionService.GetActionAttribute(DashboardAction?.ActionTypeName).Toggle;
 
         private object Parameters { get; set; }
 
@@ -102,6 +105,9 @@ namespace ShortDash.Server.Pages
             DashboardAction.BackgroundColor = DashboardAction.BackgroundColor ?? settingsDefault.BackgroundColor;
             DashboardAction.Icon = settingsDefault.Icon;
             DashboardAction.Label = settingsDefault.Label;
+            DashboardAction.ToggleBackgroundColor = DashboardAction.ToggleBackgroundColor ?? settingsDefault.ToggleBackgroundColor;
+            DashboardAction.ToggleIcon = settingsDefault.ToggleIcon;
+            DashboardAction.ToggleLabel = settingsDefault.ToggleLabel;
             await Task.Run(() => RefreshParameters());
         }
 
@@ -219,6 +225,17 @@ namespace ShortDash.Server.Pages
                 return;
             }
             DashboardAction.Icon = (string)result.Data;
+            StateHasChanged();
+        }
+
+        private async void SelectToggleIcon()
+        {
+            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.ToggleIcon, DashboardAction.ToggleBackgroundColor ?? Color.Black);
+            if (result.Cancelled)
+            {
+                return;
+            }
+            DashboardAction.ToggleIcon = (string)result.Data;
             StateHasChanged();
         }
     }

@@ -53,31 +53,74 @@
                     <label for="ActionTarget">Target</label>
                     <ActionTargetInputSelect @bind-Value="DashboardAction.DashboardActionTargetId" />
                 </div>
-                <div class="form-group">
-                    <label for="ActionLabel">Label</label>
-                    <InputText @bind-Value="@DashboardAction.Label" class="form-control" id="ActionLabel" placeholder="Enter text to display" />
-                    <ValidationMessage For="() => DashboardAction.Label" />
-                </div>
-                <div class="form-group">
-                    <label for="BackgroundColor">Background Color</label>
-                    <InputColor @bind-Value="@DashboardAction.BackgroundColor" class="form-control" id="BackgroundColor" />
-                    <ValidationMessage For="() => DashboardAction.BackgroundColor" />
-                </div>
-                <div class="form-group">
-                    <label for="Icon">Icon</label>
-                    <div class="input-group">
-                        <InputText @bind-Value="DashboardAction.Icon" class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-secondary" @onclick="SelectIcon" @onclick:preventDefault><span class="fas fa-search"></span></button>
-                        </div>
+                <fieldset>
+                    <legend>Display Style</legend>
+                    <div class="form-group">
+                        <label for="ActionLabel">Label</label>
+                        <InputText @bind-Value="@DashboardAction.Label" class="form-control" id="ActionLabel" placeholder="Enter text to display" />
+                        <ValidationMessage For="() => DashboardAction.Label" />
                     </div>
-                    <small>An optional image to be displayed for this action.</small>
-                    <ValidationMessage For="() => DashboardAction.Icon" />
-                </div>
+                    <div class="form-group">
+                        <label for="BackgroundColor">Background Color</label>
+                        <InputColor @bind-Value="@DashboardAction.BackgroundColor" class="form-control" id="BackgroundColor" />
+                        <ValidationMessage For="() => DashboardAction.BackgroundColor" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Icon">Icon</label>
+                        <div class="input-group">
+                            <InputText @bind-Value="DashboardAction.Icon" class="form-control" id="Icon" placeholder="Enter a relative URL path to an image file" />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-secondary" @onclick="SelectIcon" @onclick:preventDefault><span class="fas fa-search"></span></button>
+                            </div>
+                        </div>
+                        <small>An optional image to be displayed for this action.</small>
+                        <ValidationMessage For="() => DashboardAction.Icon" />
+                    </div>
+                </fieldset>
+                @if (IsToggle)
+                {
+                    <fieldset>
+                        <legend>Toggle Display Style</legend>
+                        <div class="form-group">
+                            <label for="ActionLabel">Label</label>
+                            <InputText @bind-Value="@DashboardAction.ToggleLabel" class="form-control" id="ActionLabel" placeholder="Enter text to display" />
+                            <ValidationMessage For="() => DashboardAction.ToggleLabel" />
+                        </div>
+                        <div class="form-group">
+                            <label for="BackgroundColor">Background Color</label>
+                            <InputColor @bind-Value="@DashboardAction.ToggleBackgroundColor" class="form-control" id="ToggleBackgroundColor" />
+                            <ValidationMessage For="() => DashboardAction.ToggleBackgroundColor" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Icon">Icon</label>
+                            <div class="input-group">
+                                <InputText @bind-Value="DashboardAction.ToggleIcon" class="form-control" id="ToggleIcon" placeholder="Enter a relative URL path to an image file" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-secondary" @onclick="SelectToggleIcon" @onclick:preventDefault><span class="fas fa-search"></span></button>
+                                </div>
+                            </div>
+                            <small>An optional image to be displayed for this action.</small>
+                            <ValidationMessage For="() => DashboardAction.ToggleIcon" />
+                        </div>
+                    </fieldset>
+                }
+
                 <div class="form-group">
                     <label for="DashboardActionIcon">Preview</label>
-                    <div class="grid-cell">
-                        <DashboardActionIcon DashboardAction="DashboardAction" />
+                    <div class="row text-center">
+                        <div class="col py-3 px-3 flex-grow-0">
+                            <div class="grid-cell">
+                                <DashboardActionIcon DashboardAction="DashboardAction" />
+                            </div>
+                        </div>
+                        @if (IsToggle)
+                        {
+                            <div class="col py-3 px-3 flex-grow-0">
+                                <div class="grid-cell">
+                                    <DashboardActionIcon DashboardAction="DashboardAction" ToggleState="true" />
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </fieldset>

@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
-using System;
+﻿using System;
 using System.Drawing;
 
 namespace ShortDash.Core.Plugins
