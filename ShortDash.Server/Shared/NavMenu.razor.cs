@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
-using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -27,7 +25,7 @@ namespace ShortDash.Server.Shared
         [CascadingParameter]
         public ISecureContext SecureContext { get; set; }
 
-        protected List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
+        private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 
         [Inject]
         private DashboardService DashboardService { get; set; }
@@ -47,11 +45,6 @@ namespace ShortDash.Server.Shared
             NavigationManager.LocationChanged -= LocationChanged;
         }
 
-        protected async Task LoadDashboards()
-        {
-            Dashboards = await DashboardService.GetDashboardsAsync();
-        }
-
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -64,7 +57,23 @@ namespace ShortDash.Server.Shared
             await LoadDashboards();
         }
 
-        protected async void ShowAddDashboardDialog()
+        private void HideNavMenu()
+        {
+            showNavMenu = false;
+        }
+
+        private async Task LoadDashboards()
+        {
+            Dashboards = await DashboardService.GetDashboardsAsync();
+        }
+
+        private void LocationChanged(object sender, LocationChangedEventArgs e)
+        {
+            HideNavMenu();
+            StateHasChanged();
+        }
+
+        private async void ShowAddDashboardDialog()
         {
             HideNavMenu();
             var result = await AddDashboardDialog.ShowAsync(ModalService);
@@ -77,17 +86,6 @@ namespace ShortDash.Server.Shared
             await LoadDashboards();
             StateHasChanged();
             NavigationManager.NavigateTo($"/dashboard/{dashboard.DashboardId}");
-        }
-
-        private void HideNavMenu()
-        {
-            showNavMenu = false;
-        }
-
-        private void LocationChanged(object sender, LocationChangedEventArgs e)
-        {
-            HideNavMenu();
-            StateHasChanged();
         }
 
         private void ToggleNavMenu()
