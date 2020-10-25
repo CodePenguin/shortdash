@@ -6,9 +6,11 @@
     }
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
-            <a class="nav-link float-right" href="#" @onclick="ToggleNavMenu" @onclick:preventDefault>
-                <span class="navbar-toggler-icon"></span>
-            </a>
+            <AuthorizeView>
+                <a class="nav-link float-right" href="#" @onclick="ToggleNavMenu" @onclick:preventDefault>
+                    <span class="navbar-toggler-icon"></span>
+                </a>
+            </AuthorizeView>
             @foreach (var button in NavMenuManager.MenuBarButtons)
             {
                 <a class="nav-link float-right" href="#" @onclick="button.Callback" @onclick:preventDefault>

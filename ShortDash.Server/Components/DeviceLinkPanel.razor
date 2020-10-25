@@ -1,31 +1,31 @@
-﻿<div class="container">
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                Link this device
-            </div>
-            <div class="card-body text-center">
-                <EditForm Model="Model" OnValidSubmit="StartLinking">
-                    <DataAnnotationsValidator />
+﻿<div class="container m-auto ">
+    <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-8 mx-auto text-center mt-4">
+            <div class="card bg-dark">
+                <div class="card-body text-center">
+                    <h3 class="mb-3 text-light">Link this device</h3>
+                    <EditForm Model="Model" OnValidSubmit="StartLinking">
+                        <DataAnnotationsValidator />
 
-                    @if (ShowRetryMessage)
-                    {
-                        <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
-                    }
-                    <div class="form-group">
-                        <SecureInputText type="text" class="form-control form-control-lg" placeholder="Enter Device Code" @bind-Value="@Model.DeviceLinkCode" />
-                        <ValidationMessage For="() => Model.DeviceLinkCode" />
-                    </div>
-
-                    <button class="btn btn-secondary" type="button" @onclick="Cancel">Cancel</button>
-                    <button class="btn btn-primary" type="submit" disabled="@Linking">
-                        @if (Linking)
+                        @if (ShowRetryMessage)
                         {
-                            <span class="spinner-border spinner-border-sm"></span>
+                            <div class="alert alert-warning">That device code did not seem to work.  Double check it and try again.</div>
                         }
-                        Link
-                    </button>
-                </EditForm>
+                        <div class="form-group">
+                            <SecureInputText type="text" class="form-control form-control-lg" placeholder="Enter Device Code" @bind-Value="@Model.DeviceLinkCode" />
+                            <ValidationMessage For="() => Model.DeviceLinkCode" />
+                        </div>
+
+                        <button class="btn btn-secondary" type="button" @onclick="Cancel">Cancel</button>
+                        <button class="btn btn-primary" type="submit" disabled="@Linking">
+                            @if (Linking)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+                            }
+                            Link
+                        </button>
+                    </EditForm>
+                </div>
             </div>
         </div>
     </div>
