@@ -19,6 +19,9 @@ namespace ShortDash.Server.Components
         public bool EditMode { get; set; }
 
         [Parameter]
+        public bool HideLabel { get; set; }
+
+        [Parameter]
         public EventCallback<DashboardCell> OnMoveCellLeft { get; set; }
 
         [Parameter]

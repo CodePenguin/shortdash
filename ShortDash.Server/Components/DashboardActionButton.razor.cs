@@ -26,6 +26,9 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool EditMode { get; set; }
 
+        [Parameter]
+        public bool HideLabel { get; set; }
+
         private string Label => ToggleState ? DashboardAction.ToggleLabel : DashboardAction.Label;
 
         private bool ToggleState => IsToggle && DashboardAction.ToggleState;
@@ -145,9 +148,9 @@ namespace ShortDash.Server.Components
             InvokeAsync(() => HandleActionExecutedResult(requestId, result));
         }
 
-        private bool ShouldShowCaption()
+        private bool ShouldShowLabel()
         {
-            return DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName || EditMode;
+            return EditMode || (!HideLabel && DashboardAction?.ActionTypeName != typeof(DashSeparatorAction).FullName);
         }
     }
 }

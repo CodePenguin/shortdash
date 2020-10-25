@@ -29,6 +29,8 @@ namespace ShortDash.Server.Data
         public virtual List<DashboardCell> DashboardCells { get; set; } = new List<DashboardCell>();
         public int DashboardId { get; set; }
 
+        public bool HideLabels { get; set; }
+
         [Required]
         public string Name { get; set; }
     }

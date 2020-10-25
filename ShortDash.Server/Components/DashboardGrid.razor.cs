@@ -18,6 +18,9 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool EditMode { get; set; } = false;
 
+        [Parameter]
+        public bool HideLabels { get; set; }
+
         [CascadingParameter]
         private DashboardService DashboardService { get; set; }
 

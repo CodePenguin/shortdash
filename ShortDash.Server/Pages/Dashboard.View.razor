@@ -46,9 +46,14 @@
                         <InputColor @bind-Value="@Dashboard.BackgroundColor" class="form-control" id="BackgroundColor" />
                         <ValidationMessage For="() => Dashboard.BackgroundColor" />
                     </div>
+                    <div class="form-group form-check">
+                        <InputCheckbox @bind-Value="@Dashboard.HideLabels" class="form-check-input" id="HideLabels" />
+                        <label for="HideLabels" class="form-check-label">Hide Labels</label>
+                        <ValidationMessage For="() => Dashboard.HideLabels" />
+                    </div>
                 </EditForm>
             }
-            <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" />
+            <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" HideLabels="Dashboard.HideLabels" />
         </div>
     }
 </CascadingValue>

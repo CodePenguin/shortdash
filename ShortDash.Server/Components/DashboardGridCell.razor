@@ -1,5 +1,5 @@
 ﻿<div class="grid-cell">
-    <DashboardActionButton DashboardAction="@Cell.DashboardAction" EditMode="EditMode" />
+    <DashboardActionButton DashboardAction="@Cell.DashboardAction" EditMode="EditMode" HideLabel="HideLabel" />
     @if (EditMode)
     {
         <DashboardGridCellEditControls TCellType="DashboardCell" Cell="Cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" />
