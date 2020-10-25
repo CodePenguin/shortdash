@@ -12,7 +12,14 @@
         getClientPrivateKey: function () {
             var privateKey = localStorage.getItem("SecureContextClientPrivateKey");
             if (privateKey === null) return null;
-            return forge.pki.decryptRsaPrivateKey(privateKey, _.getClientUniqueId());
+            try {
+                return forge.pki.decryptRsaPrivateKey(privateKey, _.getClientUniqueId());
+            }
+            catch
+            {
+                localStorage.removeItem("SecureContextClientPrivateKey");
+                return null;
+            }
         },
 
         getClientUniqueId: function () {
