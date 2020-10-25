@@ -161,13 +161,13 @@ namespace ShortDash.Server.Components
         {
             // Look at the FormInputAttribute for the input type
             var attribute = property.GetCustomAttribute<FormInputAttribute>();
-            var inputType = attribute?.Type
+            var inputType =
             // Look at the type mappings by component name
-                ?? componentsMapper.GetComponentByName(attribute?.TypeName)
+                componentsMapper.GetComponentByName(attribute?.TypeName) ??
             // Look at the type mappings for the input type
-                ?? componentsMapper.GetComponentByType(property.PropertyType.ToString())
+                componentsMapper.GetComponentByType(property.PropertyType.ToString()) ??
             // If Enum types are not mapped then use what is mapped to System.Enum
-                ?? (property.PropertyType.IsEnum ? componentsMapper.GetComponentByType(typeof(Enum).ToString()) : null);
+                (property.PropertyType.IsEnum ? componentsMapper.GetComponentByType(typeof(Enum).ToString()) : null);
             // Input type must be assignable to ComponentBase so we know it will play well with the life cycle
             return typeof(ComponentBase).IsAssignableFrom(inputType) ? inputType : inputType;
         }
