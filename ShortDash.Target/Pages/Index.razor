@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using ShortDash.Core.Extensions
 
-<div class="container col-lg-4">
+<div class="container col-xl-5 col-lg-8 col-md-10 col-sm-12 mt-3">
     <div class="card">
         <div class="card-header text-center">
             <h5 class="card-text">ShortDash Target</h5>
@@ -17,14 +17,14 @@
         }
         <div class="card-body">
             <dl class="row">
-                <dt class="col-sm-3">Target ID</dt>
-                <dd class="col-sm-9">@TargetId</dd>
-                <dt class="col-sm-3">Server URL</dt>
-                <dd class="col-sm-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
-                <dt class="col-sm-3">Server ID</dt>
-                <dd class="col-sm-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
-                <dt class="col-sm-3">Last Connection</dt>
-                <dd class="col-sm-9">@LastConnection.ToDisplayString()</dd>
+                <dt class="col-3">Target ID</dt>
+                <dd class="col-9">@TargetId</dd>
+                <dt class="col-3">Server URL</dt>
+                <dd class="col-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
+                <dt class="col-3">Server ID</dt>
+                <dd class="col-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
+                <dt class="col-3">Last Connection</dt>
+                <dd class="col-9">@LastConnection.ToDisplayString()</dd>
             </dl>
             @if (!IsLinked && IsConnected)
             {
