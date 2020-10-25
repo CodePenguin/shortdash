@@ -1,17 +1,12 @@
 ﻿using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http.Features;
-using ShortDash.Core.Models;
 using ShortDash.Core.Plugins;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
-using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
-using ShortDash.Server.Shared;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
@@ -103,6 +98,7 @@ namespace ShortDash.Server.Components
             var parameters = DashboardActionService.GetActionParameters(actionType, decryptedParameters) as DashGroupParameters;
             if (parameters.DashGroupType == DashGroupType.Folder)
             {
+                HandleActionExecutedResult(Guid.NewGuid(), new ShortDashActionResult { Success = true });
                 await DashGroupActionDialog.ShowAsync(ModalService, DashboardAction);
             }
             else if (parameters.DashGroupType == DashGroupType.List)
@@ -132,14 +128,18 @@ namespace ShortDash.Server.Components
                     ToastService.ShowError(result.UserMessage);
                 }
             }
-            if (pendingRequests.TryGetValue(requestId, out var dashboardAction) && result.Success)
+            if (pendingRequests.TryGetValue(requestId, out var dashboardAction))
             {
-                dashboardAction.ToggleState = result.ToggleState;
-                await DashboardService.UpdateDashboardActionAsync(dashboardAction);
+                pendingRequests.Remove(requestId);
+                if (result.Success || dashboardAction.ToggleState != result.ToggleState)
+                {
+                    dashboardAction.ToggleState = result.ToggleState;
+                    await DashboardService.UpdateDashboardActionAsync(dashboardAction);
+                }
             }
             // Intentional delay so the execution indicator has time to display for super fast operations
             await Task.Delay(100);
-            IsExecuting = pendingRequests.Count == 0;
+            IsExecuting = pendingRequests.Count > 0;
             StateHasChanged();
         }
 
