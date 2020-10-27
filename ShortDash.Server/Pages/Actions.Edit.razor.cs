@@ -3,6 +3,7 @@ using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using ShortDash.Core.Plugins;
+using ShortDash.Server.Actions;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -18,10 +19,6 @@ namespace ShortDash.Server.Pages
 {
     public partial class Actions_Edit : PageBase
     {
-#pragma warning disable IDE0044 // Add readonly modifier
-        private DashGroupActionInputGrid subActionsInputGrid;
-#pragma warning restore IDE0044 // Add readonly modifier
-
         [Parameter]
         public int DashboardActionId { get; set; }
 
@@ -29,23 +26,18 @@ namespace ShortDash.Server.Pages
         public string Operation { get; set; } = "Edit";
 
         private ShortDashActionAttribute ActionAttribute { get; set; }
-
         private EditContext ActionEditContext { get; set; }
-
         private DashboardAction DashboardAction { get; set; }
 
         [Inject]
         private DashboardActionService DashboardActionService { get; set; }
 
         private bool IsDataSignatureValid { get; set; }
-
         private bool IsLoading { get; set; }
-
         private bool IsToggle => DashboardActionService.GetActionAttribute(DashboardAction?.ActionTypeName).Toggle;
-
         private object Parameters { get; set; }
-
         private EditContext ParametersEditContext { get; set; }
+        private List<DashboardSubAction> SubActions { get; set; }
 
         protected async void ConfirmDelete()
         {
@@ -69,6 +61,7 @@ namespace ShortDash.Server.Pages
             ActionEditContext = null;
             ParametersEditContext = null;
             IsDataSignatureValid = true;
+            SubActions = null;
             if (DashboardActionId > 0)
             {
                 if (NavigationManager.Uri.EndsWith("/copy"))
@@ -116,6 +109,35 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo($"/actions/{DashboardActionId}/copy");
         }
 
+        private void GenerateChanges(out List<DashboardSubAction> removalList)
+        {
+            if (SubActions == null)
+            {
+                removalList = null;
+                return;
+            }
+            removalList = new List<DashboardSubAction>();
+
+            // Update sequences and add new sub actions to the main list
+            for (var i = 0; i < SubActions.Count; i++)
+            {
+                var subAction = SubActions[i];
+                subAction.Sequence = i;
+                if (!DashboardAction.DashboardSubActionChildren.Contains(subAction))
+                {
+                    DashboardAction.DashboardSubActionChildren.Add(subAction);
+                }
+            }
+            // Create a list of sub actions that have been removed
+            foreach (var subAction in DashboardAction.DashboardSubActionChildren)
+            {
+                if (!SubActions.Contains(subAction))
+                {
+                    removalList.Add(subAction);
+                }
+            }
+        }
+
         private async Task LoadDashboardAction()
         {
             DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardActionId);
@@ -135,6 +157,16 @@ namespace ShortDash.Server.Pages
                 return;
             }
             RefreshParameters();
+        }
+
+        private void LoadSubActions()
+        {
+            if (DashboardAction.ActionTypeName != typeof(DashGroupAction).FullName)
+            {
+                return;
+            }
+            SubActions = new List<DashboardSubAction>();
+            SubActions.AddRange(DashboardAction.DashboardSubActionChildren.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardActionChildId).ToList());
         }
 
         private void NewDashboardAction()
@@ -162,6 +194,8 @@ namespace ShortDash.Server.Pages
                 Parameters = null;
                 ParametersEditContext = null;
             }
+
+            LoadSubActions();
         }
 
         private async void SaveChanges()
@@ -199,11 +233,7 @@ namespace ShortDash.Server.Pages
                 DashboardAction.Parameters = DashboardService.ProtectData<DashboardAction>(serializedParameters);
             }
 
-            List<DashboardSubAction> subActionRemovalList = null;
-            if (subActionsInputGrid != null)
-            {
-                subActionsInputGrid.GenerateChanges(DashboardAction, out subActionRemovalList);
-            }
+            GenerateChanges(out var subActionRemovalList);
 
             if (DashboardAction.DashboardActionId == 0)
             {

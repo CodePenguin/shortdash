@@ -1,5 +1,7 @@
 ﻿using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore.Internal;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
@@ -12,15 +14,16 @@ namespace ShortDash.Server.Components
     public partial class DashGroupActionInputGrid : ComponentBase
     {
         [Parameter]
-        public DashboardAction DashboardAction { get; set; }
+        public DashboardService DashboardService { get; set; }
 
         [Parameter]
-        public DashboardService DashboardService { get; set; }
+        public List<DashboardSubAction> SubActions { get; set; }
+
+        [Inject]
+        protected IToastService ToastService { get; set; }
 
         [CascadingParameter]
         private IModalService ModalService { get; set; }
-
-        private List<DashboardSubAction> SubActions { get; } = new List<DashboardSubAction>();
 
         public void GenerateChanges(DashboardAction dashboardAction, out List<DashboardSubAction> removalList)
         {
@@ -44,12 +47,6 @@ namespace ShortDash.Server.Components
                     removalList.Add(subAction);
                 }
             }
-        }
-
-        protected override void OnParametersSet()
-        {
-            SubActions.Clear();
-            SubActions.AddRange(DashboardAction.DashboardSubActionChildren.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardActionChildId).ToList());
         }
 
         private void MoveCellLeft(DashboardSubAction cell)
@@ -94,13 +91,19 @@ namespace ShortDash.Server.Components
             {
                 return;
             }
+            if (SubActions.Any(a => a.DashboardActionChild.DashboardActionId == dashboardActionId))
+            {
+                ToastService.ShowWarning("The selected action has already been added.");
+                return;
+            }
+
             var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
             if (dashboardAction == null)
             {
                 return;
             }
 
-            SubActions.Add(new DashboardSubAction { DashboardActionParentId = DashboardAction.DashboardActionId, DashboardActionChildId = dashboardAction.DashboardActionId, DashboardActionChild = dashboardAction });
+            SubActions.Add(new DashboardSubAction { DashboardActionChild = dashboardAction });
             StateHasChanged();
         }
     }

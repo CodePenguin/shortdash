@@ -26,6 +26,10 @@ namespace ShortDash.Server.Services
         {
             using var dbContext = dbContextFactory.CreateDbContext();
             dataSignatureManager.GenerateSignature(dashboardAction);
+            foreach (var subAction in dashboardAction.DashboardSubActionChildren)
+            {
+                dbContext.Entry(subAction.DashboardActionChild).State = EntityState.Unchanged;
+            }
             dbContext.Add(dashboardAction);
             await dbContext.SaveChangesAsync();
             return dashboardAction;
