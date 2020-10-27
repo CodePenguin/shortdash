@@ -47,6 +47,10 @@ namespace ShortDash.Server.Services
         public async Task<Dashboard> AddDashboardAsync(Dashboard dashboard)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
+            foreach (var cell in dashboard.DashboardCells)
+            {
+                dbContext.Entry(cell.DashboardAction).State = EntityState.Unchanged;
+            }
             dbContext.Add(dashboard);
             await dbContext.SaveChangesAsync();
             return dashboard;
@@ -224,6 +228,10 @@ namespace ShortDash.Server.Services
                     dbContext.Remove(subAction);
                 }
             }
+            foreach (var subAction in dashboardAction.DashboardSubActionChildren)
+            {
+                dbContext.Entry(subAction.DashboardActionChild).State = EntityState.Unchanged;
+            }
             dataSignatureManager.GenerateSignature(dashboardAction);
             dbContext.Update(dashboardAction);
             await dbContext.SaveChangesAsync();
@@ -248,6 +256,10 @@ namespace ShortDash.Server.Services
                 {
                     dbContext.Remove(cell);
                 }
+            }
+            foreach (var cell in dashboard.DashboardCells)
+            {
+                dbContext.Entry(cell.DashboardAction).State = EntityState.Unchanged;
             }
             dbContext.Update(dashboard);
             await dbContext.SaveChangesAsync();
