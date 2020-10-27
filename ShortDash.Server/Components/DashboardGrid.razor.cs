@@ -1,4 +1,5 @@
 ﻿using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -20,6 +21,9 @@ namespace ShortDash.Server.Components
 
         [Parameter]
         public bool HideLabels { get; set; }
+
+        [Inject]
+        protected IToastService ToastService { get; set; }
 
         [CascadingParameter]
         private DashboardService DashboardService { get; set; }
@@ -72,6 +76,11 @@ namespace ShortDash.Server.Components
             var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
             if (dashboardAction == null)
             {
+                return;
+            }
+            if (DashboardCells.Any(c => c.DashboardAction.DashboardActionId == dashboardActionId))
+            {
+                ToastService.ShowWarning("The selected action has already been added.");
                 return;
             }
 
