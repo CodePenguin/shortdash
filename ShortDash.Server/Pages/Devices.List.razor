@@ -14,7 +14,7 @@
             @foreach (var device in DashboardDevices)
             {
                 var link = $"devices/{HttpUtility.UrlEncode(device.DashboardDeviceId)}";
-                <div class="col-lg-3">
+                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
                     <div class="card mb-4">
                         <div class="card-header">
                             <NavLink class="nav-link" href="@link" Match="NavLinkMatch.All">
@@ -28,12 +28,12 @@
                             </NavLink>
                         </div>
                         <div class="card-body">
-                            <div class="card-text">
-                                Linked: @device.LinkedDateTime.ToDisplayString()
-                            </div>
-                            <div class="card-text">
-                                Last Connection: @device.LastSeenDateTime.ToDisplayString()
-                            </div>
+                            <dl class="row mb-0">
+                                <dt class="col-3">Linked</dt>
+                                <dd class="col-9">@device.LinkedDateTime.ToDisplayString()</dd>
+                                <dt class="col-3">Last Seen</dt>
+                                <dd class="col-9">@device.LastSeenDateTime.ToDisplayString()</dd>
+                            </dl>
                         </div>
                     </div>
                 </div>
