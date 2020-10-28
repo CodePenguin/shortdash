@@ -206,6 +206,12 @@ namespace ShortDash.Server.Services
             return dbContext.Dashboards.ToListAsync();
         }
 
+        public bool HasDashboardActions()
+        {
+            using var dbContext = dbContextFactory.CreateDbContext();
+            return dbContext.DashboardActions.Any();
+        }
+
         public string ProtectData<T>(string data)
         {
             var protector = dataProtectionProvider.CreateProtector(typeof(T).Name);

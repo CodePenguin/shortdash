@@ -29,7 +29,7 @@ namespace ShortDash.Server.Components
         protected async override Task OnParametersSetAsync()
         {
             AvailableActions.AddRange(await DashboardService.GetDashboardActionsAsync());
-            Selected.Value = AvailableActions.FirstOrDefault().DashboardActionId.ToString();
+            Selected.Value = AvailableActions.FirstOrDefault()?.DashboardActionId.ToString();
         }
 
         private int ParseResult()

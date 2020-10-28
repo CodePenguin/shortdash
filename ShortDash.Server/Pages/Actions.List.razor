@@ -4,7 +4,10 @@
 
 <div class="page text-dark">
     <button @onclick="AddAction" class="btn btn-outline-primary float-right">Add</button>
-    <h3>Actions</h3>
+    <h3>
+        <span class="fas fa-running fa-fw" aria-hidden="true"></span>
+        Actions
+    </h3>
 
     @if (DashboardActions.Count == 0)
     {

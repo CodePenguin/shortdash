@@ -24,6 +24,7 @@ namespace ShortDash.Server.Pages
         [Inject]
         private DeviceLinkService DeviceLinkService { get; set; }
 
+        private bool HasActions { get; set; }
         private bool IsFirstRun { get; set; }
 
         private bool ShowAdminDeviceLinkMessage { get; set; }
@@ -32,9 +33,11 @@ namespace ShortDash.Server.Pages
         protected async override Task OnParametersSetAsync()
         {
             await base.OnParametersSetAsync();
+            Dashboards = null;
             ShowAdminDeviceLinkMessage = false;
             IsFirstRun = !AdministratorAccessCodeService.IsInitialized();
             User = (await AuthenticationStateTask).User;
+            HasActions = DashboardService.HasDashboardActions();
 
             if (User.Identity.IsAuthenticated)
             {
@@ -62,6 +65,19 @@ namespace ShortDash.Server.Pages
             IsFirstRun = false;
             ShowAdminDeviceLinkMessage = true;
             StateHasChanged();
+        }
+
+        private async void ShowAddDashboardDialog()
+        {
+            var result = await AddDashboardDialog.ShowAsync(ModalService);
+            if (result.Cancelled)
+            {
+                return;
+            }
+            var dashboard = new Dashboard { Name = result.Data.ToString() };
+            await DashboardService.AddDashboardAsync(dashboard);
+            StateHasChanged();
+            NavigationManager.NavigateTo($"/dashboard/{dashboard.DashboardId}");
         }
     }
 }

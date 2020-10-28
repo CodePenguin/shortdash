@@ -10,8 +10,24 @@
 <div class="page">
     <AuthorizeView>
         <Authorized>
+            @if (!HasActions)
+            {
+                <div class="alert alert-info">
+                    <span class="fas fa-running"></span>
+                    You do not have any actions yet!
+                    <NavLink href="actions/new" Match="NavLinkMatch.All">
+                        Click here to create your first one.
+                    </NavLink>
+                </div>
+            }
+
             <fieldset class="m-auto col-lg-6">
-                <legend>Dashboards</legend>
+                <legend>
+                    Dashboards
+                    <a href="#" class="btn btn-sm btn-outline-secondary float-right" @onclick="ShowAddDashboardDialog" @onclick:preventDefault>
+                        <span class="fas fa-plus fa-fw" aria-hidden="true"></span> New
+                    </a>
+                </legend>
                 <div class="list-group">
                     @foreach (var dashboard in Dashboards)
                     {
