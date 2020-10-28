@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    public class SecureInputText : InputBase<string>
+    public class SecureTextArea : InputBase<string>
     {
         private string lastSentValue;
-        private DotNetObjectReference<SecureInputText> objectReference;
+        private DotNetObjectReference<SecureTextArea> objectReference;
 
         [Inject]
         private IJSRuntime JSRuntime { get; set; }
@@ -34,11 +34,11 @@ namespace ShortDash.Server.Components
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            builder.OpenElement(0, "input");
+            builder.OpenElement(0, "textarea");
             builder.AddAttribute(1, "id", UniqueId);
-            if (AdditionalAttributes != null && !AdditionalAttributes.ContainsKey("type"))
+            if (AdditionalAttributes != null && !AdditionalAttributes.ContainsKey("rows"))
             {
-                builder.AddAttribute(2, "type", "text");
+                builder.AddAttribute(2, "rows", "10");
             }
             builder.AddMultipleAttributes(3, AdditionalAttributes);
             builder.CloseElement();

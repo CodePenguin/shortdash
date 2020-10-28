@@ -16,7 +16,7 @@ namespace ShortDash.Server.Components
         {
             componentMappings = new Dictionary<string, Type>()
                 {
-                    { typeof(string).ToString(), typeof(InputText) },
+                    { typeof(string).ToString(), typeof(SecureInputText) },
                     { typeof(DateTime).ToString(), typeof(InputDate<>) },
                     { typeof(bool).ToString(), typeof(InputCheckbox) },
                     { typeof(decimal).ToString(), typeof(InputNumber<>) },
@@ -28,7 +28,7 @@ namespace ShortDash.Server.Components
             componentsList = new Dictionary<string, Type>()
                 {
                     { nameof(DashboardInputSelect), typeof(DashboardInputSelect) },
-                    { nameof(InputTextArea), typeof(InputTextArea) }
+                    { "textarea", typeof(SecureTextArea) }
                 };
         }
 
@@ -38,7 +38,7 @@ namespace ShortDash.Server.Components
             {
                 return null;
             }
-            componentsList.TryGetValue(componentName, out var component);
+            componentsList.TryGetValue(componentName.ToLower(), out var component);
             return component;
         }
 

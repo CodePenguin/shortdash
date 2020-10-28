@@ -112,29 +112,28 @@
             return _.getClientPublicKey();
         },
 
-        initSecureInputText: function (id, dotnetHelper, initialValue) {
-            var inputText = document.getElementById(id);
+        initSecureElement: function (id, dotnetHelper, initialValue) {
+            var element = document.getElementById(id);
             var secureContext = this;
-            inputText.value = this.decrypt(initialValue);
+            this.setSecureElementValue(id, initialValue);
             var updateEvent = function () {
-                dotnetHelper.invokeMethodAsync("OnClientChanged", secureContext.encrypt(inputText.value));
+                dotnetHelper.invokeMethodAsync("OnClientChanged", secureContext.encrypt(element.value));
             }
-            inputText.onchange = updateEvent;
-            inputText.oninput = updateEvent;
+            element.onchange = updateEvent;
+            element.oninput = updateEvent;
         },
 
         openChannel: function (encryptedKey) {
             _.setSessionKey(encryptedKey);
         },
 
-        setSecureInputTextValue: function (id, encryptedValue) {
-            var inputText = document.getElementById(id);
-            inputText.value = this.decrypt(encryptedValue);
-        },
-
-        setSecureControlText: function (id, encryptedValue) {
-            var control = document.getElementById(id);
-            control.innerText = this.decrypt(encryptedValue);
+        setSecureElementValue: function (id, encryptedValue) {
+            var element = document.getElementById(id);
+            if (element.tagName === "SPAN") {
+                element.innerText = this.decrypt(encryptedValue);
+            } else {
+                element.value = this.decrypt(encryptedValue);
+            }
         },
 
         setSecureQRCode: function (id, encryptedValue, width, height) {

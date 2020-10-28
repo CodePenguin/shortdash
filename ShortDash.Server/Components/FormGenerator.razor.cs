@@ -11,13 +11,14 @@ namespace ShortDash.Server.Components
 {
     public partial class FormGenerator : ComponentBase
     {
+        private string baseId;
         private PropertyInfo[] properties = Array.Empty<PropertyInfo>();
 
         [Parameter]
         public EditContext EditContext { get; set; }
 
         [Parameter]
-        public Type FormElementType { get; set; } = typeof(FormElementComponent);
+        public Type FormElementType { get; set; } = typeof(FormElement);
 
         [Parameter]
         public EventCallback<EditContext> OnValidSubmit { get; set; }
@@ -25,6 +26,7 @@ namespace ShortDash.Server.Components
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
+            baseId = EditContext.Model.GetType().Name;
             properties = GenerateProperties();
         }
 
@@ -48,8 +50,9 @@ namespace ShortDash.Server.Components
             return builder =>
                 {
                     builder.OpenComponent(0, FormElementType);
-                    builder.AddAttribute(1, nameof(FormElementComponent.Model), EditContext.Model);
-                    builder.AddAttribute(2, nameof(FormElementComponent.ModelProperty), propInfo);
+                    builder.AddAttribute(1, nameof(FormElement.BaseId), baseId);
+                    builder.AddAttribute(2, nameof(FormElement.Model), EditContext.Model);
+                    builder.AddAttribute(3, nameof(FormElement.ModelProperty), propInfo);
                     builder.CloseComponent();
                 };
         }

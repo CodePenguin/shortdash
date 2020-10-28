@@ -37,7 +37,7 @@ namespace ShortDash.Plugins.Core.Common
         [Display(
             Name = "Toggle Data",
             Order = 8)]
-        [FormInput(TypeName = "InputTextArea")]
+        [FormInput(TypeName = "TextArea")]
         public string ToggleData { get; set; } = null;
 
         [Display(

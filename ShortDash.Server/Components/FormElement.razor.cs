@@ -16,10 +16,12 @@ using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components
 {
-    // Adapted from https://github.com/Aaltuj/BlazorFormGeneratorDemo
-    public class FormElementComponent : OwningComponentBase
+    public partial class FormElement : OwningComponentBase
     {
         private FormGeneratorPropertyMapper componentsMapper;
+
+        [Parameter]
+        public string BaseId { get; set; }
 
         [Parameter]
         public string DescriptionFieldClasses { get; set; }
@@ -33,10 +35,10 @@ namespace ShortDash.Server.Components
         [Parameter]
         public PropertyInfo ModelProperty { get; set; }
 
-        private string Id => ModelProperty.Name;
+        private string Id => $"{BaseId}_{ModelProperty.Name}";
 
         [Inject]
-        private ILogger<FormElementComponent> Logger { get; set; }
+        private ILogger<FormElement> Logger { get; set; }
 
         public RenderFragment RenderComponent(PropertyInfo property)
         {
@@ -56,7 +58,7 @@ namespace ShortDash.Server.Components
                     }
 
                     var instance = Activator.CreateInstance(elementType);
-                    var method = typeof(FormElementComponent).GetMethod(nameof(FormElementComponent.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
+                    var method = typeof(FormElement).GetMethod(nameof(FormElement.RenderFormComponent), BindingFlags.NonPublic | BindingFlags.Instance);
                     var genericMethod = method.MakeGenericMethod(property.PropertyType, elementType);
                     genericMethod.Invoke(this, new object[] { this, Model, property, builder, instance });
                 };
@@ -169,7 +171,7 @@ namespace ShortDash.Server.Components
             // If Enum types are not mapped then use what is mapped to System.Enum
                 (property.PropertyType.IsEnum ? componentsMapper.GetComponentByType(typeof(Enum).ToString()) : null);
             // Input type must be assignable to ComponentBase so we know it will play well with the life cycle
-            return typeof(ComponentBase).IsAssignableFrom(inputType) ? inputType : inputType;
+            return typeof(ComponentBase).IsAssignableFrom(inputType) ? inputType : typeof(SecureInputText);
         }
     }
 }

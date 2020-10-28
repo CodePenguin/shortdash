@@ -48,7 +48,7 @@ namespace ShortDash.Server.Components
             if (Value != lastSentValue)
             {
                 lastSentValue = Value;
-                await JSRuntime.InvokeVoidAsync("secureContext.setSecureControlText", UniqueId, SecureContext.Encrypt(Value));
+                await JSRuntime.InvokeVoidAsync("secureContext.setSecureElementValue", UniqueId, SecureContext.Encrypt(Value));
             }
         }
 
