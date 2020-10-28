@@ -29,7 +29,7 @@
                                 {
                                     <div class="col py-1 px-1 flex-grow-0">
                                         <div class="grid-cell" @onclick="() => SetCurrentValue(icon)">
-                                            <div class="grid-icon rounded text-center text-@TextClass @IconBorderClass(icon)" style="background-color: @BackgroundColorHtml">
+                                            <div class="grid-icon rounded text-center text-@TextClass" style="background-color: @BackgroundColorHtml">
                                                 <div class="grid-icon-content d-table-cell align-middle">
                                                     <span class="icon @icon"></span>
                                                 </div>
@@ -43,6 +43,13 @@
                 }
             </div>
             <div class="modal-footer">
+                <span>Selected:</span>
+                <div class="grid-icon rounded text-center text-@TextClass m-0 ml-2 mr-4" style="background-color: @BackgroundColorHtml">
+                    <div class="grid-icon-content d-table-cell align-middle">
+                        <span class="icon @CurrentValue"></span>
+                    </div>
+                </div>
+
                 <button type="button" class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
                 <button type="button" class="btn btn-primary" @onclick="OkClick">OK</button>
             </div>

@@ -66,7 +66,7 @@ namespace ShortDash.Server.Components
 
         private Task CloseDialog()
         {
-            return BlazoredModal.Close();
+            return BlazoredModal.Cancel();
         }
 
         private void FilterIcons(object source, ElapsedEventArgs e)
@@ -93,11 +93,6 @@ namespace ShortDash.Server.Components
                 var normalizedSearchText = new string(SearchText.ToLower().Where(x => char.IsLetterOrDigit(x)).ToArray());
                 FilteredIcons.AddRange(icons.Where(x => x.Replace("-", string.Empty).Contains(normalizedSearchText)));
             }
-        }
-
-        private string IconBorderClass(string icon)
-        {
-            return icon.Equals(CurrentValue) ? "border border-" + TextClass : "";
         }
 
         private Task OkClick()
