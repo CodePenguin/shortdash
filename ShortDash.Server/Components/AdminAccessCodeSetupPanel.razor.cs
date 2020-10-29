@@ -20,13 +20,12 @@ namespace ShortDash.Server.Components
         [Inject]
         private AdminAccessCodeService AdminAccessCodeService { get; set; }
 
+        private string AdminCode { get; set; }
         private EditContext AdminCodeEditContext { get; set; }
-        private string DynamicCode { get; set; }
-        private string DynamicCodeUrl => $"otpauth://totp/ShortDash:{Environment.MachineName}?secret={DynamicCode}&issuer=ShortDash";
+        private string DynamicCodeUrl => $"otpauth://totp/ShortDash:{Environment.MachineName}?secret={AdminCode}&issuer=ShortDash";
         private bool IsStaticSelected { get; set; }
         private AdminCodeModel Model { get; set; }
         private bool ShowRetryMessage { get; set; }
-        private string StaticCode { get; set; }
         private string TabDynamicClass => IsStaticSelected ? "" : "active";
         private string TabStaticClass => IsStaticSelected ? "active" : "";
 
@@ -34,8 +33,7 @@ namespace ShortDash.Server.Components
         {
             Model = new AdminCodeModel();
             AdminCodeEditContext = new EditContext(Model);
-            DynamicCode = GenerateDynamicCode();
-            StaticCode = GenerateStaticCode();
+            AdminCode = GenerateAdminCode();
             ShowRetryMessage = false;
 
             return base.OnParametersSetAsync();
@@ -49,22 +47,19 @@ namespace ShortDash.Server.Components
                 return;
             }
 
-            string adminCode;
             string compareCode;
             AdminAccessCodeType accessCodeType;
             if (IsStaticSelected)
             {
                 accessCodeType = AdminAccessCodeType.Static;
-                adminCode = StaticCode;
-                compareCode = StaticCode;
+                compareCode = AdminCode;
             }
             else
             {
-                var base32Bytes = Base32Encoding.ToBytes(DynamicCode);
+                var base32Bytes = Base32Encoding.ToBytes(AdminCode);
                 var otp = new Totp(base32Bytes);
 
                 accessCodeType = AdminAccessCodeType.DynamicTotp;
-                adminCode = DynamicCode;
                 compareCode = otp.ComputeTotp();
             }
 
@@ -75,21 +70,14 @@ namespace ShortDash.Server.Components
                 return;
             }
 
-            AdminAccessCodeService.SaveAccessCode(accessCodeType, adminCode);
+            AdminAccessCodeService.SaveAccessCode(accessCodeType, AdminCode);
             OnCompleted?.Invoke(this, new EventArgs());
         }
 
-        private string GenerateDynamicCode()
+        private string GenerateAdminCode()
         {
             var code = KeyGeneration.GenerateRandomKey(10);
             return Base32Encoding.ToString(code);
-        }
-
-        private string GenerateStaticCode()
-        {
-            const int AdminCodeLength = 9;
-            var baseCode = Math.Abs(Guid.NewGuid().ToString().GetHashCode() % Math.Pow(10, AdminCodeLength));
-            return baseCode.ToString().PadLeft(AdminCodeLength, '1');
         }
 
         private void TabDynamicClick()
