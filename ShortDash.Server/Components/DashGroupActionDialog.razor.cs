@@ -17,8 +17,8 @@ namespace ShortDash.Server.Components
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
 
-        private string TextClass => DashboardAction.BackgroundColor?.TextClass();
-        private string BackgroundColorCode => DashboardAction.BackgroundColor?.ToHtmlString();
+        private string TextClass => DashboardAction.BackgroundColor.TextClass();
+        private string BackgroundColorCode => DashboardAction.BackgroundColor.ToHtmlString();
 
         [CascadingParameter]
         private BlazoredModalInstance BlazoredModal { get; set; }

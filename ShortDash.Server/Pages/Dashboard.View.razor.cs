@@ -109,8 +109,8 @@ namespace ShortDash.Server.Pages
             NavMenuManager.Subtitle = Dashboard.Name;
             if (Dashboard.BackgroundColor != null)
             {
-                DashboardAttributes["style"] = "background-color: " + Dashboard.BackgroundColor?.ToHtmlString();
-                TextClass = Dashboard.BackgroundColor?.TextClass();
+                DashboardAttributes["style"] = "background-color: " + Dashboard.BackgroundColor.ToHtmlString();
+                TextClass = Dashboard.BackgroundColor.TextClass();
             }
             else
             {

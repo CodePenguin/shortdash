@@ -100,10 +100,10 @@ namespace ShortDash.Server.Pages
         private async Task ChangeActionTypeName()
         {
             var settingsDefault = DashboardActionService.GetActionDefaultSettingsAttribute(DashboardAction.ActionTypeName);
-            DashboardAction.BackgroundColor = DashboardAction.BackgroundColor ?? settingsDefault.BackgroundColor;
+            DashboardAction.BackgroundColor = settingsDefault.BackgroundColor ?? DashboardAction.BackgroundColor;
             DashboardAction.Icon = settingsDefault.Icon;
             DashboardAction.Label = settingsDefault.Label;
-            DashboardAction.ToggleBackgroundColor = DashboardAction.ToggleBackgroundColor ?? settingsDefault.ToggleBackgroundColor;
+            DashboardAction.ToggleBackgroundColor = settingsDefault.ToggleBackgroundColor ?? DashboardAction.ToggleBackgroundColor;
             DashboardAction.ToggleIcon = settingsDefault.ToggleIcon;
             DashboardAction.ToggleLabel = settingsDefault.ToggleLabel;
             await Task.Run(() => RefreshParameters());
@@ -259,7 +259,7 @@ namespace ShortDash.Server.Pages
 
         private async void SelectIcon()
         {
-            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.Icon, DashboardAction.BackgroundColor ?? Color.Black);
+            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.Icon, DashboardAction.BackgroundColor);
             if (result.Cancelled)
             {
                 return;
@@ -270,7 +270,7 @@ namespace ShortDash.Server.Pages
 
         private async void SelectToggleIcon()
         {
-            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.ToggleIcon, DashboardAction.ToggleBackgroundColor ?? Color.Black);
+            var result = await IconSelectDialog.ShowAsync(ModalService, DashboardAction.ToggleIcon, DashboardAction.ToggleBackgroundColor);
             if (result.Cancelled)
             {
                 return;

@@ -17,12 +17,12 @@ namespace ShortDash.Server.Data
     public class Dashboard
     {
         [NotMapped]
-        public Color? BackgroundColor { get; set; }
+        public Color BackgroundColor { get; set; }
 
         [Column("BackgroundColor")]
         public string BackgroundColorHtmlValue
         {
-            get => BackgroundColor?.ToHtmlString();
+            get => BackgroundColor.ToHtmlString();
             set => BackgroundColor = ColorExtensions.FromHtmlString(value);
         }
 
@@ -40,12 +40,12 @@ namespace ShortDash.Server.Data
         public string ActionTypeName { get; set; }
 
         [NotMapped]
-        public Color? BackgroundColor { get; set; }
+        public Color BackgroundColor { get; set; }
 
         [Column("BackgroundColor")]
         public string BackgroundColorHtmlValue
         {
-            get => BackgroundColor?.ToHtmlString();
+            get => BackgroundColor.ToHtmlString();
             set => BackgroundColor = ColorExtensions.FromHtmlString(value);
         }
 
@@ -63,12 +63,12 @@ namespace ShortDash.Server.Data
         public string Parameters { get; set; }
 
         [NotMapped]
-        public Color? ToggleBackgroundColor { get; set; }
+        public Color ToggleBackgroundColor { get; set; }
 
         [Column("ToggleBackgroundColor")]
         public string ToggleBackgroundColorHtmlValue
         {
-            get => ToggleBackgroundColor?.ToHtmlString();
+            get => ToggleBackgroundColor.ToHtmlString();
             set => ToggleBackgroundColor = ColorExtensions.FromHtmlString(value);
         }
 

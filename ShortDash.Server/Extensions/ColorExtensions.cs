@@ -9,13 +9,13 @@ namespace ShortDash.Server.Extensions
     {
         private static readonly Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static Color? FromHtmlString(string value)
+        public static Color FromHtmlString(string value)
         {
             if (TryParse(value, out var result))
             {
                 return result;
             }
-            return null;
+            return Color.Black;
         }
 
         public static double GetPerceivedBrightness(this Color color)

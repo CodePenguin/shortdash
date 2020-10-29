@@ -17,7 +17,7 @@ namespace ShortDash.Server.Components
     {
         private bool _toggleState;
 
-        private Color? BackgroundColor => ToggleState ? DashboardAction.ToggleBackgroundColor : DashboardAction.BackgroundColor;
+        private Color BackgroundColor => ToggleState ? DashboardAction.ToggleBackgroundColor : DashboardAction.BackgroundColor;
 
         [Parameter]
         public DashboardAction DashboardAction { get; set; }
@@ -75,8 +75,8 @@ namespace ShortDash.Server.Components
             CellAttributes.Clear();
             if (DashboardAction.BackgroundColor != null)
             {
-                CellAttributes.Add("style", "background-color: " + BackgroundColor?.ToHtmlString());
-                TextClass = BackgroundColor?.TextClass();
+                CellAttributes.Add("style", "background-color: " + BackgroundColor.ToHtmlString());
+                TextClass = BackgroundColor.TextClass();
             }
             else
             {

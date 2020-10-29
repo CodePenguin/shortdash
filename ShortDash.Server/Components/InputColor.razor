@@ -1,22 +1,22 @@
 ﻿@using System.Drawing
 @using System.Text.RegularExpressions
-@inherits InputBase<Color?>
+@inherits InputBase<Color>
 
 <input type="color" @attributes="AdditionalAttributes" class="@CssClass" @bind="CurrentValueAsString" />
 
 @code {
     private static Regex _regex = new Regex("^#([0-9a-f]{2}){3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    protected override string FormatValueAsString(Color? value)
+    protected override string FormatValueAsString(Color value)
     {
-        return value?.ToHtmlString();
+        return value.ToHtmlString();
     }
 
-    protected override bool TryParseValueFromString(string value, out Color? result, out string validationErrorMessage)
+    protected override bool TryParseValueFromString(string value, out Color result, out string validationErrorMessage)
     {
         if (value == null || string.IsNullOrWhiteSpace(value))
         {
-            result = null;
+            result = Color.Black;
             validationErrorMessage = "";
             return true;
         }
