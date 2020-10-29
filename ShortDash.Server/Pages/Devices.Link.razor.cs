@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using OtpNet;
 using ShortDash.Core.Interfaces;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
@@ -68,14 +69,19 @@ namespace ShortDash.Server.Pages
             InvokeAsync(() => DeviceLinked(eventArgs.DeviceLinkCode, eventArgs.DeviceId));
         }
 
+        private string GenerateDeviceLinkCode()
+        {
+            var otp = new Totp(KeyGeneration.GenerateRandomKey(10));
+            return otp.ComputeTotp();
+        }
+
         private async void StartLinking()
         {
             if (!await SecureContext.ValidateUserAsync())
             {
                 return;
             }
-            var baseCode = Math.Abs(Guid.NewGuid().ToString().GetHashCode() % Math.Pow(10, DeviceLinkCodeLength));
-            DeviceLinkCode = baseCode.ToString().PadLeft(DeviceLinkCodeLength, '1');
+            DeviceLinkCode = GenerateDeviceLinkCode();
             DeviceLinkSecureUrl = NavigationManager.ToAbsoluteUri("/?c=" + HttpUtility.UrlEncode(DeviceLinkCode)).ToString();
 
             DeviceLinkService.OnDeviceLinked += DeviceLinkedEvent;

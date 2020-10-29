@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using OtpNet;
 using ShortDash.Core.Interfaces;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
@@ -43,6 +44,12 @@ namespace ShortDash.Server.Pages
             NavigationManager.NavigateTo("/targets");
         }
 
+        private string GenerateTargetLinkCode()
+        {
+            var otp = new Totp(KeyGeneration.GenerateRandomKey(10));
+            return otp.ComputeTotp();
+        }
+
         private async void StartLinking()
         {
             if (!await SecureContext.ValidateUserAsync())
@@ -51,8 +58,7 @@ namespace ShortDash.Server.Pages
             }
             ServerId = EncryptedChannelService.SenderId();
 
-            var baseCode = Math.Abs(Guid.NewGuid().ToString().GetHashCode() % Math.Pow(10, TargetLinkCodeLength));
-            TargetLinkCode = baseCode.ToString().PadLeft(TargetLinkCodeLength, '1');
+            TargetLinkCode = GenerateTargetLinkCode();
 
             TargetLinkService.OnTargetLinked += TargetLinkedEvent;
 
