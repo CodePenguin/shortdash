@@ -68,9 +68,7 @@ namespace ShortDash.Server.Services
                     ExecuteOnTarget(requestId, targetId, actionTypeName, parameters, toggleState);
                     return;
                 }
-                // Execute actions on the server
-                var result = Execute(actionTypeName, parameters, toggleState);
-                HandleActionExecuted(requestId, result);
+                ExecuteOnServer(requestId, actionTypeName, parameters, toggleState);
             }
             catch (Exception ex)
             {
@@ -100,6 +98,12 @@ namespace ShortDash.Server.Services
         private static void RegisterExecuteActionRequest(Guid requestId, ShortDashActionResultCallback callback)
         {
             PendingExecuteActionRequests[requestId] = callback;
+        }
+
+        private async void ExecuteOnServer(Guid requestId, string actionTypeName, string parameters, bool toggleState)
+        {
+            var result = await Task.Run(() => Execute(actionTypeName, parameters, toggleState));
+            HandleActionExecuted(requestId, result);
         }
 
         private async void ExecuteOnTarget(Guid requestId, string targetId, string actionTypeName, string parameters, bool toggleState)
