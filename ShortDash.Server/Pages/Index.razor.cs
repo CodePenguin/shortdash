@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,9 @@ namespace ShortDash.Server.Pages
 
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+        [Inject]
+        private ConfigurationService ConfigurationService { get; set; }
 
         private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 
@@ -74,7 +78,12 @@ namespace ShortDash.Server.Pages
             {
                 return;
             }
-            var dashboard = new Dashboard { Name = result.Data.ToString() };
+            var defaultSettings = ConfigurationService.DefaultSettings();
+            var dashboard = new Dashboard
+            {
+                BackgroundColor = defaultSettings.DashboardBackgroundColor,
+                Name = result.Data.ToString()
+            };
             await DashboardService.AddDashboardAsync(dashboard);
             StateHasChanged();
             NavigationManager.NavigateTo($"/dashboard/{dashboard.DashboardId}");

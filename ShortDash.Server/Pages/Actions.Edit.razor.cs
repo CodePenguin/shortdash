@@ -6,6 +6,7 @@ using ShortDash.Core.Plugins;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
+using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,10 @@ namespace ShortDash.Server.Pages
 
         private ShortDashActionAttribute ActionAttribute { get; set; }
         private EditContext ActionEditContext { get; set; }
+
+        [Inject]
+        private ConfigurationService ConfigurationService { get; set; }
+
         private DashboardAction DashboardAction { get; set; }
 
         [Inject]
@@ -171,7 +176,12 @@ namespace ShortDash.Server.Pages
 
         private void NewDashboardAction()
         {
-            DashboardAction = new DashboardAction { DashboardActionTargetId = DashboardActionTarget.ServerTargetId, BackgroundColor = Color.Black };
+            var defaultSettings = ConfigurationService.DefaultSettings();
+            DashboardAction = new DashboardAction
+            {
+                BackgroundColor = defaultSettings.ActionBackgroundColor,
+                DashboardActionTargetId = DashboardActionTarget.ServerTargetId,
+            };
 
             ActionAttribute = null;
             Parameters = null;

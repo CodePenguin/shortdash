@@ -56,6 +56,11 @@ namespace ShortDash.Server.Components
         public async Task<bool> AuthorizeAsync(string policy)
         {
             var user = (await AuthenticationStateTask).User;
+            return await AuthorizeAsync(user, policy);
+        }
+
+        public async Task<bool> AuthorizeAsync(ClaimsPrincipal user, string policy)
+        {
             var result = await AuthorizationService.AuthorizeAsync(user, policy);
             return result.Succeeded;
         }

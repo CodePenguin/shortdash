@@ -34,26 +34,23 @@
 
             @if (EditMode)
             {
-                <EditForm EditContext="DashboardEditContext">
+                <EditForm EditContext="DashboardEditContext" class="form-row align-items-center">
                     <DataAnnotationsValidator />
-                    <div class="form-group">
-                        <label for="DashboardName">Name</label>
-                        <InputText @bind-Value="Dashboard.Name" class="form-control" id="DashboardName" />
-                        <ValidationMessage For="() => Dashboard.Name" />
+                    <div class="col-4">
+                        <InputText @bind-Value="Dashboard.Name" class="form-control mr-2" id="DashboardName" placeholder="Name" />
                     </div>
-                    <div class="form-group">
-                        <label for="BackgroundColor">Background Color</label>
-                        <InputColor @bind-Value="@Dashboard.BackgroundColor" class="form-control" id="BackgroundColor" />
-                        <ValidationMessage For="() => Dashboard.BackgroundColor" />
+                    <div class="col-2">
+                        <InputColor @bind-Value="@Dashboard.BackgroundColor" class="form-control mr-4" id="BackgroundColor" />
                     </div>
-                    <div class="form-group form-check">
-                        <InputCheckbox @bind-Value="@Dashboard.HideLabels" class="form-check-input" id="HideLabels" />
-                        <label for="HideLabels" class="form-check-label">Hide Labels</label>
-                        <ValidationMessage For="() => Dashboard.HideLabels" />
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="@Dashboard.HideLabels" class="form-check-input" id="HideLabels" />
+                            <label for="HideLabels" class="form-check-label">Hide Labels</label>
+                        </div>
                     </div>
                 </EditForm>
             }
-            <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" HideLabels="Dashboard.HideLabels" />
+            <DashboardGrid DashboardCells="DashboardCells" EditMode="EditMode" HideLabels="Dashboard.HideLabels" TextClass="@TextClass" />
         </div>
     }
 </CascadingValue>

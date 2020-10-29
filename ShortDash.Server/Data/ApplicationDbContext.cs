@@ -62,7 +62,8 @@ namespace ShortDash.Server.Data
                 new Dashboard
                 {
                     DashboardId = 1,
-                    Name = "Main"
+                    Name = "Main",
+                    BackgroundColor = Color.White
                 }
             };
         }

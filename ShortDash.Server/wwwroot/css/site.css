@@ -155,13 +155,22 @@ app {
     color: #dc3545;
 }
 
-.grid-icon.add-cell {
-    border: 1px dotted #6c757d;
+.grid-icon.add-cell.text-light {
+    border: 1px dotted #d7d9da;
 }
 
-.grid-icon.add-cell span {
+.grid-icon.add-cell.text-light span {
     font-size: 1rem;
-    color: #6c757d;
+    color: #d7d9da;
+}
+
+.grid-icon.add-cell.text-dark {
+    border: 1px dotted #343a40;
+}
+
+.grid-icon.add-cell.text-dark span {
+    font-size: 1rem;
+    color: #343a40;
 }
 
 .text-center > .qrcode > img {

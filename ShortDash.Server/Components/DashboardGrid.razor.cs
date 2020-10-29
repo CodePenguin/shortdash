@@ -22,6 +22,9 @@ namespace ShortDash.Server.Components
         [Parameter]
         public bool HideLabels { get; set; }
 
+        [Parameter]
+        public string TextClass { get; set; }
+
         [Inject]
         protected IToastService ToastService { get; set; }
 

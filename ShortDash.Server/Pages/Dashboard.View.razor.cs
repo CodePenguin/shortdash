@@ -24,6 +24,7 @@ namespace ShortDash.Server.Pages
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
+        private bool CanEdit { get; set; }
         private bool CanView { get; set; }
         private Dashboard Dashboard { get; set; }
         private Dictionary<string, object> DashboardAttributes { get; set; } = new Dictionary<string, object>();
@@ -37,6 +38,7 @@ namespace ShortDash.Server.Pages
         {
             IsLoading = true;
             DashboardId ??= 1;
+            CanEdit = await SecureContext.AuthorizeAsync(Policies.EditDashboards);
             CanView = await CanViewDashboard();
             Dashboard = await DashboardService.GetDashboardAsync(DashboardId.Value);
             if (Dashboard == null)
@@ -47,7 +49,7 @@ namespace ShortDash.Server.Pages
             DashboardEditContext = new EditContext(Dashboard);
             LoadDashboardCells();
 
-            if (await SecureContext.AuthorizeAsync(Policies.EditDashboards))
+            if (CanEdit)
             {
                 NavMenuManager.AddMenuButton("far fa-edit", EditButtonClickEvent);
             }
@@ -99,7 +101,7 @@ namespace ShortDash.Server.Pages
         {
             DashboardCells.Clear();
             DashboardCells.AddRange(Dashboard.DashboardCells.OrderBy(c => c.Sequence).ThenBy(c => c.DashboardCellId).ToList());
-            EditMode = DashboardCells.Count == 0;
+            EditMode = CanEdit && (DashboardCells.Count == 0);
         }
 
         private void RefreshStyles()
