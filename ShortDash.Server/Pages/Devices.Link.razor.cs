@@ -17,7 +17,6 @@ namespace ShortDash.Server.Pages
 {
     public sealed partial class Devices_Link : PageBase, IDisposable
     {
-        private const int DeviceLinkCodeLength = 6;
         private DeviceClaims DeviceClaims { get; set; } = new DeviceClaims();
 
         private string DeviceLinkCode { get; set; }

@@ -17,8 +17,6 @@ namespace ShortDash.Server.Pages
 {
     public sealed partial class Targets_Link : PageBase, IDisposable
     {
-        private const int TargetLinkCodeLength = 6;
-
         [Inject]
         private IEncryptedChannelService EncryptedChannelService { get; set; }
 
