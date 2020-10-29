@@ -22,7 +22,7 @@ namespace ShortDash.Server.Components
 
         private EditContext AdminCodeEditContext { get; set; }
         private string DynamicCode { get; set; }
-        private string DynamicCodeUrl => $"otpauth://totp/ShortDash?secret={DynamicCode}&issuer=Shortdash";
+        private string DynamicCodeUrl => $"otpauth://totp/ShortDash:{Environment.MachineName}?secret={DynamicCode}&issuer=ShortDash";
         private bool IsStaticSelected { get; set; }
         private AdminCodeModel Model { get; set; }
         private bool ShowRetryMessage { get; set; }
