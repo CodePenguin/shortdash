@@ -6,10 +6,13 @@ using System;
 
 namespace ShortDash.Target
 {
-    public class Program
+    public static class Program
     {
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .UseSystemd()
+                .UseWindowsService()
                 .ConfigureLogging(loggingBuilder =>
                 {
                     loggingBuilder.AddConsole();
@@ -22,6 +25,7 @@ namespace ShortDash.Target
                 {
                     hostBuilder.AddJsonFile("hostsettings.json", optional: true);
                 });
+        }
 
         public static void Main(string[] args)
         {

@@ -34,6 +34,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.9" />
     <PackageReference Include="Otp.NET" Version="1.2.2" />
     <PackageReference Include="ShortDash.Core.Plugins" Version="0.0.15" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
