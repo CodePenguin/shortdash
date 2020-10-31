@@ -5,12 +5,14 @@ using ShortDash.Target.Services;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.ComponentModel.DataAnnotations;
+using ShortDash.Core.Interfaces;
 
 namespace ShortDash.Target.Pages
 {
     public partial class Index : ComponentBase, IDisposable
     {
         private bool wasDisposed;
+        private bool InitializedDataProtection => TargetHubClient.InitializedDataProtection;
         private bool IsConnected => TargetHubClient.IsConnected();
         private DateTime LastConnection => TargetHubClient.LastConnectionDateTime;
         private DateTime LastConnectionAttempt => TargetHubClient.LastConnectionAttemptDateTime;

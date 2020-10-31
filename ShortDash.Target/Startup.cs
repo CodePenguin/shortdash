@@ -54,9 +54,11 @@ namespace ShortDash.Target
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddTransient(typeof(IDataProtectionService), typeof(DataProtectionService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
             services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetEncryptedChannelService));
+            services.AddTransient(typeof(ISecureKeyStoreService), typeof(SecureKeyStoreService));
             services.AddSingleton<PluginService>();
             services.AddSingleton<ActionService>();
             services.AddTransient<IRetryPolicy, TargetHubRetryPolicy>();

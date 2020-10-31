@@ -1,12 +1,22 @@
 ﻿@page "/"
 @using ShortDash.Core.Extensions
+@using ShortDash.Core.Interfaces
 
 <div class="container col-xl-5 col-lg-8 col-md-10 col-sm-12 mt-3">
     <div class="card">
         <div class="card-header text-center">
             <h5 class="card-text">ShortDash Target</h5>
         </div>
-        @if (!ServerConfigured)
+        @if (!InitializedDataProtection)
+        {
+            <div class="card-body bg-danger text-light">
+                <p class="card-text">
+                    The data protection mechanism failed to initialize.
+                    This can happen if the target is executed under a different user account.
+                </p>
+            </div>
+        }
+        else if (!ServerConfigured)
         {
             <div class="card-body bg-warning">
                 <p class="card-text">
@@ -15,43 +25,46 @@
                 </p>
             </div>
         }
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-3">Target ID</dt>
-                <dd class="col-9">@TargetId</dd>
-                <dt class="col-3">Server URL</dt>
-                <dd class="col-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
-                <dt class="col-3">Server ID</dt>
-                <dd class="col-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
-                <dt class="col-3">Last Connection</dt>
-                <dd class="col-9">@LastConnection.ToDisplayString()</dd>
-            </dl>
-            @if (!IsLinked && IsConnected)
-            {
-                <div class="text-center">
-                    <EditForm Model="Model" OnValidSubmit="StartLinking">
-                        <DataAnnotationsValidator />
+        else
+        {
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-3">Target ID</dt>
+                    <dd class="col-9">@TargetId</dd>
+                    <dt class="col-3">Server URL</dt>
+                    <dd class="col-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
+                    <dt class="col-3">Server ID</dt>
+                    <dd class="col-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
+                    <dt class="col-3">Last Connection</dt>
+                    <dd class="col-9">@LastConnection.ToDisplayString()</dd>
+                </dl>
+                @if (!IsLinked && IsConnected)
+                {
+                    <div class="text-center">
+                        <EditForm Model="Model" OnValidSubmit="StartLinking">
+                            <DataAnnotationsValidator />
 
-                        <h5 class="alert alert-info">Verify the Server ID matches and then enter the code from the ShortDash Server below.</h5>
+                            <h5 class="alert alert-info">Verify the Server ID matches and then enter the code from the ShortDash Server below.</h5>
 
-                        <div class="form-group">
-                            <InputText type="text" class="form-control form-control-lg" placeholder="Enter Link Code" @bind-Value="@Model.TargetLinkCode" />
-                            <ValidationMessage For="() => Model.TargetLinkCode" />
-                        </div>
+                            <div class="form-group">
+                                <InputText type="text" class="form-control form-control-lg" placeholder="Enter Link Code" @bind-Value="@Model.TargetLinkCode" />
+                                <ValidationMessage For="() => Model.TargetLinkCode" />
+                            </div>
 
-                        <button class="btn btn-secondary" type="button" @onclick="CancelLinking">Cancel</button>
-                        <button class="btn btn-primary" type="submit" disabled="@(IsLinking || !IsConnected)">
-                            @if (IsLinking)
-                            {
-                                <span class="spinner-border spinner-border-sm"></span>
-                            }
-                            Link
-                        </button>
-                    </EditForm>
-                </div>
-            }
-        </div>
-        @if (ServerConfigured)
+                            <button class="btn btn-secondary" type="button" @onclick="CancelLinking">Cancel</button>
+                            <button class="btn btn-primary" type="submit" disabled="@(IsLinking || !IsConnected)">
+                                @if (IsLinking)
+                                {
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                }
+                                Link
+                            </button>
+                        </EditForm>
+                    </div>
+                }
+            </div>
+        }
+        @if (ServerConfigured && InitializedDataProtection)
         {
             <div class="card-footer text-light bg-@GetConnectionStatusClass()">
                 <p class="card-text text-center">

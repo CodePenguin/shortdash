@@ -10,27 +10,35 @@ using System.Text.Json;
 
 namespace ShortDash.Core.Services
 {
-    public abstract class EncryptedChannelService : IEncryptedChannelService
+    public abstract class EncryptedChannelService : IEncryptedChannelService, IDisposable
     {
         private const char CommandDelimiter = ':';
         private const string RSAChallengeType = "RSA";
         private static readonly IDictionary<string, string> ChannelAliases = new ConcurrentDictionary<string, string>();
         private static readonly IDictionary<string, EncryptedChannel> Channels = new ConcurrentDictionary<string, EncryptedChannel>();
-        private readonly RSA rsa;
+        private readonly ISecureKeyStoreService keyStore;
+        private RSA _rsa = null;
 
-        protected EncryptedChannelService(IKeyStoreService keyStore)
+        protected EncryptedChannelService(ISecureKeyStoreService keyStore)
         {
-            rsa = RSA.Create();
-            rsa.ImportPrivateKey(keyStore.RetrieveKey(KeyPurpose));
+            this.keyStore = keyStore;
         }
 
-        ~EncryptedChannelService()
-        {
-            rsa.Dispose();
-            Channels.Clear();
-        }
-
+        protected bool IsDisposed { get; private set; }
         protected abstract string KeyPurpose { get; }
+
+        protected RSA LocalRsa
+        {
+            get
+            {
+                if (_rsa == null)
+                {
+                    _rsa = RSA.Create();
+                    _rsa.ImportPrivateKey(GetPrivateKey(keyStore));
+                }
+                return _rsa;
+            }
+        }
 
         public static string LocalEncryptForPublicKey(string publicKey, string data)
         {
@@ -50,6 +58,12 @@ namespace ShortDash.Core.Services
                 var alias = ChannelAliases.FirstOrDefault(a => a.Value.Equals(channelId));
                 UnregisterChannelAlias(alias.Key);
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public string Encrypt(string channelId, object parameters)
@@ -87,7 +101,7 @@ namespace ShortDash.Core.Services
 
         public string ExportPublicKey()
         {
-            return rsa.ExportPublicKey();
+            return LocalRsa.ExportPublicKey();
         }
 
         public string ExportPublicKey(string channelId)
@@ -117,7 +131,7 @@ namespace ShortDash.Core.Services
                 {
                     throw new NotSupportedException($"Unsupported challenge type: {challengeType}");
                 }
-                var decryptedBytes = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
+                var decryptedBytes = LocalRsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
                 var decryptedChallenge = Encoding.UTF8.GetString(decryptedBytes);
                 using var challengeRsa = RSA.Create();
                 challengeRsa.ImportPublicKey(publicKey);
@@ -135,11 +149,6 @@ namespace ShortDash.Core.Services
             return !string.IsNullOrWhiteSpace(alias) && ChannelAliases.TryGetValue(alias, out var channelId) ? channelId : null;
         }
 
-        public void ImportPrivateKey(string privateKey)
-        {
-            rsa.ImportPrivateKey(privateKey);
-        }
-
         public string LocalEncryptForPublicKey(string publicKey, object parameters)
         {
             var data = JsonSerializer.Serialize(parameters);
@@ -149,7 +158,7 @@ namespace ShortDash.Core.Services
         public string LocalEncryptSigned(string data)
         {
             using var aes = Aes.Create();
-            var encryptedKey = rsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
+            var encryptedKey = LocalRsa.Encrypt(aes.Key, RSAEncryptionPadding.Pkcs1);
             var encryptedData = aes.Encrypt(data);
             var signature = RsaSign(encryptedData);
             return Convert.ToBase64String(encryptedKey) + CommandDelimiter + Convert.ToBase64String(encryptedData) + CommandDelimiter + Convert.ToBase64String(signature);
@@ -172,7 +181,7 @@ namespace ShortDash.Core.Services
         public string OpenChannel(string receiverPublicKeyXml, string encryptedKey)
         {
             var encryptedKeyBytes = Convert.FromBase64String(encryptedKey);
-            var decryptedBytes = rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.Pkcs1);
+            var decryptedBytes = LocalRsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.Pkcs1);
             var base64Key = Encoding.UTF8.GetString(decryptedBytes);
             var keyBytes = Convert.FromBase64String(base64Key);
             var channel = new EncryptedChannel(receiverPublicKeyXml);
@@ -195,7 +204,7 @@ namespace ShortDash.Core.Services
 
         public string SenderId()
         {
-            return rsa.Fingerprint();
+            return LocalRsa.Fingerprint();
         }
 
         public bool TryDecrypt(string channelId, string encryptedPacket, out string data)
@@ -271,7 +280,7 @@ namespace ShortDash.Core.Services
                 }
                 var encryptedKey = Convert.FromBase64String(packetParts[0]);
                 var encryptedData = Convert.FromBase64String(packetParts[1]);
-                var decryptedKey = rsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
+                var decryptedKey = LocalRsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
                 using var aes = Aes.Create();
                 aes.Key = decryptedKey;
                 data = aes.Decrypt(encryptedData);
@@ -311,11 +320,11 @@ namespace ShortDash.Core.Services
                 var encryptedKey = Convert.FromBase64String(packetParts[0]);
                 var encryptedData = Convert.FromBase64String(packetParts[1]);
                 var signature = Convert.FromBase64String(packetParts[2]);
-                if (!rsa.VerifyData(encryptedData, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+                if (!LocalRsa.VerifyData(encryptedData, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
                 {
                     return false;
                 }
-                var decryptedKey = rsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
+                var decryptedKey = LocalRsa.Decrypt(encryptedKey, RSAEncryptionPadding.Pkcs1);
                 using var aes = Aes.Create();
                 aes.Key = decryptedKey;
                 data = aes.Decrypt(encryptedData);
@@ -349,9 +358,25 @@ namespace ShortDash.Core.Services
         public bool VerifyChallengeResponse(string rawChallenge, string challengeResponse)
         {
             var responseData = Convert.FromBase64String(challengeResponse);
-            var responseBytes = rsa.Decrypt(responseData, RSAEncryptionPadding.Pkcs1);
+            var responseBytes = LocalRsa.Decrypt(responseData, RSAEncryptionPadding.Pkcs1);
             var compareChallenge = Encoding.UTF8.GetString(responseBytes);
             return rawChallenge.Equals(compareChallenge);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _rsa?.Dispose();
+                Channels.Clear();
+            }
+
+            IsDisposed = true;
         }
 
         private static string GenerateUniqueChannelId()
@@ -372,9 +397,22 @@ namespace ShortDash.Core.Services
             return challenge[..challengeTypeIndex];
         }
 
+        private string GetPrivateKey(ISecureKeyStoreService keyStore)
+        {
+            var key = keyStore.RetrieveSecureKey(KeyPurpose);
+            if (key != null)
+            {
+                return key;
+            }
+            var rsa = RSA.Create();
+            key = rsa.ExportPrivateKey();
+            keyStore.StoreSecureKey(KeyPurpose, key);
+            return key;
+        }
+
         private byte[] RsaSign(byte[] data)
         {
-            return rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            return LocalRsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         }
     }
 }

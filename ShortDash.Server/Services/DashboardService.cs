@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,15 @@ namespace ShortDash.Server.Services
 {
     public class DashboardService
     {
-        private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly IDataProtectionService dataProtectionService;
         private readonly DataSignatureManager dataSignatureManager;
         private readonly ApplicationDbContextFactory dbContextFactory;
 
-        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager, IDataProtectionProvider dataProtectionProvider)
+        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager, IDataProtectionService dataProtectionService)
         {
             this.dbContextFactory = dbContextFactory;
             this.dataSignatureManager = dataSignatureManager;
-            this.dataProtectionProvider = dataProtectionProvider;
+            this.dataProtectionService = dataProtectionService;
         }
 
         public async Task<DashboardAction> AddDashboardActionAsync(DashboardAction dashboardAction)
@@ -212,16 +213,14 @@ namespace ShortDash.Server.Services
             return dbContext.DashboardActions.Any();
         }
 
-        public string ProtectData<T>(string data)
+        public string ProtectData(string data)
         {
-            var protector = dataProtectionProvider.CreateProtector(typeof(T).Name);
-            return protector.Protect(data);
+            return dataProtectionService.Protect(data);
         }
 
-        public string UnprotectData<T>(string data)
+        public string UnprotectData(string data)
         {
-            var protector = dataProtectionProvider.CreateProtector(typeof(T).Name);
-            return protector.Unprotect(data);
+            return dataProtectionService.Unprotect(data);
         }
 
         public async Task<DashboardAction> UpdateDashboardActionAsync(DashboardAction dashboardAction, List<DashboardSubAction> subActionRemovalList = null)

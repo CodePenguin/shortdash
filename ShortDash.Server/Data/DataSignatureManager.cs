@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Services;
 using System;
 using System.Linq;
@@ -11,13 +12,26 @@ namespace ShortDash.Server.Data
     public class DataSignatureManager
     {
         private const int CurrentSignatureVersion = 1;
-        private readonly IDataProtector dataProtector;
-        private readonly byte[] protectedKey;
+        private readonly IDataProtectionService dataProtectionService;
+        private readonly ApplicationDbContextFactory dbContextFactory;
+        private string _protectedKey = null;
 
-        public DataSignatureManager(ApplicationDbContext dbContext, IDataProtectionProvider dataProtectionProvider)
+        public DataSignatureManager(ApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
         {
-            dataProtector = dataProtectionProvider.CreateProtector("DataSignatureManager");
-            protectedKey = InitializeKey(dbContext);
+            this.dbContextFactory = dbContextFactory;
+            this.dataProtectionService = dataProtectionService;
+        }
+
+        private string ProtectedKey
+        {
+            get
+            {
+                if (_protectedKey == null)
+                {
+                    _protectedKey = InitializeKey();
+                }
+                return _protectedKey;
+            }
         }
 
         public void GenerateSignature(object data)
@@ -53,7 +67,7 @@ namespace ShortDash.Server.Data
             {
                 return null;
             }
-            using var hmac = new HMACSHA256(dataProtector.Unprotect(protectedKey));
+            using var hmac = new HMACSHA256(Convert.FromBase64String(dataProtectionService.Unprotect(ProtectedKey)));
             return signatureVersion.ToString() + ":" + Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(signatureData)));
         }
 
@@ -102,8 +116,9 @@ namespace ShortDash.Server.Data
             };
         }
 
-        private byte[] InitializeKey(ApplicationDbContext dbContext)
+        private string InitializeKey()
         {
+            using var dbContext = dbContextFactory.CreateDbContext();
             var sectionId = ConfigurationSections.Key("DataSignature");
             var configurationSection = dbContext.ConfigurationSections
                 .Where(s => s.ConfigurationSectionId == sectionId)
@@ -112,7 +127,7 @@ namespace ShortDash.Server.Data
             if (string.IsNullOrEmpty(sectionData))
             {
                 using var hmac = new HMACSHA256();
-                sectionData = Convert.ToBase64String(dataProtector.Protect(hmac.Key));
+                sectionData = dataProtectionService.Protect(Convert.ToBase64String(hmac.Key));
                 configurationSection = new ConfigurationSection
                 {
                     ConfigurationSectionId = sectionId,
@@ -121,7 +136,7 @@ namespace ShortDash.Server.Data
                 dbContext.Add(configurationSection);
                 dbContext.SaveChanges();
             }
-            return Convert.FromBase64String(sectionData);
+            return sectionData;
         }
 
         private void SetSignatureForObject(object data, string signature)

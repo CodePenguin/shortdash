@@ -1,4 +1,4 @@
-﻿namespace ShortDash.Core.Services
+﻿namespace ShortDash.Core.Interfaces
 {
     public interface IKeyStoreService
     {
@@ -6,7 +6,7 @@
 
         void RemoveKey(string purpose);
 
-        string RetrieveKey(string purpose, bool autoGenerate = true);
+        string RetrieveKey(string purpose);
 
         void StoreKey(string purpose, string key);
     }

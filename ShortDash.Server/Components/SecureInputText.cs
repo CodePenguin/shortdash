@@ -17,6 +17,9 @@ namespace ShortDash.Server.Components
         private string lastSentValue;
         private DotNetObjectReference<SecureInputText> objectReference;
 
+        [Parameter]
+        public Action OnChange { get; set; }
+
         [Inject]
         private IJSRuntime JSRuntime { get; set; }
 
@@ -29,6 +32,7 @@ namespace ShortDash.Server.Components
         public void OnClientChanged(string encryptedValue)
         {
             DecryptConvertValue(encryptedValue);
+            OnChange?.Invoke();
         }
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)

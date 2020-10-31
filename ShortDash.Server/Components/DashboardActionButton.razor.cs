@@ -94,7 +94,7 @@ namespace ShortDash.Server.Components
         private async Task ExecuteDashGroupAction()
         {
             var actionType = DashboardActionService.FindActionType(typeof(DashGroupAction).FullName);
-            var decryptedParameters = string.IsNullOrWhiteSpace(DashboardAction.Parameters) ? "{}" : DashboardService.UnprotectData<DashboardAction>(DashboardAction.Parameters);
+            var decryptedParameters = string.IsNullOrWhiteSpace(DashboardAction.Parameters) ? "{}" : DashboardService.UnprotectData(DashboardAction.Parameters);
             var parameters = DashboardActionService.GetActionParameters(actionType, decryptedParameters) as DashGroupParameters;
             if (parameters.DashGroupType == DashGroupType.Folder)
             {

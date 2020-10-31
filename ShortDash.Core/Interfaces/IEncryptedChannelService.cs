@@ -24,8 +24,6 @@
 
         string GetChannelId(string alias);
 
-        void ImportPrivateKey(string privateKeyXml);
-
         string LocalEncryptForPublicKey(string publicKey, object data);
 
         string LocalEncryptSigned(string data);

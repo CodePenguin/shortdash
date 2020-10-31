@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using ShortDash.Core.Extensions;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
-using System;
-using System.Linq;
-using System.Security.Cryptography;
 
 namespace ShortDash.Core.Services
 {
@@ -21,7 +18,7 @@ namespace ShortDash.Core.Services
         {
             using var scope = serviceScopeFactory.CreateScope();
             var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
-            return !string.IsNullOrWhiteSpace(RetrieveKey(purpose, false));
+            return !string.IsNullOrWhiteSpace(RetrieveKey(purpose));
         }
 
         public void RemoveKey(string purpose)
@@ -31,35 +28,19 @@ namespace ShortDash.Core.Services
             configurationService.RemoveSection(ConfigurationSections.Key(purpose));
         }
 
-        public string RetrieveKey(string purpose, bool autoGenerate = true)
+        public string RetrieveKey(string purpose)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
-            var key = configurationService.GetSecureSection(ConfigurationSections.Key(purpose));
-            if (!string.IsNullOrWhiteSpace(key))
-            {
-                return key;
-            }
-            if (autoGenerate)
-            {
-                return GenerateNewKey(purpose);
-            }
-            return null;
+            var key = configurationService.GetSection(ConfigurationSections.Key(purpose));
+            return !string.IsNullOrWhiteSpace(key) ? key : null;
         }
 
         public void StoreKey(string purpose, string key)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
-            configurationService.SetSecureSection(ConfigurationSections.Key(purpose), key);
-        }
-
-        private string GenerateNewKey(string purpose)
-        {
-            var rsa = RSA.Create();
-            var key = rsa.ExportPrivateKey();
-            StoreKey(purpose, key);
-            return key;
+            configurationService.SetSection(ConfigurationSections.Key(purpose), key);
         }
     }
 }

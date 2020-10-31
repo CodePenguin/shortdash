@@ -60,7 +60,7 @@ namespace ShortDash.Server.Services
             {
                 var targetId = dashboardAction.DashboardActionTargetId;
                 var actionTypeName = dashboardAction.ActionTypeName;
-                var parameters = string.IsNullOrWhiteSpace(dashboardAction.Parameters) ? "{}" : dashboardService.UnprotectData<DashboardAction>(dashboardAction.Parameters);
+                var parameters = string.IsNullOrWhiteSpace(dashboardAction.Parameters) ? "{}" : dashboardService.UnprotectData(dashboardAction.Parameters);
 
                 // Forward targeted actions to the specific target
                 if (targetId != DashboardActionTarget.ServerTargetId)

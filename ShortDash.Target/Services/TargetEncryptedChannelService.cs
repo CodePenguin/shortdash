@@ -1,14 +1,11 @@
-﻿using ShortDash.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ShortDash.Core.Interfaces;
+using ShortDash.Core.Services;
 
 namespace ShortDash.Target.Services
 {
     public class TargetEncryptedChannelService : EncryptedChannelService
     {
-        public TargetEncryptedChannelService(IKeyStoreService keyStore) : base(keyStore)
+        public TargetEncryptedChannelService(ISecureKeyStoreService keyStore) : base(keyStore)
         {
         }
 

@@ -22,9 +22,10 @@ namespace ShortDash.Target.Services
     {
         private readonly ActionService actionService;
         private readonly ConnectionSettings connectionSettings;
+        private readonly IDataProtectionService dataProtectionService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly string keyPurpose = "ServerPublic";
-        private readonly IKeyStoreService keyStore;
+        private readonly ISecureKeyStoreService keyStore;
         private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
         private bool connecting;
@@ -33,10 +34,12 @@ namespace ShortDash.Target.Services
         private string pendingServerKey;
         private string serverChannelId;
 
-        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IEncryptedChannelService encryptedChannelService, IKeyStoreService keyStore, ActionService actionService, IConfiguration configuration)
+        public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IDataProtectionService dataProtectionService,
+            IEncryptedChannelService encryptedChannelService, ISecureKeyStoreService keyStore, ActionService actionService, IConfiguration configuration)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
+            this.dataProtectionService = dataProtectionService;
             this.encryptedChannelService = encryptedChannelService;
             this.actionService = actionService;
             this.keyStore = keyStore;
@@ -67,6 +70,7 @@ namespace ShortDash.Target.Services
         public event EventHandler OnUnlinked;
 
         public bool Authenticated { get; private set; }
+        public bool InitializedDataProtection { get; private set; }
         public DateTime LastConnectionAttemptDateTime { get; private set; }
         public DateTime LastConnectionDateTime { get; private set; }
         public bool Linked { get; private set; }
@@ -173,10 +177,17 @@ namespace ShortDash.Target.Services
                 connection = null;
             }
 
+            InitializedDataProtection = dataProtectionService.Initialized();
+            if (!InitializedDataProtection)
+            {
+                logger.LogCritical("Data protection initialization failed.");
+                return;
+            }
+
             TargetId = encryptedChannelService.SenderId();
             ServerUrl = connectionSettings?.ServerUrl.Trim('/');
             Linked = keyStore.HasKey(keyPurpose);
-            ServerId = Linked ? GetServerId(keyStore.RetrieveKey(keyPurpose)) : null;
+            ServerId = Linked ? GetServerId(keyStore.RetrieveSecureKey(keyPurpose)) : null;
             Authenticated = false;
 
             if (string.IsNullOrEmpty(ServerUrl))
@@ -248,7 +259,7 @@ namespace ShortDash.Target.Services
                 logger.LogWarning("The server expected this target to have been registered already.");
                 return;
             }
-            var serverKey = !string.IsNullOrEmpty(pendingServerKey) ? pendingServerKey : keyStore.RetrieveKey(keyPurpose);
+            var serverKey = !string.IsNullOrEmpty(pendingServerKey) ? pendingServerKey : keyStore.RetrieveSecureKey(keyPurpose);
             var challengeResponse = encryptedChannelService.GenerateChallengeResponse(challenge, serverKey);
             if (string.IsNullOrEmpty(challengeResponse))
             {
@@ -372,11 +383,11 @@ namespace ShortDash.Target.Services
         {
             if (!string.IsNullOrEmpty(pendingServerKey))
             {
-                keyStore.StoreKey(keyPurpose, pendingServerKey);
+                keyStore.StoreSecureKey(keyPurpose, pendingServerKey);
                 pendingServerKey = null;
             }
             logger.LogDebug("Received session key from server.");
-            serverChannelId = encryptedChannelService.OpenChannel(keyStore.RetrieveKey(keyPurpose, false), encryptedKey);
+            serverChannelId = encryptedChannelService.OpenChannel(keyStore.RetrieveSecureKey(keyPurpose), encryptedKey);
             ServerId = encryptedChannelService.ReceiverId(serverChannelId);
             Authenticated = true;
             Linked = true;
@@ -388,7 +399,7 @@ namespace ShortDash.Target.Services
         {
             if (pendingServerKey == null)
             {
-                pendingServerKey = keyStore.RetrieveKey(keyPurpose, false);
+                pendingServerKey = keyStore.RetrieveSecureKey(keyPurpose);
             }
             keyStore.RemoveKey(keyPurpose);
             Authenticated = false;

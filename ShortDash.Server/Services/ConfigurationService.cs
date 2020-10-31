@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
 using System.Linq;
 using System.Text.Json;
@@ -8,13 +9,13 @@ namespace ShortDash.Server.Services
 {
     public class ConfigurationService
     {
-        private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly IDataProtectionService dataProtectionService;
         private readonly ApplicationDbContextFactory dbContextFactory;
 
-        public ConfigurationService(ApplicationDbContextFactory dbContextFactory, IDataProtectionProvider dataProtectionProvider)
+        public ConfigurationService(ApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
         {
             this.dbContextFactory = dbContextFactory;
-            this.dataProtectionProvider = dataProtectionProvider;
+            this.dataProtectionService = dataProtectionService;
         }
 
         public string GetSection(string sectionId)
@@ -84,15 +85,10 @@ namespace ShortDash.Server.Services
             return configurationSection?.Data;
         }
 
-        private IDataProtector GetDataProtector(string purpose)
-        {
-            return dataProtectionProvider.CreateProtector("ConfigurationService." + purpose);
-        }
-
         private string GetSection(string sectionId, bool secure)
         {
             var data = GetConfigurationSectionData(sectionId);
-            return secure ? Unprotect(sectionId, data) : data;
+            return secure ? dataProtectionService.Unprotect(data) : data;
         }
 
         private T GetSection<T>(string sectionId, bool secure) where T : new()
@@ -105,19 +101,9 @@ namespace ShortDash.Server.Services
             return JsonSerializer.Deserialize<T>(data);
         }
 
-        private string Protect(string sectionId, string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-            var dataProtector = GetDataProtector(sectionId);
-            return dataProtector.Protect(value);
-        }
-
         private void SetSection(string sectionId, string sectionData, bool secure)
         {
-            var data = secure ? Protect(sectionId, sectionData) : sectionData;
+            var data = secure ? dataProtectionService.Protect(sectionData) : sectionData;
             StoreConfigurationSectionData(sectionId, data);
         }
 
@@ -148,16 +134,6 @@ namespace ShortDash.Server.Services
                 dbContext.Update(configurationSection);
             }
             dbContext.SaveChanges();
-        }
-
-        private string Unprotect(string sectionId, string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-            var dataProtector = GetDataProtector(sectionId);
-            return dataProtector.Unprotect(value);
         }
     }
 }
