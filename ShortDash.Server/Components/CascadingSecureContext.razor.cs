@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ShortDash.Core.Extensions;
@@ -30,6 +31,8 @@ namespace ShortDash.Server.Components
 
         public string DeviceId { get; private set; }
 
+        public bool InitializedDataProtection { get; private set; }
+
         [Inject]
         private AuthenticationEvents AuthenticationEvents { get; set; }
 
@@ -38,6 +41,15 @@ namespace ShortDash.Server.Components
 
         [Inject]
         private IAuthorizationService AuthorizationService { get; set; }
+
+        [Inject]
+        private IConfiguration Configuration { get; set; }
+
+        [Inject]
+        private ConfigurationService ConfigurationService { get; set; }
+
+        [Inject]
+        private IDataProtectionService DataProtectionService { get; set; }
 
         [Inject]
         private IEncryptedChannelService EncryptedChannelService { get; set; }
@@ -129,6 +141,10 @@ namespace ShortDash.Server.Components
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+            if (!InitializedDataProtection)
+            {
+                return;
+            }
             if (firstRender)
             {
                 await InitializeEncryptedChannel();
@@ -150,6 +166,37 @@ namespace ShortDash.Server.Components
         {
             base.OnParametersSet();
             DeviceId = null;
+            InitializedDataProtection = DataProtectionService.Initialized();
+
+            if (!InitializedDataProtection)
+            {
+                Logger.LogWarning("Data protection initialization failed.");
+                CheckRecoveryMode();
+            }
+        }
+
+        private void CheckRecoveryMode()
+        {
+            var recoveryCode = Configuration.GetValue<string>("recovery");
+            if (string.IsNullOrWhiteSpace(recoveryCode))
+            {
+                return;
+            }
+            Logger.LogInformation("Importing provided recovery code...");
+            try
+            {
+                recoveryCode = recoveryCode.Replace(" ", "");
+                var encodedSalt = ConfigurationService.GetSection(ConfigurationSections.DataProtectionSalt);
+                using var aes = Aes.Create();
+                using var derivedBytes = new Rfc2898DeriveBytes(recoveryCode, salt: Convert.FromBase64String(encodedSalt), iterations: 100000, HashAlgorithmName.SHA256);
+                DataProtectionService.SetKey(derivedBytes.GetBytes(aes.Key.Length));
+                InitializedDataProtection = DataProtectionService.Initialized();
+                Logger.LogInformation("Recovery code imported successfully.");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Recovery code import failed.");
+            }
         }
 
         private void DeviceClaimsUpdatedEvent(object sender, DeviceClaimsUpdatedEventArgs e)

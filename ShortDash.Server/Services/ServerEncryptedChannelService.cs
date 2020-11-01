@@ -14,7 +14,11 @@ namespace ShortDash.Server.Services
         {
             this.dataProtectionService = dataProtectionService;
             this.keyStore = keyStore;
-            dataProtectionService.AddKeyChangedEventHandler(DataProtectionkeyChangedEvent);
+
+            if (dataProtectionService.Initialized())
+            {
+                dataProtectionService.AddKeyChangedEventHandler(DataProtectionkeyChangedEvent);
+            }
         }
 
         protected override string KeyPurpose => "ServerEncryptedChannelService";

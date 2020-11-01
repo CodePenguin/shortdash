@@ -42,7 +42,7 @@ namespace ShortDash.Server.Services
             using var aes = Aes.Create();
             // Persist the new data protection scheme
             dataProtectionService.SetKey(derivedBytes.GetBytes(aes.Key.Length));
-            configurationService.SetSecureSection(ConfigurationSections.DataProtectionSalt, Convert.ToBase64String(derivedBytes.Salt));
+            configurationService.SetSection(ConfigurationSections.DataProtectionSalt, Convert.ToBase64String(derivedBytes.Salt));
             configurationService.SetSecureSection(ConfigurationSections.AdminAccessCode, data);
         }
 

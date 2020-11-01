@@ -1,5 +1,12 @@
 ﻿<CascadingValue Value="@this">
-    @if (!IsInitialized)
+    @if (!InitializedDataProtection)
+    {
+        <div class="alert alert-danger m-4">
+            The data protection mechanism failed to initialize.
+            This can happen if the server is executed under a different user account.
+        </div>
+    }
+    else if (!IsInitialized)
     {
         <StaticModal>
             <h3>Establishing secure connection...</h3>

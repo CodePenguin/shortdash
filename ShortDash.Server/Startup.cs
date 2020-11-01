@@ -16,18 +16,21 @@ using ShortDash.Core.Services;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
+using System.IO;
 using System.Linq;
 
 namespace ShortDash.Server
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; set; }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
@@ -69,7 +72,7 @@ namespace ShortDash.Server
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlite("Data Source=" + Path.Combine(Environment.ContentRootPath, "ShortDash.Server.db"));
             });
 
             services.Configure<CookiePolicyOptions>(options =>
