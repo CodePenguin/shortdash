@@ -25,11 +25,9 @@ namespace ShortDash.Server.Components
                     { typeof(Enum).ToString(), typeof(EnumInputSelect<>) }
                 };
 
-            componentsList = new Dictionary<string, Type>()
-                {
-                    { nameof(DashboardInputSelect), typeof(DashboardInputSelect) },
-                    { "textarea", typeof(SecureTextArea) }
-                };
+            componentsList = new Dictionary<string, Type>();
+            AddComponent(nameof(DashboardInputSelect), typeof(DashboardInputSelect));
+            AddComponent("textarea", typeof(SecureTextArea));
         }
 
         public Type GetComponentByName(string componentName)
@@ -46,6 +44,11 @@ namespace ShortDash.Server.Components
         {
             componentMappings.TryGetValue(typeName, out var component);
             return component;
+        }
+
+        private void AddComponent(string name, Type componentType)
+        {
+            componentsList.Add(name.ToLower(), componentType);
         }
     }
 }
