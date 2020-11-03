@@ -366,11 +366,8 @@ Thumbs.db
 [Dd]esktop.ini
 
 # Project specific
-hostsettings.json
 **/wwwroot/assets/*
 **/wwwroot/lib/*
-Migrations/
 *.db
 *.db-shm
 *.db-wal
-*.bat
