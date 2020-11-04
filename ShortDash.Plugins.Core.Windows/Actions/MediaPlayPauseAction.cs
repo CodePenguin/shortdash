@@ -3,7 +3,7 @@
 namespace ShortDash.Plugins.Core.Windows
 {
     [ShortDashAction(
-        Title = "Play/Pause Media",
+        Title = "Play/Pause Media [Windows]",
         Description = "Toggles the currently playing system media.")]
     [ShortDashActionDefaultSettings(
         Label = "Play/Pause",

@@ -3,7 +3,7 @@
 namespace ShortDash.Plugins.Core.Windows
 {
     [ShortDashAction(
-        Title = "Mute Media",
+        Title = "Mute Media [Windows]",
         Description = "Mutes the currently playing system media.")]
     [ShortDashActionDefaultSettings(
         Label = "Mute",

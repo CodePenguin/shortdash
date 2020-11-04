@@ -3,7 +3,7 @@
 namespace ShortDash.Plugins.Core.Windows
 {
     [ShortDashAction(
-        Title = "Next Track",
+        Title = "Next Track [Windows]",
         Description = "Goes to the next track for the current system media.")]
     [ShortDashActionDefaultSettings(
         Label = "Next",
