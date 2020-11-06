@@ -1,4 +1,5 @@
 ﻿using ShortDash.Core.Interfaces;
+using ShortDash.Target.Shared;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,6 +8,13 @@ namespace ShortDash.Target.Services
 {
     public class FileKeyStoreService : IKeyStoreService
     {
+        private readonly string applicationDataPath;
+
+        public FileKeyStoreService(string applicationDataPath)
+        {
+            this.applicationDataPath = applicationDataPath;
+        }
+
         public bool HasKey(string purpose)
         {
             return File.Exists(PurposeToFileName(purpose));
@@ -38,7 +46,7 @@ namespace ShortDash.Target.Services
         private string PurposeToFileName(string purpose)
         {
             var normalizedPurpose = Regex.Replace(purpose, @"[^\w.-]", "");
-            return Path.Combine(AppContext.BaseDirectory, "ShortDash.Target." + normalizedPurpose + ".key");
+            return Path.Combine(applicationDataPath, "ShortDash.Target." + normalizedPurpose + ".key");
         }
     }
 }

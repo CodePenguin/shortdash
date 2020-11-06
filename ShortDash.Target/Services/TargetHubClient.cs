@@ -21,7 +21,7 @@ namespace ShortDash.Target.Services
     public class TargetHubClient : IDisposable
     {
         private readonly ActionService actionService;
-        private readonly ConnectionSettings connectionSettings;
+        private readonly ApplicationSettings applicationSettings;
         private readonly IDataProtectionService dataProtectionService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly string keyPurpose = "ServerPublic";
@@ -43,9 +43,9 @@ namespace ShortDash.Target.Services
             this.encryptedChannelService = encryptedChannelService;
             this.actionService = actionService;
             this.keyStore = keyStore;
-            connectionSettings = new ConnectionSettings();
+            applicationSettings = new ApplicationSettings();
 
-            configuration.GetSection(ConnectionSettings.Key).Bind(connectionSettings);
+            configuration.GetSection(ApplicationSettings.Key).Bind(applicationSettings);
 
             SetupConnection();
         }
@@ -185,7 +185,7 @@ namespace ShortDash.Target.Services
             }
 
             TargetId = encryptedChannelService.SenderId();
-            ServerUrl = connectionSettings?.ServerUrl.Trim('/');
+            ServerUrl = applicationSettings?.ServerUrl.Trim('/');
             Linked = keyStore.HasKey(keyPurpose);
             ServerId = Linked ? GetServerId(keyStore.RetrieveSecureKey(keyPurpose)) : null;
             Authenticated = false;

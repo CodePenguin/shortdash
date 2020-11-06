@@ -1,9 +1,18 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
+using static System.Environment;
 
 namespace ShortDash.Core.Extensions
 {
     public static class EnvironmentExtensions
     {
+        public static string GetLocalApplicationDataFolderPath(string applicationName)
+        {
+            var localAppDataPath = Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), applicationName);
+            Directory.CreateDirectory(localAppDataPath);
+            return localAppDataPath;
+        }
+
         public static string Platform()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))

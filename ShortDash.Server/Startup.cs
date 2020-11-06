@@ -10,12 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
+using ShortDash.Server.Shared;
 using System.IO;
 using System.Linq;
 
@@ -67,12 +69,22 @@ namespace ShortDash.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var settings = new ApplicationSettings();
+            Configuration.GetSection(ApplicationSettings.Key).Bind(settings);
+
+            var configuredApplicationDataPath = !string.IsNullOrEmpty(settings.ApplicationDataPath) ? settings.ApplicationDataPath : null;
+            var applicationDataPath = configuredApplicationDataPath ?? EnvironmentExtensions.GetLocalApplicationDataFolderPath("ShortDash.Server");
+            if (!Directory.Exists(applicationDataPath))
+            {
+                throw new DirectoryNotFoundException("The ApplicationDataPath directory does not exist: " + applicationDataPath);
+            }
+
             services.AddDataProtection()
                 .SetApplicationName("ShortDash.Server");
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlite("Data Source=" + Path.Combine(Environment.ContentRootPath, "ShortDash.Server.db"));
+                options.UseSqlite("Data Source=" + Path.Combine(applicationDataPath, "ShortDash.Server.db"));
             });
 
             services.Configure<CookiePolicyOptions>(options =>

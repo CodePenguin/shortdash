@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
 using ShortDash.Target.Services;
 using ShortDash.Target.Shared;
+using System.IO;
 
 namespace ShortDash.Target
 {
@@ -22,7 +24,6 @@ namespace ShortDash.Target
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -45,10 +46,18 @@ namespace ShortDash.Target
             });
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var settings = new ApplicationSettings();
+            Configuration.GetSection(ApplicationSettings.Key).Bind(settings);
+
+            var configuredApplicationDataPath = !string.IsNullOrEmpty(settings.ApplicationDataPath) ? settings.ApplicationDataPath : null;
+            var applicationDataPath = configuredApplicationDataPath ?? EnvironmentExtensions.GetLocalApplicationDataFolderPath("ShortDash.Target");
+            if (!Directory.Exists(applicationDataPath))
+            {
+                throw new DirectoryNotFoundException("The ApplicationDataPath directory does not exist: " + applicationDataPath);
+            }
+
             services.AddDataProtection()
                 .SetApplicationName("ShortDash.Target");
 
@@ -56,7 +65,7 @@ namespace ShortDash.Target
             services.AddServerSideBlazor();
             services.AddTransient(typeof(IDataProtectionService), typeof(DataProtectionService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
-            services.AddTransient(typeof(IKeyStoreService), typeof(FileKeyStoreService));
+            services.AddTransient(typeof(IKeyStoreService), (serviceProvider) => new FileKeyStoreService(applicationDataPath));
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetEncryptedChannelService));
             services.AddTransient(typeof(ISecureKeyStoreService), typeof(SecureKeyStoreService));
             services.AddSingleton<PluginService>();
