@@ -57,7 +57,7 @@ namespace ShortDash.Server.Components
             return Base32Encoding.ToString(code);
         }
 
-        private void PairDevice()
+        private void SaveAdminAccessCode()
         {
             ShowRetryMessage = false;
 
