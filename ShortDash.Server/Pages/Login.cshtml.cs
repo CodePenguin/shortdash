@@ -45,11 +45,6 @@ namespace ShortDash.Server.Pages
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 claimsPrincipal,
                 authProperties);
-
-            if (claimsPrincipal.IsInRole(Roles.Administrator))
-            {
-                return LocalRedirect("~/devices/" + HttpUtility.UrlEncode(claimsPrincipal.Identity.Name));
-            }
             return LocalRedirect("~/");
         }
     }
