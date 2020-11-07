@@ -81,29 +81,20 @@ namespace ShortDash.Server.Components
 
         private async void ShowAddDialog()
         {
-            var result = await AddDashboardActionDialog.ShowAsync(ModalService);
+            var result = await AddDashboardActionsDialog.ShowAsync(ModalService);
             if (result.Cancelled)
             {
                 return;
             }
-            var dashboardActionId = (int)result.Data;
-            if (dashboardActionId <= 0)
+            var selectedActions = result.Data as List<DashboardAction>;
+            foreach (var dashboardAction in selectedActions)
             {
-                return;
+                if (SubActions.Any(a => a.DashboardActionChild.DashboardActionId == dashboardAction.DashboardActionId))
+                {
+                    continue;
+                }
+                SubActions.Add(new DashboardSubAction { DashboardActionChild = dashboardAction });
             }
-            if (SubActions.Any(a => a.DashboardActionChild.DashboardActionId == dashboardActionId))
-            {
-                ToastService.ShowWarning("The selected action has already been added.");
-                return;
-            }
-
-            var dashboardAction = await DashboardService.GetDashboardActionAsync(dashboardActionId);
-            if (dashboardAction == null)
-            {
-                return;
-            }
-
-            SubActions.Add(new DashboardSubAction { DashboardActionChild = dashboardAction });
             StateHasChanged();
         }
     }

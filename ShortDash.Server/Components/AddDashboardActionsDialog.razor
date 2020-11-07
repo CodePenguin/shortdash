@@ -1,0 +1,34 @@
+﻿<div class="modal-backdrop fade show" @onclick="CloseDialog"></div>
+<div class="modal fade show d-block" style="pointer-events: none;" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="grid container-fluid">
+                        <div class="row text-center">
+
+                            @foreach (var action in AvailableActions)
+                            {
+                                <div class="col py-3 px-3 flex-grow-0">
+                                    <div class="grid-cell" @onclick="eventArgs => ToggleActionSelect(action)">
+                                        <DashboardActionIcon DashboardAction="action" />
+                                        <div class="grid-icon-caption">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@ActionCheckboxID(action)" checked="@IsSelected(action)" @onchange="eventArgs => ToggleActionSelect(action)" />
+                                                <label class="custom-control-label" for="@ActionCheckboxID(action)">@action.Label</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="OkClick">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

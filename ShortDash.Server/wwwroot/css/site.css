@@ -128,6 +128,10 @@ app {
     font-size: 0.8rem;
 }
 
+.grid-icon-caption .custom-checkbox {
+    width: 5rem;
+}
+
 .grid-cell .edit-controls span {
     font-size: 1.75rem;
     color: #007bff;
