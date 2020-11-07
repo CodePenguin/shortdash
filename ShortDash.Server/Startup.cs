@@ -73,7 +73,7 @@ namespace ShortDash.Server
             Configuration.GetSection(ApplicationSettings.Key).Bind(settings);
 
             var configuredApplicationDataPath = !string.IsNullOrEmpty(settings.ApplicationDataPath) ? settings.ApplicationDataPath : null;
-            var applicationDataPath = configuredApplicationDataPath ?? EnvironmentExtensions.GetLocalApplicationDataFolderPath("ShortDash.Server");
+            var applicationDataPath = configuredApplicationDataPath ?? EnvironmentExtensions.GetLocalApplicationDataFolderPath("ShortDash");
             if (!Directory.Exists(applicationDataPath))
             {
                 throw new DirectoryNotFoundException("The ApplicationDataPath directory does not exist: " + applicationDataPath);
