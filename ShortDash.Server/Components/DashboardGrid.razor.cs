@@ -2,7 +2,6 @@
 using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Data;
-using ShortDash.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -27,9 +26,6 @@ namespace ShortDash.Server.Components
 
         [Inject]
         protected IToastService ToastService { get; set; }
-
-        [CascadingParameter]
-        private DashboardService DashboardService { get; set; }
 
         [CascadingParameter]
         private IModalService ModalService { get; set; }
