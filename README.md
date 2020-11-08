@@ -65,4 +65,5 @@ All sensitive information in the database is stored using AES-256 encryption and
 
 ## Additional Documentation
 
+* [Plugins](docs/plugins.md)
 * [Running as a service](docs/service.md)
