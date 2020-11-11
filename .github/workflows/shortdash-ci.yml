@@ -29,7 +29,7 @@ jobs:
       shell: bash
       run: |
         chmod +x build.sh
-        ./build.sh -m CI -b ${GITHUB_RUN_ID}
+        ./build.sh -m CI -b ${GITHUB_RUN_NUMBER}
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
