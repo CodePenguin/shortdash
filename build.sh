@@ -68,8 +68,21 @@ if [ "$mode" = "RELEASE" ]; then
         fi
     }
 
+    # Publish binaries
     buildPlatform linux-x64
     buildPlatform linux-arm64
     buildPlatform osx-x64
     buildPlatform win-x64
+
+    # Package binaries
+    echo "Packaging binaries"
+    cd $release_prefix-cross-platform
+    zip -r "../../$release_prefix-cross-platform.zip" ./*
+    cd -
+    tar czvf "$release_prefix-linux-arm64.tar.gz" -C "$release_prefix-linux-arm64" .
+    tar czvf "$release_prefix-linux-x64.tar.gz" -C "$release_prefix-linux-x64" .
+    tar czvf "$release_prefix-osx-x64.tar.gz" -C "$release_prefix-osx-x64" .
+    cd $release_prefix-win-x64
+    zip -r "../../$release_prefix-win-x64.zip" ./*
+    cd -
 fi
