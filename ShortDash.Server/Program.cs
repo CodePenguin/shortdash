@@ -22,7 +22,6 @@ namespace ShortDash.Server
                 })
                 .ConfigureHostConfiguration(hostBuilder =>
                 {
-                    hostBuilder.AddJsonFile("hostsettings.json", optional: true);
                     hostBuilder.AddCommandLine(args);
                 });
         }
