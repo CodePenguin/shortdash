@@ -1,4 +1,4 @@
-version="0.0.2"
+version="0.1.0"
 
 set -e
 mode="CI"
@@ -32,7 +32,7 @@ fi
 echo "Build Mode: $mode"
 echo "Version: $version"
 
-common_args="-v m -c Release  /p:Version=$version --framework netcoreapp3.1"
+common_args="-v m -c Release  /p:Version=$version --framework net5.0"
 platform_args="-p:PublishSingleFile=true --self-contained true"
 
 # Clean bin folder

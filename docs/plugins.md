@@ -80,7 +80,7 @@ Plugins can use constructor injection to obtain a `IShortDashPluginLogger` insta
 Execute the following steps to create an example plugin:
 
 ```bash
-dotnet new classlib --name ShortDash.Plugins.Examples.HelloWorld --framework netcoreapp3.1
+dotnet new classlib --name ShortDash.Plugins.Examples.HelloWorld --framework net5.0
 cd ShortDash.Plugins.Examples.HelloWorld
 dotnet add package ShortDash.Core.Plugins
 ```
