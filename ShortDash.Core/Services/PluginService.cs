@@ -1,4 +1,4 @@
-﻿using ShortDash.Core.Plugins;
+using ShortDash.Core.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,14 +50,18 @@ namespace ShortDash.Core.Services
             var options = new EnumerationOptions
             {
                 IgnoreInaccessible = true,
-                RecurseSubdirectories = true,
+                RecurseSubdirectories = false,
                 MatchCasing = MatchCasing.CaseInsensitive
             };
-            var pluginPaths = Directory.GetFiles(pluginBasePath, "ShortDash.Plugins.*.dll", options);
-            foreach (var pluginPath in pluginPaths)
+            var pluginDirectories = new List<string>(Directory.EnumerateDirectories(pluginBasePath, "*", options));
+            foreach (var pluginDirectory in pluginDirectories)
             {
-                var plugin = LoadPlugin(pluginPath);
-                FindActions(plugin);
+                var pluginPaths = Directory.GetFiles(pluginDirectory, "ShortDash.Plugins.*.dll", options);
+                foreach (var pluginPath in pluginPaths)
+                {
+                    var plugin = LoadPlugin(pluginPath);
+                    FindActions(plugin);
+                }
             }
         }
     }
