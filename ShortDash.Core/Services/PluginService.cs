@@ -13,7 +13,7 @@ namespace ShortDash.Core.Services
 
         public PluginService()
         {
-            pluginBasePath = Path.Combine(Path.GetFullPath(Path.GetDirectoryName(typeof(PluginService).Assembly.Location)), "plugins");
+            pluginBasePath = Path.Combine(Path.GetFullPath(Path.GetDirectoryName(AppContext.BaseDirectory)), "plugins");
             LoadPlugins();
         }
 
