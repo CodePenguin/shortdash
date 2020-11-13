@@ -1,4 +1,4 @@
-﻿using Blazored.Modal.Services;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -107,16 +107,8 @@ namespace ShortDash.Server.Pages
         private void RefreshStyles()
         {
             NavMenuManager.Subtitle = Dashboard.Name;
-            if (Dashboard.BackgroundColor != null)
-            {
-                DashboardAttributes["style"] = "background-color: " + Dashboard.BackgroundColor.ToHtmlString();
-                TextClass = Dashboard.BackgroundColor.TextClass();
-            }
-            else
-            {
-                DashboardAttributes.Remove("style");
-                TextClass = "light";
-            }
+            DashboardAttributes["style"] = "background-color: " + Dashboard.BackgroundColor.ToHtmlString();
+            TextClass = Dashboard.BackgroundColor.TextClass();
         }
 
         private async void SaveChanges()

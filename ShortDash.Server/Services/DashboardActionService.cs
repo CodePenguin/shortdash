@@ -1,4 +1,3 @@
-﻿using Blazored.Toast.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
@@ -9,7 +8,6 @@ using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services
@@ -30,6 +28,7 @@ namespace ShortDash.Server.Services
             this.targetsHubContext = targetsHubContext;
             this.encryptedChannelService = encryptedChannelService;
             this.dashboardService = dashboardService;
+            RegisterActions();
         }
 
         public delegate void ShortDashActionResultCallback(Guid requestId, ShortDashActionResult result);
@@ -77,14 +76,6 @@ namespace ShortDash.Server.Services
             }
         }
 
-        protected override void RegisterActions()
-        {
-            RegisterActionType(typeof(DashGroupAction));
-            RegisterActionType(typeof(DashLinkAction));
-            RegisterActionType(typeof(DashSeparatorAction));
-            base.RegisterActions();
-        }
-
         private static void HandleActionExecutedError(Guid requestId, string userMessage)
         {
             var result = new ShortDashActionResult
@@ -130,6 +121,13 @@ namespace ShortDash.Server.Services
             }
             var encryptedParameters = encryptedChannelService.EncryptSigned(channelId, executeActionParameters);
             await targetsHubContext.Clients.Groups(targetId).ExecuteAction(encryptedParameters);
+        }
+
+        private void RegisterActions()
+        {
+            RegisterActionType(typeof(DashGroupAction));
+            RegisterActionType(typeof(DashLinkAction));
+            RegisterActionType(typeof(DashSeparatorAction));
         }
     }
 }

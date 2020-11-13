@@ -1,4 +1,4 @@
-﻿using OtpNet;
+using OtpNet;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Services;
 using ShortDash.Server.Data;
@@ -46,14 +46,14 @@ namespace ShortDash.Server.Services
             configurationService.SetSecureSection(ConfigurationSections.AdminAccessCode, data);
         }
 
-        private bool IsValidDynamicTotpAccessCode(string accessCode, string data)
+        private static bool IsValidDynamicTotpAccessCode(string accessCode, string data)
         {
             var base32Bytes = Base32Encoding.ToBytes(data);
             var otp = new Totp(base32Bytes);
             return otp.ComputeTotp().Equals(accessCode);
         }
 
-        private bool IsValidStaticAccessCode(string accessCode, string data)
+        private static bool IsValidStaticAccessCode(string accessCode, string data)
         {
             return data.Equals(accessCode);
         }

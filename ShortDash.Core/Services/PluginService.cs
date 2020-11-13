@@ -19,9 +19,15 @@ namespace ShortDash.Core.Services
 
         public IEnumerable<Type> Actions => pluginActions;
 
+        private static Assembly LoadPlugin(string pluginPath)
+        {
+            var loadContext = new PluginLoadContext(pluginPath);
+            return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginPath)));
+        }
+
         private void FindActions(Assembly plugin)
         {
-            foreach (Type type in plugin.GetTypes())
+            foreach (var type in plugin.GetTypes())
             {
                 if (!typeof(IShortDashAction).IsAssignableFrom(type))
                 {
@@ -33,12 +39,6 @@ namespace ShortDash.Core.Services
                 }
                 pluginActions.Add(type);
             }
-        }
-
-        private Assembly LoadPlugin(string pluginPath)
-        {
-            var loadContext = new PluginLoadContext(pluginPath);
-            return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginPath)));
         }
 
         private void LoadPlugins()

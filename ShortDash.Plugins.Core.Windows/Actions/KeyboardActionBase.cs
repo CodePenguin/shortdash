@@ -1,6 +1,5 @@
-﻿using ShortDash.Core.Plugins;
+using ShortDash.Core.Plugins;
 using System;
-using System.Runtime.InteropServices;
 
 namespace ShortDash.Plugins.Core.Windows
 {
@@ -24,11 +23,8 @@ namespace ShortDash.Plugins.Core.Windows
             {
                 throw new PlatformNotSupportedException("This operation is only supported on Windows.");
             }
-            KeyboardEvent(keyCode, 0, KeyEventKeyExtendedKey, IntPtr.Zero);
-            KeyboardEvent(keyCode, 0, KeyEventKeyUp, IntPtr.Zero);
+            NativeMethods.KeyboardEvent(keyCode, 0, KeyEventKeyExtendedKey, IntPtr.Zero);
+            NativeMethods.KeyboardEvent(keyCode, 0, KeyEventKeyUp, IntPtr.Zero);
         }
-
-        [DllImport("user32.dll", EntryPoint = "keybd_event", SetLastError = true)]
-        private static extern void KeyboardEvent(byte virtualKey, byte scanCode, uint flags, IntPtr extraInfo);
     }
 }

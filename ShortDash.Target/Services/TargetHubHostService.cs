@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ShortDash.Target.Services
 {
-    public class TargetHubHostService : BackgroundService
+    public sealed class TargetHubHostService : BackgroundService
     {
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly TargetHubClient targetHubClient;
@@ -18,6 +18,7 @@ namespace ShortDash.Target.Services
         public override void Dispose()
         {
             cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
             targetHubClient.Dispose();
             base.Dispose();
         }

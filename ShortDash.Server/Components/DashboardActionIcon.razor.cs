@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -73,15 +73,8 @@ namespace ShortDash.Server.Components
         private void RefreshStyles()
         {
             CellAttributes.Clear();
-            if (DashboardAction.BackgroundColor != null)
-            {
-                CellAttributes.Add("style", "background-color: " + BackgroundColor.ToHtmlString());
-                TextClass = BackgroundColor.TextClass();
-            }
-            else
-            {
-                TextClass = "dark";
-            }
+            CellAttributes.Add("style", "background-color: " + BackgroundColor.ToHtmlString());
+            TextClass = BackgroundColor.TextClass();
         }
     }
 }

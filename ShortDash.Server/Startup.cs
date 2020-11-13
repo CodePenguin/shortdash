@@ -43,7 +43,7 @@ namespace ShortDash.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                app.UseMigrationsEndPoint();
             }
             else
             {
@@ -69,6 +69,8 @@ namespace ShortDash.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
             var settings = new ApplicationSettings();
             Configuration.GetSection(ApplicationSettings.Key).Bind(settings);
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Plugins;
 using System;
@@ -110,11 +110,6 @@ namespace ShortDash.Core.Services
             return ActionTypes.Values.ToList();
         }
 
-        protected virtual void RegisterActions()
-        {
-            LoadPluginActions();
-        }
-
         protected void RegisterActionType(Type actionType)
         {
             if (!typeof(IShortDashAction).IsAssignableFrom(actionType))
@@ -133,6 +128,11 @@ namespace ShortDash.Core.Services
             {
                 RegisterActionType(actionType);
             }
+        }
+
+        private void RegisterActions()
+        {
+            LoadPluginActions();
         }
     }
 }
