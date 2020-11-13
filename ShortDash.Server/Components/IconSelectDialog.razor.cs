@@ -1,4 +1,4 @@
-﻿using Blazored.Modal;
+using Blazored.Modal;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -14,7 +14,7 @@ using System.Timers;
 
 namespace ShortDash.Server.Components
 {
-    public partial class IconSelectDialog : ComponentBase
+    public sealed partial class IconSelectDialog : ComponentBase, IDisposable
     {
         private readonly List<string> icons = new List<string>();
         private Timer searchTextTimer;
@@ -46,6 +46,11 @@ namespace ShortDash.Server.Components
             parameters.Add(nameof(TextClass), backgroundColor.TextClass());
             var modal = modalService.Show<IconSelectDialog>("", parameters);
             return modal.Result;
+        }
+
+        public void Dispose()
+        {
+            searchTextTimer?.Dispose();
         }
 
         protected async override Task OnInitializedAsync()
