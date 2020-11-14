@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -6,7 +6,7 @@ namespace ShortDash.Target.Services
 {
     public class TargetHubRetryPolicy : IRetryPolicy
     {
-        private ILogger<TargetHubRetryPolicy> logger;
+        private readonly ILogger<TargetHubRetryPolicy> logger;
 
         public TargetHubRetryPolicy(ILogger<TargetHubRetryPolicy> logger)
         {

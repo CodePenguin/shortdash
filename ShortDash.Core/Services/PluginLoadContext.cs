@@ -1,4 +1,4 @@
-﻿using ShortDash.Core.Plugins;
+using ShortDash.Core.Plugins;
 using System;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -7,7 +7,7 @@ namespace ShortDash.Core.Services
 {
     internal class PluginLoadContext : AssemblyLoadContext
     {
-        private AssemblyDependencyResolver _resolver;
+        private readonly AssemblyDependencyResolver _resolver;
 
         public PluginLoadContext(string pluginPath)
         {

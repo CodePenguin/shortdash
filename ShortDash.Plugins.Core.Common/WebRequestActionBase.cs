@@ -1,4 +1,4 @@
-﻿using ShortDash.Core.Plugins;
+using ShortDash.Core.Plugins;
 using System;
 using System.IO;
 using System.Net;
@@ -36,7 +36,7 @@ namespace ShortDash.Plugins.Core.Common
             }
         }
 
-        private string GetDefaultContentType(string method)
+        private static string GetDefaultContentType(string method)
         {
             return !method.Equals("GET") ? "application/x-www-form-urlencoded" : "";
         }
