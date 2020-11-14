@@ -38,6 +38,10 @@ platform_args="-p:PublishSingleFile=true  -p:IncludeNativeLibrariesForSelfExtrac
 # Clean bin folder
 rm -rf bin
 
+# Restore and build solution
+dotnet restore ShortDash.sln
+dotnet build ShortDash.sln --configuration Release --no-restore
+
 # Build Cross-Platform
 echo "Building Cross-Platform binaries"
 release_name="$release_prefix-cross-platform"

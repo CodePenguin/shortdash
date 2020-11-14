@@ -40,6 +40,10 @@ $platform_args = "-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtr
 # Clean bin folder
 Remove-Item -Path bin -Recurse -ErrorAction SilentlyContinue
 
+# Restore and build solution
+Invoke-Expression "dotnet restore ShortDash.Windows.sln"
+Invoke-Expression "dotnet build ShortDash.Windows.sln --configuration Release --no-restore"
+
 Write-Host 'Building Windows binaries'
 $rid = 'win-x64'
 $release_name = "$release_prefix-$rid"
