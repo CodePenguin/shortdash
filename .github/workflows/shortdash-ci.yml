@@ -19,11 +19,11 @@ jobs:
         dotnet-version: 5.0.100
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore ShortDash.sln
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ShortDash.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test ShortDash.sln --no-restore --verbosity normal
 
     - name: Build binaries
       shell: bash
@@ -49,11 +49,15 @@ jobs:
         dotnet-version: 5.0.100
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore ShortDash.Windows.sln
+    - name: Build
+      run: dotnet build ShortDash.Windows.sln --configuration Release --no-restore
+    - name: Test
+      run: dotnet test ShortDash.Windows.sln --no-restore --verbosity normal
 
     - name: Build binaries
       shell: powershell
-      run: .\build.ps1
+      run: .\build.ps1 -m CI -b ${GITHUB_RUN_NUMBER}
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2

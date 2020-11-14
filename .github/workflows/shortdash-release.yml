@@ -47,7 +47,7 @@ jobs:
 
     - name: Publish binaries
       shell: powershell
-      run: .\build.ps1
+      run: .\build.ps1 -m RELEASE -b ${GITHUB_RUN_NUMBER}
 
     - name: Upload binaries
       uses: softprops/action-gh-release@v1
