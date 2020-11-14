@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 
 namespace ShortDash.Core.Plugins
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class ShortDashActionAttribute : Attribute
     {
         public string Description { get; set; } = "";

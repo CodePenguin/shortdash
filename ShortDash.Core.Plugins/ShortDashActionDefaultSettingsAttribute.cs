@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Drawing;
 
 namespace ShortDash.Core.Plugins
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class ShortDashActionDefaultSettingsAttribute : Attribute
     {
         public Color? BackgroundColor { get; set; } = null;
