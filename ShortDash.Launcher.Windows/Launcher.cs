@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-namespace ShortDash.Launcher
+namespace ShortDash.Launcher.Windows
 {
     public sealed class Launcher : IDisposable
     {

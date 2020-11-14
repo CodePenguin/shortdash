@@ -31,6 +31,28 @@ jobs:
           bin/ShortDash-linux-arm64.tar.gz
           bin/ShortDash-linux-x64.tar.gz
           bin/ShortDash-osx-x64.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    - name: Publish binaries
+      shell: powershell
+      run: .\build.ps1
+
+    - name: Upload binaries
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
           bin/ShortDash-win-x64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

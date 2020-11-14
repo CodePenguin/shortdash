@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-cross-platform:
 
     runs-on: ubuntu-latest
 
@@ -36,3 +36,27 @@ jobs:
       with:
         name: ShortDash-CI-cross-platform
         path: bin/ShortDash-CI-cross-platform/**
+
+  build-launcher-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build binaries
+      shell: powershell
+      run: .\build.ps1
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ShortDash-CI-launcher-win-x64
+        path: bin/ShortDash-CI-win-x64/**

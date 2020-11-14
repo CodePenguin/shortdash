@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace ShortDash.Launcher
+namespace ShortDash.Launcher.Windows
 {
     internal static class NativeMethods
     {

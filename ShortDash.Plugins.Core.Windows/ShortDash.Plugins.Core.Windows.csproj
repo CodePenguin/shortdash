@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -11,10 +11,6 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\ShortDash.Server\bin\Debug\plugins\ShortDash.Plugins.Core.Windows\</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\ShortDash.Server\bin\Release\plugins\ShortDash.Plugins.Core.Windows\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,5 @@
 
-namespace ShortDash.Launcher
+namespace ShortDash.Launcher.Windows
 {
     partial class LauncherHostForm
     {

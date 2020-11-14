@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace ShortDash.Launcher
+namespace ShortDash.Launcher.Windows
 {
     public partial class LauncherHostForm : Form
     {

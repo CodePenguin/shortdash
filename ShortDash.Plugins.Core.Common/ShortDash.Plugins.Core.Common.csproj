@@ -13,10 +13,6 @@
     <OutputPath>..\ShortDash.Server\bin\Debug\plugins\ShortDash.Plugins.Core.Common\</OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\ShortDash.Server\bin\Release\plugins\ShortDash.Plugins.Core.Common\</OutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="ShortDash.Core.Plugins" Version="0.1.0" />
   </ItemGroup>
