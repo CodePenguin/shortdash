@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using ShortDash.Core.Interfaces;
@@ -129,7 +129,9 @@ namespace ShortDash.Server.Services
             return dbContext.DashboardActions
                 .Include(a => a.DashboardSubActionChildren)
                 .ThenInclude(c => c.DashboardActionChild)
+                .AsSplitQuery()
                 .Where(a => a.DashboardActionId == dashboardActionId)
+                .OrderBy(a => a.DashboardActionId)
                 .FirstOrDefaultAsync();
         }
 
@@ -180,10 +182,9 @@ namespace ShortDash.Server.Services
             return dbContext.Dashboards
                 .Include(d => d.DashboardCells)
                 .ThenInclude(c => c.DashboardAction)
-                .ThenInclude(a => a.DashboardSubActionChildren)
-                .ThenInclude(sa => sa.DashboardActionChild)
+                .AsSplitQuery()
                 .Where(d => d.DashboardId == dashboardId)
-                .OrderBy(d => d.Name)
+                .OrderBy(d => d.DashboardId)
                 .FirstOrDefaultAsync();
         }
 

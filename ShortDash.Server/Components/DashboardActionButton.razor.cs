@@ -1,4 +1,4 @@
-﻿using Blazored.Modal.Services;
+using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using ShortDash.Core.Plugins;
@@ -77,6 +77,9 @@ namespace ShortDash.Server.Components
             {
                 return;
             }
+
+            // Retrieve the latest data for the action
+            DashboardAction = await DashboardService.GetDashboardActionAsync(DashboardAction.DashboardActionId);
 
             IsExecuting = true;
             if (DashboardAction.ActionTypeName.Equals(typeof(DashGroupAction).FullName))
