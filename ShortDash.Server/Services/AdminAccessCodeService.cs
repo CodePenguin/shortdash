@@ -1,10 +1,8 @@
 using OtpNet;
 using ShortDash.Core.Interfaces;
-using ShortDash.Core.Services;
 using ShortDash.Server.Data;
 using System;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services
 {

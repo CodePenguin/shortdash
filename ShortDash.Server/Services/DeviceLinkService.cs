@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 

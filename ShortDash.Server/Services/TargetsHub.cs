@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
-using ShortDash.Core.Services;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
@@ -11,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace ShortDash.Server.Services
 {

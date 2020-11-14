@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
-using ShortDash.Core.Plugins;
 using ShortDash.Server.Data;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Services

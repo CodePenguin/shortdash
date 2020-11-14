@@ -1,5 +1,3 @@
-﻿using Blazored.Modal;
-using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using ShortDash.Core.Plugins;
@@ -8,10 +6,7 @@ using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Dynamic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;

@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-using ShortDash.Core.Interfaces;
-using ShortDash.Server.Services;
+﻿using ShortDash.Core.Interfaces;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
 namespace ShortDash.Server.Data
 {

@@ -1,12 +1,5 @@
-﻿using Blazored.Modal;
-using Blazored.Modal.Services;
+﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
-using ShortDash.Server.Data;
-using ShortDash.Server.Services;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ShortDash.Server.Components

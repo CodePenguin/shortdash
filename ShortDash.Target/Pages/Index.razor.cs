@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
-using System;
 using ShortDash.Target.Services;
-using System.Runtime.InteropServices;
-using System.Threading;
+using System;
 using System.ComponentModel.DataAnnotations;
-using ShortDash.Core.Interfaces;
 
 namespace ShortDash.Target.Pages
 {

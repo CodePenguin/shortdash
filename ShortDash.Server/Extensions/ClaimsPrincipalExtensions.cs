@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using ShortDash.Server.Data;
-using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace ShortDash.Server.Extensions

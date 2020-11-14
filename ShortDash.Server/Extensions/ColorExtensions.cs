@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 

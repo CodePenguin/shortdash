@@ -1,5 +1,4 @@
-﻿using Blazored.Modal.Services;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;

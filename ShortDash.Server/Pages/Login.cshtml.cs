@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ShortDash.Core.Interfaces;
-using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
 using ShortDash.Server.Services;
+using System.Threading.Tasks;
 
 namespace ShortDash.Server.Pages
 {
