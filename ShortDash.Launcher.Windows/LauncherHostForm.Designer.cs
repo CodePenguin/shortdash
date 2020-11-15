@@ -30,7 +30,6 @@ namespace ShortDash.Launcher.Windows
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LauncherHostForm));
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.IconMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.OpenProcessUrlMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,7 +43,6 @@ namespace ShortDash.Launcher.Windows
             // NotifyIcon
             // 
             this.NotifyIcon.ContextMenuStrip = this.IconMenu;
-            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
             this.NotifyIcon.Text = "ShortDash";
             this.NotifyIcon.Visible = true;
             this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseDoubleClick);

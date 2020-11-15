@@ -14,6 +14,8 @@ namespace ShortDash.Launcher.Windows
             {
                 OnProcessTerminated = ProcessTerminatedEvent
             };
+            Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            NotifyIcon.Icon = Icon;
             NotifyIcon.Text = "ShortDash " + (launcher.ProcessIsServer ? "Server" : "Target");
             launcher.Start();
         }
