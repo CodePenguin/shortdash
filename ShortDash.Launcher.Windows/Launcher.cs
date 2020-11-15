@@ -2,28 +2,28 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using static System.Environment;
 
 namespace ShortDash.Launcher.Windows
 {
     public sealed class Launcher : IDisposable
     {
         public EventHandler OnProcessTerminated;
-        private const string EXE_SERVER = "ShortDash.Server.exe";
-        private const string EXE_TARGET = "ShortDash.Target.exe";
         private const int SW_HIDE = 0;
         private const int SW_SHOW = 5;
         private readonly string basePath;
-        private readonly string processExeName;
+        private readonly string binaryFileName;
         private Process process;
         private string processUrl;
 
         public Launcher(string basePath)
         {
             this.basePath = basePath;
-            processExeName = File.Exists(Path.Combine(basePath, EXE_TARGET)) ? EXE_TARGET : EXE_SERVER;
+            binaryFileName = DetectBinaryFileName();
             LoadAppSettings();
         }
 
+        public bool ProcessIsServer => binaryFileName.Contains("Server");
         public bool ProcessIsVisible { get; private set; }
 
         public void Dispose()
@@ -46,12 +46,27 @@ namespace ShortDash.Launcher.Windows
                 EnableRaisingEvents = true
             };
             process.Exited += ProcessExitedEvent;
-            process.StartInfo.FileName = processExeName;
             process.StartInfo.RedirectStandardOutput = false;
             process.StartInfo.RedirectStandardError = false;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.WorkingDirectory = basePath;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+            if (Path.GetExtension(binaryFileName).ToUpper() == ".DLL")
+            {
+                var dotnetExePath = Path.Combine(GetFolderPath(SpecialFolder.ProgramFiles, SpecialFolderOption.DoNotVerify), "dotnet\\dotnet.exe");
+                if (!File.Exists(dotnetExePath))
+                {
+                    throw new FileNotFoundException("Unable to find the .NET runtime processor.");
+                }
+                process.StartInfo.FileName = dotnetExePath;
+                process.StartInfo.Arguments = binaryFileName;
+            }
+            else
+            {
+                process.StartInfo.FileName = binaryFileName;
+            }
+
             process.Start();
 
             // Wait for the console process to start and create its window so it can be forced to hide
@@ -86,6 +101,31 @@ namespace ShortDash.Launcher.Windows
             }
         }
 
+        private string DetectBinaryFileName()
+        {
+            const string DLL_SERVER = "ShortDash.Server.dll";
+            const string DLL_TARGET = "ShortDash.Target.dll";
+            const string EXE_SERVER = "ShortDash.Server.exe";
+            const string EXE_TARGET = "ShortDash.Target.exe";
+            if (File.Exists(Path.Combine(basePath, EXE_SERVER)))
+            {
+                return EXE_SERVER;
+            }
+            if (File.Exists(Path.Combine(basePath, EXE_TARGET)))
+            {
+                return EXE_TARGET;
+            }
+            if (File.Exists(Path.Combine(basePath, DLL_SERVER)))
+            {
+                return DLL_SERVER;
+            }
+            if (File.Exists(Path.Combine(basePath, DLL_TARGET)))
+            {
+                return DLL_TARGET;
+            }
+            throw new FileNotFoundException("ShortDash binary not found.");
+        }
+
         private void LoadAppSettings()
         {
             var appSettingsFileName = Path.Combine(basePath, "appsettings.json");
@@ -93,7 +133,7 @@ namespace ShortDash.Launcher.Windows
                 ? JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(appSettingsFileName))
                 : new AppSettings();
             // Generate process URL
-            var port = (processExeName == EXE_TARGET ? 5101 : 5100);
+            var port = ProcessIsServer ? 5100 : 5101;
             var url = string.IsNullOrWhiteSpace(appSettings.Urls) ? $"http://localhost:{port}" : appSettings.Urls.Split(";")[0];
             url = url.Replace("*", "localhost");
             var uri = new Uri(url);
