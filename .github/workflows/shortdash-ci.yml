@@ -18,14 +18,7 @@ jobs:
       with:
         dotnet-version: 5.0.100
 
-    - name: Install dependencies
-      run: dotnet restore ShortDash.sln
-    - name: Build
-      run: dotnet build ShortDash.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test ShortDash.sln --no-restore --verbosity normal
-
-    - name: Build binaries
+    - name: Build and Test
       shell: bash
       run: |
         chmod +x build.sh
@@ -48,14 +41,7 @@ jobs:
       with:
         dotnet-version: 5.0.100
 
-    - name: Install dependencies
-      run: dotnet restore ShortDash.Windows.sln
-    - name: Build
-      run: dotnet build ShortDash.Windows.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test ShortDash.Windows.sln --no-restore --verbosity normal
-
-    - name: Build binaries
+    - name: Build and Test
       shell: powershell
       run: .\build.ps1 -m CI -b $Env:GITHUB_RUN_NUMBER
 

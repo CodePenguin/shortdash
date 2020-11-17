@@ -54,5 +54,6 @@ jobs:
       with:
         files: |
           bin/ShortDash-win-x64.zip
+          bin/ShortDash-win-x64-setup.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

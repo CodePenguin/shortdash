@@ -32,15 +32,18 @@ fi
 echo "Build Mode: $mode"
 echo "Version: $version"
 
-common_args="-v m -c Release  /p:Version=$version --framework net5.0"
-platform_args="-p:PublishSingleFile=true  -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
+common_args="-v m -c Release /p:Version=$version --framework net5.0"
+platform_args="-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
 
 # Clean bin folder
 rm -rf bin
 
 # Restore and build solution
 dotnet restore ShortDash.sln
-dotnet build ShortDash.sln --configuration Release --no-restore
+dotnet build ShortDash.sln -c Release --no-restore
+
+# Run unit tests
+dotnet test ShortDash.Windows.sln  -c Release --no-restore -v n
 
 # Build Cross-Platform
 echo "Building Cross-Platform binaries"
