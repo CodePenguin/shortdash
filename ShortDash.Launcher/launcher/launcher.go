@@ -1,11 +1,12 @@
 package launcher
 
 import (
+	"log"
 	"os"
 	"os/exec"
 )
 
-// ShortDash Process Launcher
+// Launcher manages the ShortDash process
 type Launcher struct {
 	basePath       string
 	binaryFileName string
@@ -23,9 +24,10 @@ func New(basePath string) Launcher {
 
 // Start the ShortDash process
 func (l *Launcher) Start() error {
-	cmd := exec.Command("./ShortDash.Target.exe")
+	log.Printf("Starting %s...", l.binaryFileName)
+	cmd := exec.Command(l.binaryFileName)
 	l.cmd = cmd
-	return cmd.Run()
+	return cmd.Start()
 }
 
 // Kill the ShortDash Process
@@ -35,6 +37,7 @@ func (l *Launcher) Kill() {
 
 // Wait for the ShortDash proces to finish
 func (l *Launcher) Wait() error {
+	log.Printf("Waiting for %s to complete...", l.binaryFileName)
 	return l.cmd.Wait()
 }
 

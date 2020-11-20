@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"ShortDash.Launcher/icon"
@@ -26,13 +27,6 @@ func fileExists(filename string) bool {
 }
 
 func onReady() {
-	proc := launcher.New("./")
-
-	cmdExited := make(chan error, 1)
-	go func() {
-		cmdExited <- proc.Wait()
-	}()
-
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 	systray.SetTooltip("ShortDash Target")
 	launchMenuItem := systray.AddMenuItem("Open", "Open")
@@ -40,6 +34,17 @@ func onReady() {
 	showMenuitem := systray.AddMenuItem("Show Process", "Show Process")
 	systray.AddSeparator()
 	exitMenuItem := systray.AddMenuItem("Exit", "Exit")
+
+	proc := launcher.New("./")
+	err := proc.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cmdExited := make(chan error, 1)
+	go func() {
+		cmdExited <- proc.Wait()
+	}()
 
 	for {
 		select {
