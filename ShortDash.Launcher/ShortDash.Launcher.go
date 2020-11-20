@@ -32,18 +32,24 @@ func onReady() {
 	setConsoleVisibility(false)
 
 	systray.SetTemplateIcon(icon.Data, icon.Data)
-	systray.SetTooltip("ShortDash Target")
-	launchMenuItem := systray.AddMenuItem("Open", "Open")
-	systray.AddSeparator()
-	showLogMenuitem := systray.AddMenuItem("Show Log", "Show Log")
-	systray.AddSeparator()
-	exitMenuItem := systray.AddMenuItem("Exit", "Exit")
 
 	proc := launcher.New("./")
 	err := proc.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	processTitle := "ShortDash Server"
+	if !proc.IsServer {
+		processTitle = "ShortDash Target"
+	}
+
+	systray.SetTooltip(processTitle)
+	launchMenuItem := systray.AddMenuItem(processTitle, processTitle)
+	systray.AddSeparator()
+	showLogMenuitem := systray.AddMenuItem("Show Log", "Show Log")
+	systray.AddSeparator()
+	exitMenuItem := systray.AddMenuItem("Exit", "Exit")
 
 	cmdExited := make(chan error, 1)
 	go func() {

@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
+	"strings"
 )
 
 // Launcher manages the ShortDash process
@@ -11,6 +13,7 @@ type Launcher struct {
 	basePath       string
 	binaryFileName string
 	cmd            *exec.Cmd
+	IsServer       bool
 	showConsole    bool
 	ProcessURL     string
 }
@@ -20,13 +23,17 @@ func New(basePath string) Launcher {
 	launcher := Launcher{basePath: basePath}
 	launcher.binaryFileName = findBinaryFileName(basePath)
 	launcher.ProcessURL = processURLFromBinary(launcher.binaryFileName)
+	launcher.IsServer = strings.Contains(launcher.binaryFileName, "Server")
 	return launcher
 }
 
 // Start the ShortDash process
 func (l *Launcher) Start() error {
 	log.Printf("Starting %s...", l.binaryFileName)
-	cmd := exec.Command(l.binaryFileName)
+	fileName := l.binaryFileName
+	args := ""
+	cmd := exec.Command(fileName, args)
+	cmd.Dir = l.basePath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	l.cmd = cmd
@@ -40,33 +47,36 @@ func (l *Launcher) Kill() {
 
 // Wait for the ShortDash proces to finish
 func (l *Launcher) Wait() error {
-	log.Printf("Waiting for %s to complete...", l.binaryFileName)
+	log.Printf("%s is now running...", l.binaryFileName)
 	return l.cmd.Wait()
 }
 
 func findBinaryFileName(basePath string) string {
-	const ServerApplication = "ShortDash.Server"
-	const ServerExecutable = "ShortDash.Server.exe"
-	const ServerLibrary = "ShortDash.Server.dll"
-	const TargetApplication = "ShortDash.Target"
-	const TargetLibrary = "ShortDash.Target.dll"
-	const TargetExecutable = "ShortDash.Target.exe"
-	if _, err := os.Stat(ServerApplication); err == nil {
-		return ServerApplication
-	} else if _, err := os.Stat(ServerExecutable); err == nil {
-		return ServerExecutable
-	} else if _, err := os.Stat(ServerLibrary); err == nil {
-		return ServerLibrary
-	} else if _, err := os.Stat(TargetApplication); err == nil {
-		return TargetApplication
-	} else if _, err := os.Stat(TargetLibrary); err == nil {
-		return TargetLibrary
-	} else if _, err := os.Stat(TargetExecutable); err == nil {
-		return TargetExecutable
+	if runtime.GOOS == "windows" {
+		const ServerExecutable = "ShortDash.Server.exe"
+		const TargetExecutable = "ShortDash.Target.exe"
+		if _, err := os.Stat(ServerExecutable); err == nil {
+			return ServerExecutable
+		} else if _, err := os.Stat(TargetExecutable); err == nil {
+			return TargetExecutable
+		}
+	} else {
+		const ServerApplication = "ShortDash.Server"
+		const TargetApplication = "ShortDash.Target"
+		if _, err := os.Stat(ServerApplication); err == nil {
+			return ServerApplication
+		} else if _, err := os.Stat(TargetApplication); err == nil {
+			return TargetApplication
+		}
 	}
 	panic("ShortDash binary not found.")
 }
 
 func processURLFromBinary(binaryFileName string) string {
-	return "http://localhost:5101"
+	isServer := strings.Contains(binaryFileName, "Server")
+	if isServer {
+		return "http://localhost:5100"
+	} else {
+		return "http://localhost:5101"
+	}
 }
