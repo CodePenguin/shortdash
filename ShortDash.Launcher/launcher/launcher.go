@@ -26,6 +26,8 @@ func New(basePath string) Launcher {
 func (l *Launcher) Start() error {
 	log.Printf("Starting %s...", l.binaryFileName)
 	cmd := exec.Command(l.binaryFileName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	l.cmd = cmd
 	return cmd.Start()
 }
