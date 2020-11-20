@@ -11,6 +11,7 @@ type Launcher struct {
 	basePath       string
 	binaryFileName string
 	cmd            *exec.Cmd
+	showConsole    bool
 	ProcessURL     string
 }
 
