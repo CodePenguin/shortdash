@@ -1,6 +1,7 @@
 package launcher
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -22,7 +23,7 @@ type Launcher struct {
 func New(basePath string) Launcher {
 	launcher := Launcher{basePath: basePath}
 	launcher.binaryFileName = findBinaryFileName(basePath)
-	launcher.ProcessURL = processURLFromBinary(launcher.binaryFileName)
+	launcher.ProcessURL = getProcessURL(launcher.binaryFileName, basePath)
 	launcher.IsServer = strings.Contains(launcher.binaryFileName, "Server")
 	return launcher
 }
@@ -51,6 +52,7 @@ func (l *Launcher) Wait() error {
 	return l.cmd.Wait()
 }
 
+// Checks the file system to determine what binary should be executed
 func findBinaryFileName(basePath string) string {
 	if runtime.GOOS == "windows" {
 		const ServerExecutable = "ShortDash.Server.exe"
@@ -72,11 +74,17 @@ func findBinaryFileName(basePath string) string {
 	panic("ShortDash binary not found.")
 }
 
-func processURLFromBinary(binaryFileName string) string {
+// Retrieves the process URL based on configuration or defaults
+func getProcessURL(binaryFileName string, configPath string) string {
 	isServer := strings.Contains(binaryFileName, "Server")
-	if isServer {
-		return "http://localhost:5100"
-	} else {
-		return "http://localhost:5101"
+	port := 5100
+	if !isServer {
+		port = 5101
 	}
+	settings := readAppSettings(configPath)
+	url := strings.Split(settings.Urls, ";")[0]
+	if url != "" {
+		return strings.ReplaceAll(url, "*", "localhost")
+	}
+	return fmt.Sprintf("http://localhost:%d", port)
 }
