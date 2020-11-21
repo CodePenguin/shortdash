@@ -15,7 +15,7 @@
             try {
                 return forge.pki.decryptRsaPrivateKey(privateKey, _.getClientUniqueId());
             }
-            catch
+            catch(err)
             {
                 localStorage.removeItem("SecureContextClientPrivateKey");
                 return null;
