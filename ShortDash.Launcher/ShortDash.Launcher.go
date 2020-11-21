@@ -22,25 +22,35 @@ func onExit() {
 }
 
 func onReady() {
-	workingDir, _ := os.Getwd()
-	binaryPath := flag.String("b", workingDir, "Binary Path")
-	configPath := flag.String("c", "", "Config Path")
+	// Always execute with the working directory as the executable path
+	executable, err := os.Executable()
+	workingDir, _ := filepath.Abs(filepath.Dir(executable))
+	os.Chdir(workingDir)
+
+	// Get command line parameters
+	binaryPathParameter := flag.String("b", workingDir, "Binary Path")
+	configPathParameter := flag.String("c", "", "Config Path")
+	showConsoleParameter := flag.Bool("s", false, "Show Console")
 	flag.Parse()
 
-	if *configPath == "" {
-		configPath = binaryPath
+	if *configPathParameter == "" {
+		configPathParameter = binaryPathParameter
 	}
 
-	absoluteBinaryPath, _ := filepath.Abs(*binaryPath)
-	absoluteConfigPath, _ := filepath.Abs(*configPath)
+	binaryPath, _ := filepath.Abs(*binaryPathParameter)
+	configPath, _ := filepath.Abs(*configPathParameter)
 
-	consoleVisible := false
-	console.SetConsoleVisibility(false)
+	log.Printf("Binary Path: %s", binaryPath)
+	log.Printf("Config Path: %s", configPath)
+
+	consoleVisible := *showConsoleParameter
+	console.SetConsoleVisibility(consoleVisible)
 
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 
-	proc := launcher.New(absoluteBinaryPath, absoluteConfigPath)
-	err := proc.Start()
+	// Launch the ShortDash process
+	proc := launcher.New(binaryPath, configPath)
+	err = proc.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,6 +60,7 @@ func onReady() {
 		processTitle = "ShortDash Target"
 	}
 
+	// Setup System Tray menus
 	systray.SetTooltip(processTitle)
 	launchMenuItem := systray.AddMenuItem(processTitle, processTitle)
 	systray.AddSeparator()
