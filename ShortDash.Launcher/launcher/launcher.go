@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"runtime"
 	"strings"
 )
@@ -13,6 +14,7 @@ import (
 type Launcher struct {
 	basePath       string
 	binaryFileName string
+	configPath     string
 	cmd            *exec.Cmd
 	IsServer       bool
 	showConsole    bool
@@ -20,10 +22,11 @@ type Launcher struct {
 }
 
 // New ShortDash Process Launcher
-func New(basePath string) Launcher {
+func New(basePath string, configPath string) Launcher {
 	launcher := Launcher{basePath: basePath}
 	launcher.binaryFileName = findBinaryFileName(basePath)
-	launcher.ProcessURL = getProcessURL(launcher.binaryFileName, basePath)
+	launcher.configPath = configPath
+	launcher.ProcessURL = getProcessURL(launcher.binaryFileName, launcher.configPath)
 	launcher.IsServer = strings.Contains(launcher.binaryFileName, "Server")
 	return launcher
 }
@@ -31,9 +34,8 @@ func New(basePath string) Launcher {
 // Start the ShortDash process
 func (l *Launcher) Start() error {
 	log.Printf("Starting %s...", l.binaryFileName)
-	fileName := l.binaryFileName
 	args := ""
-	cmd := exec.Command(fileName, args)
+	cmd := exec.Command(path.Join(l.basePath, l.binaryFileName), args)
 	cmd.Dir = l.basePath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -57,17 +59,17 @@ func findBinaryFileName(basePath string) string {
 	if runtime.GOOS == "windows" {
 		const ServerExecutable = "ShortDash.Server.exe"
 		const TargetExecutable = "ShortDash.Target.exe"
-		if _, err := os.Stat(ServerExecutable); err == nil {
+		if _, err := os.Stat(path.Join(basePath, ServerExecutable)); err == nil {
 			return ServerExecutable
-		} else if _, err := os.Stat(TargetExecutable); err == nil {
+		} else if _, err := os.Stat(path.Join(basePath, TargetExecutable)); err == nil {
 			return TargetExecutable
 		}
 	} else {
 		const ServerApplication = "ShortDash.Server"
 		const TargetApplication = "ShortDash.Target"
-		if _, err := os.Stat(ServerApplication); err == nil {
+		if _, err := os.Stat(path.Join(basePath, ServerApplication)); err == nil {
 			return ServerApplication
-		} else if _, err := os.Stat(TargetApplication); err == nil {
+		} else if _, err := os.Stat(path.Join(basePath, TargetApplication)); err == nil {
 			return TargetApplication
 		}
 	}

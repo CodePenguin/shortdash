@@ -1,10 +1,12 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
-	"syscall"
+	"path/filepath"
 
+	"ShortDash.Launcher/console"
 	"ShortDash.Launcher/icon"
 	"ShortDash.Launcher/launcher"
 	"github.com/getlantern/systray"
@@ -12,28 +14,32 @@ import (
 )
 
 func main() {
-	onExit := func() {
-		// Clean up here
-	}
-
 	systray.Run(onReady, onExit)
 }
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
+func onExit() {
+	// Clean up here
 }
 
 func onReady() {
+	workingDir, _ := os.Getwd()
+	binaryPath := flag.String("b", workingDir, "Binary Path")
+	configPath := flag.String("c", "", "Config Path")
+	flag.Parse()
+
+	if *configPath == "" {
+		configPath = binaryPath
+	}
+
+	absoluteBinaryPath, _ := filepath.Abs(*binaryPath)
+	absoluteConfigPath, _ := filepath.Abs(*configPath)
+
 	consoleVisible := false
-	setConsoleVisibility(false)
+	console.SetConsoleVisibility(false)
 
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 
-	proc := launcher.New("./")
+	proc := launcher.New(absoluteBinaryPath, absoluteConfigPath)
 	err := proc.Start()
 	if err != nil {
 		log.Fatal(err)
@@ -47,8 +53,12 @@ func onReady() {
 	systray.SetTooltip(processTitle)
 	launchMenuItem := systray.AddMenuItem(processTitle, processTitle)
 	systray.AddSeparator()
-	showLogMenuitem := systray.AddMenuItem("Show Log", "Show Log")
-	systray.AddSeparator()
+	showLogMenuItem := systray.AddMenuItem("Show Log", "Show Log")
+	if console.CanShowConsole() {
+		systray.AddSeparator()
+	} else {
+		showLogMenuItem.Hide()
+	}
 	exitMenuItem := systray.AddMenuItem("Exit", "Exit")
 
 	cmdExited := make(chan error, 1)
@@ -58,13 +68,13 @@ func onReady() {
 
 	for {
 		select {
-		case <-showLogMenuitem.ClickedCh:
+		case <-showLogMenuItem.ClickedCh:
 			consoleVisible = !consoleVisible
-			setConsoleVisibility(consoleVisible)
+			console.SetConsoleVisibility(consoleVisible)
 			if consoleVisible {
-				showLogMenuitem.SetTitle("Hide Log")
+				showLogMenuItem.SetTitle("Hide Log")
 			} else {
-				showLogMenuitem.SetTitle("Show Log")
+				showLogMenuItem.SetTitle("Show Log")
 			}
 		case <-launchMenuItem.ClickedCh:
 			open.Run(proc.ProcessURL)
@@ -74,21 +84,5 @@ func onReady() {
 			systray.Quit()
 			return
 		}
-	}
-}
-
-func setConsoleVisibility(showConsole bool) {
-	var getConsoleWindow = syscall.NewLazyDLL("kernel32.dll").NewProc("GetConsoleWindow")
-	var showWindowAsync = syscall.NewLazyDLL("user32.dll").NewProc("ShowWindowAsync")
-	if getConsoleWindow.Find() != nil || showWindowAsync.Find() != nil {
-		return
-	}
-	hwnd, _, _ := getConsoleWindow.Call()
-	if showConsole {
-		var ShowWindow uintptr = 5
-		showWindowAsync.Call(hwnd, ShowWindow)
-	} else {
-		var HideWindow uintptr = 0
-		showWindowAsync.Call(hwnd, HideWindow)
 	}
 }
