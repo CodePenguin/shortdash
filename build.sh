@@ -43,7 +43,7 @@ dotnet restore ShortDash.sln
 dotnet build ShortDash.sln -c Release --no-restore
 
 # Run unit tests
-dotnet test ShortDash.Windows.sln  -c Release --no-restore -v n
+dotnet test ShortDash.sln  -c Release --no-restore -v n
 
 # Build Cross-Platform
 echo "Building Cross-Platform binaries"
