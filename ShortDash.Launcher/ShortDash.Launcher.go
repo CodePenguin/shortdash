@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"ShortDash.Launcher/console"
@@ -65,11 +66,11 @@ func onReady() {
 	launchMenuItem := systray.AddMenuItem(processTitle, processTitle)
 	systray.AddSeparator()
 	showLogMenuItem := systray.AddMenuItem("Show Log", "Show Log")
-	if console.CanShowConsole() {
-		systray.AddSeparator()
-	} else {
+	if !console.CanShowConsole() {
 		showLogMenuItem.Hide()
 	}
+	settingsMenuItem := systray.AddMenuItem("Settings", "Settings")
+	systray.AddSeparator()
 	exitMenuItem := systray.AddMenuItem("Exit", "Exit")
 
 	cmdExited := make(chan error, 1)
@@ -89,6 +90,8 @@ func onReady() {
 			}
 		case <-launchMenuItem.ClickedCh:
 			open.Run(proc.ProcessURL)
+		case <-settingsMenuItem.ClickedCh:
+			open.Run(path.Join(configPath, "appsettings.json"))
 		case <-exitMenuItem.ClickedCh:
 			proc.Kill()
 		case <-cmdExited:
