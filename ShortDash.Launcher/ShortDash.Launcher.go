@@ -9,6 +9,7 @@ import (
 	"ShortDash.Launcher/console"
 	"ShortDash.Launcher/icon"
 	"ShortDash.Launcher/launcher"
+	"ShortDash.Launcher/paths"
 	"github.com/getlantern/systray"
 	"github.com/skratchdot/open-golang/open"
 )
@@ -23,13 +24,12 @@ func onExit() {
 
 func onReady() {
 	// Always execute with the working directory as the executable path
-	executable, err := os.Executable()
-	workingDir, _ := filepath.Abs(filepath.Dir(executable))
-	os.Chdir(workingDir)
+	defaultPaths := paths.New()
+	os.Chdir(defaultPaths.ExecutablePath)
 
 	// Get command line parameters
-	binaryPathParameter := flag.String("b", workingDir, "Binary Path")
-	configPathParameter := flag.String("c", "", "Config Path")
+	binaryPathParameter := flag.String("b", defaultPaths.BinaryPath, "Binary Path")
+	configPathParameter := flag.String("c", defaultPaths.ConfigPath, "Config Path")
 	showConsoleParameter := flag.Bool("s", false, "Show Console")
 	flag.Parse()
 
@@ -50,7 +50,7 @@ func onReady() {
 
 	// Launch the ShortDash process
 	proc := launcher.New(binaryPath, configPath)
-	err = proc.Start()
+	err := proc.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
