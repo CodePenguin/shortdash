@@ -39,6 +39,9 @@ func (l *Launcher) Start() error {
 	cmd.Dir = l.basePath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	if l.basePath != l.configPath {
+		cmd.Env = append(os.Environ(), fmt.Sprintf("SHORTDASH_CONFIG_PATH=%s", l.configPath))
+	}
 	l.cmd = cmd
 	return cmd.Start()
 }
