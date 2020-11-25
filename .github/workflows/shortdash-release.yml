@@ -5,9 +5,37 @@ on:
     types: [published]
 
 jobs:
-  release:
-
+  release-linux:
     runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    - name: Install build dependencies
+      run: sudo apt-get install gcc libgtk-3-dev libappindicator3-dev
+
+    - name: Publish binaries
+      shell: bash
+      run: |
+        tag=$(git describe --tags --abbrev=0)
+        chmod +x build.sh
+        ./build.sh -m RELEASE -b ${GITHUB_RUN_NUMBER}
+
+    - name: Upload binaries
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          bin/ShortDash-linux-arm64.tar.gz
+          bin/ShortDash-linux-x64.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-macos:
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -27,15 +55,12 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          bin/ShortDash-cross-platform.zip
-          bin/ShortDash-linux-arm64.tar.gz
-          bin/ShortDash-linux-x64.tar.gz
           bin/ShortDash-osx-x64.tar.gz
+          bin/ShortDash-osx-x64.dmg
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-windows:
-
     runs-on: windows-latest
 
     steps:

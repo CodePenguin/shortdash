@@ -1,3 +1,4 @@
+# Environment setup
 set -e
 version=$(< version.txt)
 version=${version//[$'\t\r\n ']}
@@ -12,7 +13,7 @@ do
         v) version_suffix=${OPTARG};;
     esac
 done
-mode=${mode^^}
+mode=$(tr '[:lower:]' '[:upper:]' <<< "$mode")
 if [ "$mode" = "RELEASE" ]; then
     release_prefix="bin/ShortDash"
 elif [ "$mode" = "CI" ]; then
@@ -28,9 +29,56 @@ fi
 if [ "$version_suffix" != "" ]; then
     version="$version-$version_suffix"
 fi
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    platform="osx"
+elif [[ "$OSTYPE" == "linux"* ]]; then
+    platform="linux"
+else
+    echo "Unhandled Platform: $OSTYPE"
+    exit 1
+fi
 
+# Functions
+function copyPlugins() {
+    mkdir -p "$1/ShortDash.Server/plugins"
+    cp -r "$plugin_path/." "$1/ShortDash.Server/plugins"
+    mkdir -p "$1/ShortDash.Target/plugins"
+    cp -r "$plugin_path/." "$1/ShortDash.Target/plugins"
+}
+
+function buildPlatform() {
+    rid=$1
+    release_name="$release_prefix-$rid"
+    echo "Building $rid binaries..."
+    dotnet publish ShortDash.Server $common_args -r $rid $platform_args -o "$release_name/ShortDash.Server"
+    dotnet publish ShortDash.Target $common_args -r $rid $platform_args -o "$release_name/ShortDash.Target"
+    copyPlugins $release_name
+}
+
+function buildLauncher() {
+    rid=$1
+    release_name="$release_prefix-$rid"
+    echo "Building $rid Launcher binary..."
+    cd ShortDash.Launcher
+    go build -o "../$release_name/ShortDash.Launcher"
+    cd -
+}
+
+function createAppBundle() {
+    application_name=$2
+    bundle_path="$1/ShortDash $application_name.app"
+    mkdir -p "$bundle_path"
+    cp -a "assets/MacAppBundle/." "$bundle_path"
+    mkdir -p "$bundle_path/Contents/MacOS"
+    cp -a "$release_name/ShortDash.Launcher" "$bundle_path/Contents/MacOS"
+    cp -a "$release_name/ShortDash.$application_name/." "$bundle_path/Contents/Resources"
+    sed -i "" "s/{ApplicationName}/$application_name/" "$bundle_path/Contents/Info.plist"
+}
+
+# Workflows
 echo "Build Mode: $mode"
 echo "Version: $version"
+echo "Platform: $platform"
 
 common_args="-v m -c Release /p:Version=$version --framework net5.0"
 platform_args="-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
@@ -45,43 +93,41 @@ dotnet build ShortDash.sln -c Release --no-restore
 # Run unit tests
 dotnet test ShortDash.sln  -c Release --no-restore -v n
 
-# Build Cross-Platform
-echo "Building Cross-Platform binaries"
-release_name="$release_prefix-cross-platform"
-plugin_path="$release_name/ShortDash.Server/plugins"
-dotnet publish ShortDash.Server $common_args -o "$release_name/ShortDash.Server"
-dotnet publish ShortDash.Target $common_args -o "$release_name/ShortDash.Target"
+# Build Launcher
+if [ $platform == "linux" ]; then
+    buildLauncher linux-x64
+elif [ $platform == "osx" ]; then
+    buildLauncher osx-x64
+fi
+
+if [ "$mode" != "RELEASE" ]; then
+    exit 0
+fi
 
 # Build Plugins
+echo "Building plugins..."
+plugin_path="bin/plugins"
 dotnet publish ShortDash.Plugins.Core.Common $common_args -o "$plugin_path/ShortDash.Plugins.Core.Common"
 dotnet publish ShortDash.Plugins.Core.Windows $common_args -o "$plugin_path/ShortDash.Plugins.Core.Windows"
-cp -r "$plugin_path" "$release_name/ShortDash.Target/plugins"
 
-if [ "$mode" = "RELEASE" ]; then
-
-    function buildPlatform() {
-        rid=$1
-        echo "Building $rid binaries"
-        release_name="$release_prefix-$rid"
-        dotnet publish ShortDash.Server $common_args -r $rid $platform_args -o "$release_name/ShortDash.Server"
-        dotnet publish ShortDash.Target $common_args -r $rid $platform_args -o "$release_name/ShortDash.Target"
-        mkdir -p "$release_name/ShortDash.Server/plugins/ShortDash.Plugins.Core.Common"
-        cp -r "$plugin_path/ShortDash.Plugins.Core.Common" "$release_name/ShortDash.Server/plugins/ShortDash.Plugins.Core.Common"
-        mkdir -p "$release_name/ShortDash.Target/plugins/ShortDash.Plugins.Core.Common"
-        cp -r "$plugin_path/ShortDash.Plugins.Core.Common" "$release_name/ShortDash.Target/plugins/ShortDash.Plugins.Core.Common"
-    }
-
-    # Publish binaries
+if [ $platform == "linux" ]; then
     buildPlatform linux-x64
     buildPlatform linux-arm64
-    buildPlatform osx-x64
 
-    # Package binaries
-    echo "Packaging binaries"
-    cd $release_prefix-cross-platform
-    zip -r "../../$release_prefix-cross-platform.zip" ./*
-    cd -
-    tar czvf "$release_prefix-linux-arm64.tar.gz" -C "$release_prefix-linux-arm64" .
-    tar czvf "$release_prefix-linux-x64.tar.gz" -C "$release_prefix-linux-x64" .
-    tar czvf "$release_prefix-osx-x64.tar.gz" -C "$release_prefix-osx-x64" .
+    echo "Packaging..."
+    tar czf "$release_prefix-linux-arm64.tar.gz" -C "$release_prefix-linux-arm64" .
+    tar czf "$release_prefix-linux-x64.tar.gz" -C "$release_prefix-linux-x64" .
+fi
+
+if [ $platform == "osx" ]; then
+    release_name="$release_prefix-osx-x64"
+    buildPlatform osx-x64
+    echo "Bundling..."
+    dmg_template_path="$release_name-dmg"
+    createAppBundle $dmg_template_path Server
+    createAppBundle $dmg_template_path Target
+    ln -s /Applications "$dmg_template_path/Applications"
+    echo "Packaging..."
+    hdiutil create -fs HFS+ -srcfolder $dmg_template_path -volname "ShortDash" "$release_prefix-osx-x64.dmg"
+    tar czf "$release_prefix-osx-x64.tar.gz" -C "$release_prefix-osx-x64" .
 fi
