@@ -14,12 +14,12 @@ namespace ShortDash.Target
             return Host.CreateDefaultBuilder(args)
                 .UseSystemd()
                 .UseWindowsService()
-                .ConfigureAppConfiguration((HostingAbstractionsHostExtensions, ConfigurationBinder) =>
+                .ConfigureAppConfiguration((hostBuilderContext, configBuilder) =>
                 {
                     var configPath = Environment.GetEnvironmentVariable("SHORTDASH_CONFIG_PATH");
                     if (!string.IsNullOrEmpty(configPath))
                     {
-                        ConfigurationBinder.AddJsonFile(Path.Join(configPath, "appsettings.json"), optional: true, reloadOnChange: true);
+                        configBuilder.AddJsonFile(Path.Join(configPath, "appsettings.json"), optional: true, reloadOnChange: true);
                     }
                 })
                 .ConfigureLogging(loggingBuilder =>
