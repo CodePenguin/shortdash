@@ -2,6 +2,6 @@
 
 package paths
 
-func setDefaultPaths(paths Paths*) {
+func setDefaultPaths(paths *Paths) {
 	// Use the default values
 }
