@@ -1,0 +1,13 @@
+Package: shortdash-{ApplicationNameLower}
+Version: {Version}
+Architecture: amd64
+Depends: libappindicator3-1 (>= 0.2.96), libc6 (>= 2.4), libglib2.0-0 (>= 2.31.8), libgtk-3-0 (>= 3.0.0)
+Section: net
+Priority: optional
+Maintainer: David Lambert <david@codepenguin.com>
+Homepage: https://github.com/CodePenguin/shortdash
+Description: Cross-platform Shortcut Dashboard
+ A cross-platform, multi-device, extendable system
+ that allows the creation of dashboards that include
+ shortcuts that will execute on different machines
+ on a local network.

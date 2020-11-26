@@ -60,7 +60,7 @@ function buildLauncher() {
     release_name="$release_prefix-$rid"
     echo "Building $rid Launcher binary..."
     cd ShortDash.Launcher
-    go build -o "../$release_name/ShortDash.Launcher"
+    go build -ldflags="-s -w" -buildmode=pie -o "../$release_name/ShortDash.Launcher"
     cd -
 }
 
@@ -73,6 +73,43 @@ function createAppBundle() {
     cp -a "$release_name/ShortDash.Launcher" "$bundle_path/Contents/MacOS"
     cp -a "$release_name/ShortDash.$application_name/." "$bundle_path/Contents/Resources"
     sed -i "" "s/{ApplicationName}/$application_name/" "$bundle_path/Contents/Info.plist"
+}
+
+function createDebianPackage() {
+    base_path=$1
+    application_name=$2
+    application_name_lower=$(tr '[:upper:]' '[:lower:]' <<< "$application_name")
+    deb_path="$1-deb/shortdash-$application_name_lower-$version"
+    sudo rm -rf $deb_path
+    echo "Creating Debian package for ShortDash $application_name..."
+    mkdir -p "$deb_path/DEBIAN/"
+    cp -a "assets/debian/control" "$deb_path/DEBIAN/"
+    sed -i "s/{ApplicationName}/$application_name/g" "$deb_path/DEBIAN/control"
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$deb_path/DEBIAN/control"
+    sed -i "s/{Version}/$version/g" "$deb_path/DEBIAN/control"
+    doc_path="$deb_path/usr/share/doc/shortdash-$application_name_lower"
+    mkdir -p $doc_path
+    cp -a "assets/debian/copyright" "$doc_path/copyright"
+    cp -a "assets/debian/changelog" "$doc_path/changelog"
+    sed -i "s/{ApplicationName}/$application_name/g" "$doc_path/changelog"
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$doc_path/changelog"
+    gzip -9n "$doc_path/changelog"
+    doc_app_path="$deb_path/usr/share/doc/applications"
+    mkdir -p $doc_app_path
+    cp -a "assets/debian/shortdash.desktop" "$doc_app_path/shortdash-$application_name_lower.desktop"
+    sed -i "s/{ApplicationName}/$application_name/g" "$doc_app_path/shortdash-$application_name_lower.desktop"
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$doc_app_path/shortdash-$application_name_lower.desktop"
+    binary_path="$deb_path/usr/lib/shortdash-$application_name_lower/"
+    mkdir -p $binary_path
+    cp -a "$base_path/ShortDash.$application_name/." $binary_path
+    cp "$base_path/ShortDash.Launcher" $binary_path
+    cp "assets/ShortDash.png" $binary_path
+    sudo chown root:root -R $deb_path
+    sudo chmod -R 0644 $binary_path
+    sudo chmod -R u=rwX,go=rX "$deb_path"
+    sudo chmod 0755 "$binary_path/ShortDash.Launcher"
+    sudo chmod 0755 "$binary_path/ShortDash.$application_name"
+    sudo dpkg -b $deb_path
 }
 
 # Workflows
@@ -113,6 +150,10 @@ dotnet publish ShortDash.Plugins.Core.Windows $common_args -o "$plugin_path/Shor
 if [ $platform == "linux" ]; then
     buildPlatform linux-x64
     buildPlatform linux-arm64
+
+    base_path="$release_prefix-linux-x64"
+    createDebianPackage $base_path Server
+    createDebianPackage $base_path Target
 
     echo "Packaging..."
     tar czf "$release_prefix-linux-arm64.tar.gz" -C "$release_prefix-linux-arm64" .
