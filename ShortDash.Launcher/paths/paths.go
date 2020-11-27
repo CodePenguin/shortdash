@@ -30,7 +30,7 @@ func New(binaryPath string, configPath string) Paths {
 	}
 	paths.BinaryPath, _ = filepath.Abs(paths.BinaryPath)
 	paths.BinaryFileName = findBinaryFileName(paths.BinaryPath)
-	paths.baseFileName = strings.TrimSuffix(paths.BinaryFileName, filepath.Ext(paths.BinaryFileName))
+	paths.baseFileName = strings.TrimSuffix(paths.BinaryFileName, ".exe")
 
 	// Determine config path
 	if paths.ConfigPath == "" {

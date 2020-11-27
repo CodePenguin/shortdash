@@ -14,10 +14,6 @@ func setBinaryPath(paths *Paths) {
 	if !strings.HasSuffix(paths.ExecutablePath, "Contents/MacOS") {
 		return
 	}
-	// Get bundle paths and names
-	bundleFilePath := strings.TrimSuffix(paths.ExecutablePath, "Contents/MacOS")
-	bundleFileName := filepath.Base(bundleFilePath)
-	bundleAppName := strings.TrimSuffix(bundleFileName, ".app")
 	// Set new binary path
 	paths.BinaryPath = filepath.Join(paths.ExecutablePath, "../Resources")
 }
