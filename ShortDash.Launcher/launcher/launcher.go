@@ -23,6 +23,7 @@ type Launcher struct {
 
 // New ShortDash Process Launcher
 func New(basePath string, configPath string) Launcher {
+	initializeAppSettings(basePath, configPath)
 	launcher := Launcher{basePath: basePath}
 	launcher.binaryFileName = findBinaryFileName(basePath)
 	launcher.configPath = configPath
