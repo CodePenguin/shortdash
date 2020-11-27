@@ -1,8 +1,9 @@
-param ($m='CI', $v='', $b='')
-$version = (Get-Content '.\version.txt' -Raw).Trim()
-$mode = $m.ToUpper()
-$version_suffix = $v
+param ($m='CI', $v='', $b='', $r='')
 $build_number = $b
+$mode = $m.ToUpper()
+$version = ''
+$version_suffix = $v
+$ref = $r
 
 If ($mode -eq 'RELEASE')
 {
@@ -18,20 +19,30 @@ Else
     Write-Host "Invalid Mode: $mode"
     exit 1
 }
-
-If ($build_number -ne "")
+If ($ref -ne '')
+{
+    $split = ($ref -replace 'refs/tags/v').split('-')
+    $version = $split[0]
+    $version_suffix = If ($split.Length -gt 1) {$split[1]} Else {$version_suffix}
+}
+If ($version -eq '')
+{
+    $version = '0.0.0'
+}
+If ($build_number -ne '')
 {
     $version = "$version.$build_number"
+    $full_version = $version
 }
-If ($version_suffix -ne "")
+If ($version_suffix -ne '')
 {
-    $version = "$version-$version_suffix"
+    $full_version = "$version-$version_suffix"
 }
 
 Write-Host "Build Mode: $mode"
-Write-Host "Version: $version"
+Write-Host "Version: $full_version"
 
-$common_args = "-v m -c Release /p:Version=$version --framework net5.0"
+$common_args = "-v m -c Release /p:Version=$full_version --framework net5.0"
 $platform_args = "-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
 
 # Clean bin folder

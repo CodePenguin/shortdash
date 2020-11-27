@@ -24,9 +24,8 @@ jobs:
     - name: Publish binaries
       shell: bash
       run: |
-        tag=$(git describe --tags --abbrev=0)
         chmod +x build.sh
-        ./build.sh -m RELEASE -b ${GITHUB_RUN_NUMBER}
+        ./build.sh -m RELEASE -b ${GITHUB_RUN_NUMBER} -r "${GITHUB_REF}"
 
     - name: Upload binaries
       uses: softprops/action-gh-release@v1
@@ -55,9 +54,8 @@ jobs:
     - name: Publish binaries
       shell: bash
       run: |
-        tag=$(git describe --tags --abbrev=0)
         chmod +x build.sh
-        ./build.sh -m RELEASE -b ${GITHUB_RUN_NUMBER}
+        ./build.sh -m RELEASE -b ${GITHUB_RUN_NUMBER} -r "${GITHUB_REF}"
 
     - name: Upload binaries
       uses: softprops/action-gh-release@v1
@@ -83,7 +81,7 @@ jobs:
 
     - name: Publish binaries
       shell: powershell
-      run: .\build.ps1 -m RELEASE -b $Env:GITHUB_RUN_NUMBER
+      run: .\build.ps1 -m RELEASE -b $Env:GITHUB_RUN_NUMBER -r "$Env:GITHUB_REF"
 
     - name: Upload binaries
       uses: softprops/action-gh-release@v1

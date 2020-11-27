@@ -1,15 +1,16 @@
 # Environment setup
 set -e
-version=$(< version.txt)
-version=${version//[$'\t\r\n ']}
-mode="CI"
-version_suffix=""
 build_number=""
-while getopts b:m:v: flag
+mode="CI"
+ref=""
+version=""
+version_suffix=""
+while getopts b:m:r:v: flag
 do
     case "${flag}" in
         b) build_number=${OPTARG};;
         m) mode=${OPTARG};;
+        r) ref=${OPTARG};;
         v) version_suffix=${OPTARG};;
     esac
 done
@@ -23,11 +24,22 @@ else
     echo "Invalid Mode: $mode"
     exit 1
 fi
+if [ "$ref" != "" ]; then
+    IFS='-' read -ra split <<< "${ref#"refs/tags/v"}"
+    version=${split[0]}
+    if [ "${#split[@]}" == "2" ]; then
+        version_suffix=${split[1]}
+    fi
+fi
+if [ "$version" == "" ]; then
+    version="0.0.0"
+fi
 if [ "$build_number" != "" ]; then
     version="$version.$build_number"
+    full_version=$version
 fi
 if [ "$version_suffix" != "" ]; then
-    version="$version-$version_suffix"
+    full_version="$version-$version_suffix"
 fi
 if [[ "$OSTYPE" == "darwin"* ]]; then
     platform="osx"
@@ -79,7 +91,7 @@ function createDebianPackage() {
     base_path=$1
     application_name=$2
     application_name_lower=$(tr '[:upper:]' '[:lower:]' <<< "$application_name")
-    deb_path="$1-deb/shortdash-$application_name_lower-$version"
+    deb_path="$1-deb/shortdash-$application_name_lower-$full_version"
     sudo rm -rf $deb_path
     echo "Creating Debian package for ShortDash $application_name..."
     # Setup package files
@@ -87,7 +99,7 @@ function createDebianPackage() {
     cp -a "assets/debian/control" "$deb_path/DEBIAN/"
     sed -i "s/{ApplicationName}/$application_name/g" "$deb_path/DEBIAN/control"
     sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$deb_path/DEBIAN/control"
-    sed -i "s/{Version}/$version/g" "$deb_path/DEBIAN/control"
+    sed -i "s/{Version}/$full_version/g" "$deb_path/DEBIAN/control"
     # Generate documentation files
     doc_path="$deb_path/usr/share/doc/shortdash-$application_name_lower"
     mkdir -p $doc_path
@@ -130,10 +142,10 @@ function createDebianPackage() {
 
 # Workflows
 echo "Build Mode: $mode"
-echo "Version: $version"
+echo "Version: $full_version"
 echo "Platform: $platform"
 
-common_args="-v m -c Release /p:Version=$version --framework net5.0"
+common_args="-v m -c Release /p:Version=$full_version --framework net5.0"
 platform_args="-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
 
 # Clean bin folder
