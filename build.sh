@@ -125,6 +125,7 @@ function createDebianPackage() {
     sudo chmod 0755 "$binary_path/ShortDash.$application_name"
     sudo chmod 0755 $bin_filename
     sudo dpkg -b $deb_path
+    mv "$deb_path.deb" "bin/ShortDash-$application_name-linux-x64.deb"
 }
 
 # Workflows
