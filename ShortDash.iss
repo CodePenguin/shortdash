@@ -33,21 +33,19 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: "assets\ShortDash.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\ShortDash-win-x64\ShortDash.Launcher.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: server target
-Source: "bin\ShortDash-win-x64\ShortDash.Server\appsettings.json"; DestDir: "{app}\ShortDash.Server"; Flags: ignoreversion onlyifdoesntexist uninsneveruninstall; Components: server
-Source: "bin\ShortDash-win-x64\ShortDash.Server\appsettings.json"; DestDir: "{app}\ShortDash.Server"; DestName: "appsettings.base.json"; Flags: ignoreversion; Components: server
+Source: "bin\ShortDash-win-x64\ShortDash.Server\appsettings.json"; DestDir: "{app}\ShortDash.Server"; Flags: ignoreversion; Components: server
 Source: "bin\ShortDash-win-x64\ShortDash.Server\ShortDash*"; DestDir: "{app}\ShortDash.Server"; Flags: ignoreversion; Components: server
 Source: "bin\ShortDash-win-x64\ShortDash.Server\plugins\*"; DestDir: "{app}\ShortDash.Server\plugins"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: server
 Source: "bin\ShortDash-win-x64\ShortDash.Server\wwwroot\*"; DestDir: "{app}\ShortDash.Server\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: server
-Source: "bin\ShortDash-win-x64\ShortDash.Target\appsettings.json"; DestDir: "{app}\ShortDash.Target"; Flags: ignoreversion onlyifdoesntexist uninsneveruninstall; Components: target
-Source: "bin\ShortDash-win-x64\ShortDash.Target\appsettings.json"; DestDir: "{app}\ShortDash.Target"; DestName: "appsettings.base.json"; Flags: ignoreversion; Components: target
+Source: "bin\ShortDash-win-x64\ShortDash.Target\appsettings.json"; DestDir: "{app}\ShortDash.Target"; Flags: ignoreversion; Components: target
 Source: "bin\ShortDash-win-x64\ShortDash.Target\ShortDash*"; DestDir: "{app}\ShortDash.Target"; Flags: ignoreversion; Components: target
 Source: "bin\ShortDash-win-x64\ShortDash.Target\plugins\*"; DestDir: "{app}\ShortDash.Target\plugins"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: target
 Source: "bin\ShortDash-win-x64\ShortDash.Target\wwwroot\*"; DestDir: "{app}\ShortDash.Target\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: target
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\ShortDash Server"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Server"; Components: server
-Name: "{group}\ShortDash Target"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Target"; Components: target
+Name: "{group}\ShortDash Server"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Server -c ""%LocalAppData%\ShortDash.Server"""; Components: server
+Name: "{group}\ShortDash Target"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Target -c ""%LocalAppData%\ShortDash.Target"""; Components: target
 
 [Components]
 Name: "server"; Description: "ShortDash Server"; Types: server; Flags: checkablealone
@@ -61,5 +59,5 @@ Name: "target"; Description: "ShortDash Target"
 Name: "custom"; Description: "Custom"; Flags: iscustom
 
 [Registry]
-Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Server"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Server"; Flags: deletevalue uninsdeletevalue; Components: server/startup
-Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Target"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Target"; Flags: deletevalue uninsdeletevalue; Components: target/startup
+Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Server"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Server -c ""%LocalAppData%\ShortDash.Server"""; Flags: deletevalue uninsdeletevalue; Components: server/startup
+Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Target"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Target -c ""%LocalAppData%\ShortDash.Target"""; Flags: deletevalue uninsdeletevalue; Components: target/startup
