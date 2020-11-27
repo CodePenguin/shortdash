@@ -94,7 +94,7 @@ function createDebianPackage() {
     sed -i "s/{ApplicationName}/$application_name/g" "$doc_path/changelog"
     sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$doc_path/changelog"
     gzip -9n "$doc_path/changelog"
-    doc_app_path="$deb_path/usr/share/doc/applications"
+    doc_app_path="$deb_path/usr/share/applications"
     mkdir -p $doc_app_path
     cp -a "assets/debian/shortdash.desktop" "$doc_app_path/shortdash-$application_name_lower.desktop"
     sed -i "s/{ApplicationName}/$application_name/g" "$doc_app_path/shortdash-$application_name_lower.desktop"
@@ -121,7 +121,7 @@ common_args="-v m -c Release /p:Version=$version --framework net5.0"
 platform_args="-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
 
 # Clean bin folder
-rm -rf bin
+sudo rm -rf bin
 
 # Restore and build solution
 dotnet restore ShortDash.sln
