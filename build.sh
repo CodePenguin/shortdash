@@ -92,7 +92,7 @@ function createDebianPackage() {
     application_name=$2
     application_name_lower=$(tr '[:upper:]' '[:lower:]' <<< "$application_name")
     deb_path="$1-deb/shortdash-$application_name_lower-$full_version"
-    sudo rm -rf $deb_path
+    rm -rf $deb_path
     echo "Creating Debian package for ShortDash $application_name..."
     # Setup package files
     mkdir -p "$deb_path/DEBIAN/"
@@ -130,13 +130,13 @@ function createDebianPackage() {
     cp "$base_path/ShortDash.Launcher" $binary_path
     cp "assets/ShortDash.png" $binary_path
     # Set permissions
-    sudo chown root:root -R $deb_path
-    sudo chmod -R 0644 $binary_path
-    sudo chmod -R u=rwX,go=rX "$deb_path"
-    sudo chmod 0755 "$binary_path/ShortDash.Launcher"
-    sudo chmod 0755 "$binary_path/ShortDash.$application_name"
-    sudo chmod 0755 $bin_filename
-    sudo dpkg -b $deb_path
+    fakeroot chown root:root -R $deb_path
+    fakeroot chmod -R 0644 $binary_path
+    fakeroot chmod -R u=rwX,go=rX "$deb_path"
+    fakeroot chmod 0755 "$binary_path/ShortDash.Launcher"
+    fakeroot chmod 0755 "$binary_path/ShortDash.$application_name"
+    fakeroot chmod 0755 $bin_filename
+    fakeroot dpkg -b $deb_path
     mv "$deb_path.deb" "bin/ShortDash-$application_name-linux-x64.deb"
 }
 
@@ -149,7 +149,7 @@ common_args="-v m -c Release /p:Version=$full_version --framework net5.0"
 platform_args="-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true"
 
 # Clean bin folder
-sudo rm -rf bin
+rm -rf bin
 
 # Restore and build solution
 dotnet restore ShortDash.sln
