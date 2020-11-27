@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 
 	"ShortDash.Launcher/console"
@@ -89,9 +88,9 @@ func onReady() {
 				showLogMenuItem.SetTitle("Show Log")
 			}
 		case <-launchMenuItem.ClickedCh:
-			open.Run(proc.ProcessURL)
+			open.Start(proc.ProcessURL)
 		case <-settingsMenuItem.ClickedCh:
-			open.Run(path.Join(configPath, "appsettings.json"))
+			open.Start(configPath)
 		case <-exitMenuItem.ClickedCh:
 			proc.Kill()
 		case <-cmdExited:

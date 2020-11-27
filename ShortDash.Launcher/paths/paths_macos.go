@@ -3,7 +3,6 @@
 package paths
 
 import (
-	"os"
 	"os/user"
 	"path"
 	"path/filepath"
