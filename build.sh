@@ -82,33 +82,48 @@ function createDebianPackage() {
     deb_path="$1-deb/shortdash-$application_name_lower-$version"
     sudo rm -rf $deb_path
     echo "Creating Debian package for ShortDash $application_name..."
+    # Setup package files
     mkdir -p "$deb_path/DEBIAN/"
     cp -a "assets/debian/control" "$deb_path/DEBIAN/"
     sed -i "s/{ApplicationName}/$application_name/g" "$deb_path/DEBIAN/control"
     sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$deb_path/DEBIAN/control"
     sed -i "s/{Version}/$version/g" "$deb_path/DEBIAN/control"
+    # Generate documentation files
     doc_path="$deb_path/usr/share/doc/shortdash-$application_name_lower"
     mkdir -p $doc_path
     cp -a "assets/debian/copyright" "$doc_path/copyright"
-    cp -a "assets/debian/changelog" "$doc_path/changelog"
-    sed -i "s/{ApplicationName}/$application_name/g" "$doc_path/changelog"
-    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$doc_path/changelog"
-    gzip -9n "$doc_path/changelog"
+    changelog_filename="$doc_path/changelog"
+    cp -a "assets/debian/changelog" $changelog_filename
+    sed -i "s/{ApplicationName}/$application_name/g" $changelog_filename
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" $changelog_filename
+    gzip -9n $changelog_filename
+    # Add executable
+    bin_path="$deb_path/usr/bin"
+    bin_filename="$bin_path/shortdash-$application_name_lower"
+    mkdir -p $bin_path
+    cp "assets/debian/shortdash.sh" $bin_filename
+    sed -i "s/{ApplicationName}/$application_name/g" $bin_filename
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" $bin_filename
+    # Add launcher icon
     doc_app_path="$deb_path/usr/share/applications"
+    desktop_filename="$doc_app_path/shortdash-$application_name_lower.desktop"
     mkdir -p $doc_app_path
-    cp -a "assets/debian/shortdash.desktop" "$doc_app_path/shortdash-$application_name_lower.desktop"
-    sed -i "s/{ApplicationName}/$application_name/g" "$doc_app_path/shortdash-$application_name_lower.desktop"
-    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" "$doc_app_path/shortdash-$application_name_lower.desktop"
+    cp -a "assets/debian/shortdash.desktop" $desktop_filename
+    sed -i "s/{ApplicationName}/$application_name/g" $desktop_filename
+    sed -i "s/{ApplicationNameLower}/$application_name_lower/g" $desktop_filename
+    # Copy binaries
     binary_path="$deb_path/usr/lib/shortdash-$application_name_lower/"
     mkdir -p $binary_path
     cp -a "$base_path/ShortDash.$application_name/." $binary_path
     cp "$base_path/ShortDash.Launcher" $binary_path
     cp "assets/ShortDash.png" $binary_path
+    # Set permissions
     sudo chown root:root -R $deb_path
     sudo chmod -R 0644 $binary_path
     sudo chmod -R u=rwX,go=rX "$deb_path"
     sudo chmod 0755 "$binary_path/ShortDash.Launcher"
     sudo chmod 0755 "$binary_path/ShortDash.$application_name"
+    sudo chmod 0755 $bin_filename
     sudo dpkg -b $deb_path
 }
 

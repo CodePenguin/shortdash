@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=ShortDash {ApplicationName}
 Comment=ShortDash {ApplicationName}
-Exec=/usr/lib/shortdash-{ApplicationNameLower}/ShortDash.Launcher
+Exec=/usr/bin/shortdash-{ApplicationNameLower}
 Icon=/usr/lib/shortdash-{ApplicationNameLower}/ShortDash.png
 Terminal=false
 Type=Application
