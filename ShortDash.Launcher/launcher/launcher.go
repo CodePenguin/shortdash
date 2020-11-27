@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"runtime"
 	"strings"
 )
 
@@ -22,10 +21,10 @@ type Launcher struct {
 }
 
 // New ShortDash Process Launcher
-func New(basePath string, configPath string) Launcher {
-	initializeAppSettings(basePath, configPath)
-	launcher := Launcher{basePath: basePath}
-	launcher.binaryFileName = findBinaryFileName(basePath)
+func New(binaryFileName string, binaryPath string, configPath string) Launcher {
+	initializeAppSettings(binaryPath, configPath)
+	launcher := Launcher{basePath: binaryPath}
+	launcher.binaryFileName = binaryFileName
 	launcher.configPath = configPath
 	launcher.ProcessURL = getProcessURL(launcher.binaryFileName, launcher.configPath)
 	launcher.IsServer = strings.Contains(launcher.binaryFileName, "Server")
@@ -56,28 +55,6 @@ func (l *Launcher) Kill() {
 func (l *Launcher) Wait() error {
 	log.Printf("%s is now running...", l.binaryFileName)
 	return l.cmd.Wait()
-}
-
-// Checks the file system to determine what binary should be executed
-func findBinaryFileName(basePath string) string {
-	if runtime.GOOS == "windows" {
-		const ServerExecutable = "ShortDash.Server.exe"
-		const TargetExecutable = "ShortDash.Target.exe"
-		if _, err := os.Stat(path.Join(basePath, ServerExecutable)); err == nil {
-			return ServerExecutable
-		} else if _, err := os.Stat(path.Join(basePath, TargetExecutable)); err == nil {
-			return TargetExecutable
-		}
-	} else {
-		const ServerApplication = "ShortDash.Server"
-		const TargetApplication = "ShortDash.Target"
-		if _, err := os.Stat(path.Join(basePath, ServerApplication)); err == nil {
-			return ServerApplication
-		} else if _, err := os.Stat(path.Join(basePath, TargetApplication)); err == nil {
-			return TargetApplication
-		}
-	}
-	panic("ShortDash binary not found.")
 }
 
 // Retrieves the process URL based on configuration or defaults

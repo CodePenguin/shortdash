@@ -44,8 +44,8 @@ Source: "bin\ShortDash-win-x64\ShortDash.Target\wwwroot\*"; DestDir: "{app}\Shor
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\ShortDash Server"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Server -c ""%LocalAppData%\ShortDash.Server"""; Components: server
-Name: "{group}\ShortDash Target"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Target -c ""%LocalAppData%\ShortDash.Target"""; Components: target
+Name: "{group}\ShortDash Server"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Server"; Components: server
+Name: "{group}\ShortDash Target"; Filename: "{app}\ShortDash.Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\ShortDash.ico"; IconIndex: 0; Parameters: "-b ShortDash.Target"; Components: target
 
 [Components]
 Name: "server"; Description: "ShortDash Server"; Types: server; Flags: checkablealone
@@ -59,5 +59,5 @@ Name: "target"; Description: "ShortDash Target"
 Name: "custom"; Description: "Custom"; Flags: iscustom
 
 [Registry]
-Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Server"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Server -c ""%LocalAppData%\ShortDash.Server"""; Flags: deletevalue uninsdeletevalue; Components: server/startup
-Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Target"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Target -c ""%LocalAppData%\ShortDash.Target"""; Flags: deletevalue uninsdeletevalue; Components: target/startup
+Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Server"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Server"; Flags: deletevalue uninsdeletevalue; Components: server/startup
+Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Target"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Target"; Flags: deletevalue uninsdeletevalue; Components: target/startup

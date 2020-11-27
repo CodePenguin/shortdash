@@ -32,8 +32,8 @@ If ($version -eq '')
 If ($build_number -ne '')
 {
     $version = "$version.$build_number"
-    $full_version = $version
 }
+$full_version = $version
 If ($version_suffix -ne '')
 {
     $full_version = "$version-$version_suffix"

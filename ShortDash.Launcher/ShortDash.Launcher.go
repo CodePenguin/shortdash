@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
-	"path/filepath"
 
 	"ShortDash.Launcher/console"
 	"ShortDash.Launcher/icon"
@@ -23,25 +21,16 @@ func onExit() {
 }
 
 func onReady() {
-	// Always execute with the working directory as the executable path
-	defaultPaths := paths.New()
-	os.Chdir(defaultPaths.ExecutablePath)
-
 	// Get command line parameters
-	binaryPathParameter := flag.String("b", defaultPaths.BinaryPath, "Binary Path")
-	configPathParameter := flag.String("c", defaultPaths.ConfigPath, "Config Path")
+	binaryPathParameter := flag.String("b", "", "Binary Path")
+	configPathParameter := flag.String("c", "", "Config Path")
 	showConsoleParameter := flag.Bool("s", false, "Show Console")
 	flag.Parse()
 
-	if *configPathParameter == "" {
-		configPathParameter = binaryPathParameter
-	}
+	environmentPaths := paths.New(*binaryPathParameter, *configPathParameter)
 
-	binaryPath, _ := filepath.Abs(*binaryPathParameter)
-	configPath, _ := filepath.Abs(*configPathParameter)
-
-	log.Printf("Binary Path: %s", binaryPath)
-	log.Printf("Config Path: %s", configPath)
+	log.Printf("Binary Path: %s", environmentPaths.BinaryPath)
+	log.Printf("Config Path: %s", environmentPaths.ConfigPath)
 
 	consoleVisible := *showConsoleParameter
 	console.SetConsoleVisibility(consoleVisible)
@@ -49,7 +38,7 @@ func onReady() {
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 
 	// Launch the ShortDash process
-	proc := launcher.New(binaryPath, configPath)
+	proc := launcher.New(environmentPaths.BinaryFileName, environmentPaths.BinaryPath, environmentPaths.ConfigPath)
 	err := proc.Start()
 	if err != nil {
 		log.Fatal(err)
@@ -90,7 +79,7 @@ func onReady() {
 		case <-launchMenuItem.ClickedCh:
 			open.Start(proc.ProcessURL)
 		case <-settingsMenuItem.ClickedCh:
-			open.Start(configPath)
+			open.Start(environmentPaths.ConfigPath)
 		case <-exitMenuItem.ClickedCh:
 			proc.Kill()
 		case <-cmdExited:

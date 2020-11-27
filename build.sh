@@ -36,8 +36,8 @@ if [ "$version" == "" ]; then
 fi
 if [ "$build_number" != "" ]; then
     version="$version.$build_number"
-    full_version=$version
 fi
+full_version=$version
 if [ "$version_suffix" != "" ]; then
     full_version="$version-$version_suffix"
 fi
