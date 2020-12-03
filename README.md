@@ -10,28 +10,14 @@ A server runs on your local network and allows any device with a web browser to 
 
 Shortcuts can be created by customizing existing actions to execute programs, web requests, etc.  Multiple actions can be executed with a single shortcut to create advanced workflows.  An open plugin architecture allows anyone to quickly create new actions to fit any workflow required.
 
+![ShortDash Architecture Overview](docs/images/architecture.png)
+
 ## Table of Contents
 
-* [Software Stack](#software-stack)
 * [Building](#building)
 * [Security](#security)
 * [Additional Documentation](#additional-documentation)
-
-## Software Stack
-
-ShortDash was written using the following software stack:
-
-* [ASP.NET Core](https://dotnet.microsoft.com/learn/aspnet/what-is-aspnet-core)
-* [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
-* [Blazored Modal](https://github.com/Blazored/Modal)
-* [Blazored Toast](https://github.com/Blazored/Toast)
-* [Bootstrap](https://getbootstrap.com/)
-* [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
-* [Font-Awesome](https://fontawesome.com/)
-* [Forge](https://github.com/digitalbazaar/forge)
-* [Otp.NET](https://github.com/kspearrin/Otp.NET)
-* [QRCode.js](https://github.com/davidshimjs/qrcodejs)
-* [UA Parser](https://github.com/ua-parser/uap-csharp)
+* [Software Stack](#software-stack)
 
 ## Build and Execute
 
@@ -67,3 +53,19 @@ All sensitive information in the database is stored using AES-256 encryption and
 
 * [Plugins](docs/plugins.md)
 * [Running as a service](docs/service.md)
+
+## Software Stack
+
+ShortDash was written using the following software stack:
+
+* [ASP.NET Core](https://dotnet.microsoft.com/learn/aspnet/what-is-aspnet-core)
+* [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+* [Blazored Modal](https://github.com/Blazored/Modal)
+* [Blazored Toast](https://github.com/Blazored/Toast)
+* [Bootstrap](https://getbootstrap.com/)
+* [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
+* [Font-Awesome](https://fontawesome.com/)
+* [Forge](https://github.com/digitalbazaar/forge)
+* [Otp.NET](https://github.com/kspearrin/Otp.NET)
+* [QRCode.js](https://github.com/davidshimjs/qrcodejs)
+* [UA Parser](https://github.com/ua-parser/uap-csharp)
