@@ -27,7 +27,7 @@
                             <div class="row text-center">
                                 @foreach (var icon in FilteredIcons)
                                 {
-                                    <div class="col py-1 px-1 flex-grow-0">
+                                    <div @key="icon" class="col py-1 px-1 flex-grow-0">
                                         <div class="grid-cell" @onclick="() => SetCurrentValue(icon)">
                                             <div class="grid-icon rounded text-center text-@TextClass" style="background-color: @BackgroundColorHtml">
                                                 <div class="grid-icon-content d-table-cell align-middle">

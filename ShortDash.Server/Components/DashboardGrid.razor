@@ -2,7 +2,7 @@
     <div class="row text-center">
         @foreach (var cell in DashboardCells)
         {
-            <div class="col py-3 px-3 flex-grow-0">
+            <div @key="cell" class="col py-3 px-3 flex-grow-0">
                 <DashboardGridCell Cell="cell" OnMoveCellLeft="MoveCellLeft" OnMoveCellRight="MoveCellRight" OnRemoveCell="RemoveCell" EditMode="EditMode" HideLabel="HideLabels" />
             </div>
         }

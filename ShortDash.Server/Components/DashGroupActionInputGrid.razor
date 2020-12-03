@@ -2,7 +2,7 @@
     <div class="row text-center">
         @foreach (var subAction in SubActions)
         {
-            <div class="col py-3 px-3 flex-grow-0">
+            <div @key="subAction" class="col py-3 px-3 flex-grow-0">
                 <div class="grid-cell">
                     <DashboardActionIcon DashboardAction="subAction.DashboardActionChild" />
                     <div class="grid-icon-caption">
