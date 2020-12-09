@@ -18,8 +18,16 @@
                     <h1><SecureText Value="@DeviceLinkCode.Separate(3)"></SecureText></h1>
                     <h6><a href="@DeviceLinkUrl">@DeviceLinkUrl</a></h6>
                 </div>
-                <div class="card-text text-center">
-                    <SecureQrCode class="qrcode" Value="@DeviceLinkSecureUrl" />
+                <div class="card-text text-center row">
+                    @if (Urls.Length > 1)
+                    {
+                        <h3 class="col text-right"><a href="#" @onclick="() => ShowNextUrl(-1)" @onclick:preventDefault><span class="fas fa-caret-left"></span></a></h3>
+                    }
+                    <SecureQrCode class="qrcode col" Value="@DeviceLinkSecureUrl" />
+                    @if (Urls.Length > 1)
+                    {
+                        <h3 class="col text-left"><a href="#" @onclick="() => ShowNextUrl(1)" @onclick:preventDefault><span class="fas fa-caret-right"></span></a></h3>
+                    }
                 </div>
             }
             else

@@ -130,6 +130,7 @@ namespace ShortDash.Server
             services.AddScoped<TargetLinkService>();
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(ServerEncryptedChannelService));
             services.AddSingleton<PluginService>();
+            services.AddTransient<ServerUrlRetrieverService>();
             services.AddTransient(typeof(IDataProtectionService), typeof(DataProtectionService));
             services.AddTransient(typeof(IKeyStoreService), typeof(ConfigurationKeyStoreService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashPluginLogger<>));

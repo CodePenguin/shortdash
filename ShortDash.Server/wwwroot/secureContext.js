@@ -1,4 +1,4 @@
-﻿var secureContext = (function () {
+var secureContext = (function () {
     // Internal functions
     var _ = {
         getClientPublicKey: function () {
@@ -15,8 +15,7 @@
             try {
                 return forge.pki.decryptRsaPrivateKey(privateKey, _.getClientUniqueId());
             }
-            catch(err)
-            {
+            catch (err) {
                 localStorage.removeItem("SecureContextClientPrivateKey");
                 return null;
             }
@@ -137,7 +136,11 @@
         },
 
         setSecureQRCode: function (id, encryptedValue, width, height) {
-            new QRCode(document.getElementById(id), {
+            var element = document.getElementById(id);
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            new QRCode(element, {
                 text: this.decrypt(encryptedValue),
                 width: width,
                 height: height

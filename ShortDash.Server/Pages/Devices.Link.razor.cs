@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using OtpNet;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
@@ -10,15 +10,20 @@ namespace ShortDash.Server.Pages
 {
     public sealed partial class Devices_Link : PageBase, IDisposable
     {
+        private int urlIndex;
         private DeviceClaims DeviceClaims { get; set; } = new DeviceClaims();
 
         private string DeviceLinkCode { get; set; }
 
-        private string DeviceLinkSecureUrl { get; set; }
+        private string DeviceLinkSecureUrl => Urls[urlIndex] + "/?c=" + HttpUtility.UrlEncode(DeviceLinkCode);
 
-        private string DeviceLinkUrl { get; set; }
-
+        private string DeviceLinkUrl => Urls[urlIndex];
         private bool Linking { get; set; }
+
+        [Inject]
+        private ServerUrlRetrieverService ServerUrlRetrieverService { get; set; }
+
+        private string[] Urls { get; set; }
 
         public void Dispose()
         {
@@ -27,8 +32,9 @@ namespace ShortDash.Server.Pages
 
         protected override Task OnParametersSetAsync()
         {
-            DeviceLinkUrl = NavigationManager.ToAbsoluteUri("/").ToString();
             Linking = false;
+            Urls = ServerUrlRetrieverService.Urls;
+            urlIndex = Math.Max(0, Array.IndexOf(Urls, NavigationManager.BaseUri.Trim('/')));
             return base.OnParametersSetAsync();
         }
 
@@ -67,6 +73,11 @@ namespace ShortDash.Server.Pages
             return otp.ComputeTotp();
         }
 
+        private void ShowNextUrl(int step)
+        {
+            urlIndex = Math.Min(Urls.Length - 1, Math.Max(0, urlIndex + step));
+        }
+
         private async void StartLinking()
         {
             if (!await SecureContext.ValidateUserAsync())
@@ -74,7 +85,6 @@ namespace ShortDash.Server.Pages
                 return;
             }
             DeviceLinkCode = GenerateDeviceLinkCode();
-            DeviceLinkSecureUrl = NavigationManager.ToAbsoluteUri("/?c=" + HttpUtility.UrlEncode(DeviceLinkCode)).ToString();
 
             DeviceLinkService.OnDeviceLinked += DeviceLinkedEvent;
 
