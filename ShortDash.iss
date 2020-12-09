@@ -1,4 +1,7 @@
 #define ApplicationName 'ShortDash'
+#ifndef BuildVersion
+#define BuildVersion "0.0.0"
+#endif
 
 [Setup]
 AppId={{A9D5146E-5ABD-4687-B370-6850DD8B995F}
@@ -61,3 +64,7 @@ Name: "custom"; Description: "Custom"; Flags: iscustom
 [Registry]
 Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Server"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Server"; Flags: deletevalue uninsdeletevalue; Components: server/startup
 Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "ShortDash Target"; ValueData: """{app}\ShortDash.Launcher.exe"" -b ShortDash.Target"; Flags: deletevalue uninsdeletevalue; Components: target/startup
+
+[Run]
+Filename: "{app}\ShortDash.Launcher.exe"; Parameters: "-b ShortDash.Server"; WorkingDir: "{app}"; Flags: postinstall nowait; Description: "Run ShortDash Server"; Components: server
+Filename: "{app}\ShortDash.Launcher.exe"; Parameters: "-b ShortDash.Target"; WorkingDir: "{app}"; Flags: postinstall nowait; Description: "Run ShortDash Target"; Components: target
