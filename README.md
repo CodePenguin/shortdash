@@ -14,6 +14,7 @@ Shortcuts can be created by customizing existing actions to execute programs, we
 
 ## Table of Contents
 
+* [Quick Start](docs/quickstart.md)
 * [Building](#building)
 * [Security](#security)
 * [Additional Documentation](#additional-documentation)
