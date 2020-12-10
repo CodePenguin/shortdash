@@ -3,6 +3,7 @@ using OtpNet;
 using ShortDash.Server.Data;
 using ShortDash.Server.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -33,8 +34,7 @@ namespace ShortDash.Server.Pages
         protected override Task OnParametersSetAsync()
         {
             Linking = false;
-            Urls = ServerUrlRetrieverService.Urls;
-            urlIndex = Math.Max(0, Array.IndexOf(Urls, NavigationManager.BaseUri.Trim('/')));
+            LoadServerUrls();
             return base.OnParametersSetAsync();
         }
 
@@ -71,6 +71,20 @@ namespace ShortDash.Server.Pages
         {
             var otp = new Totp(KeyGeneration.GenerateRandomKey(10));
             return otp.ComputeTotp();
+        }
+
+        private void LoadServerUrls()
+        {
+            var serverUrls = new List<string>(ServerUrlRetrieverService.Urls);
+            var baseUri = NavigationManager.BaseUri.Trim('/');
+            var baseUriIndex = serverUrls.IndexOf(baseUri);
+            if (baseUriIndex == -1 && !baseUri.Contains("localhost", StringComparison.InvariantCultureIgnoreCase) && !baseUri.Contains("127.0.0.1") && !baseUri.Contains("::1"))
+            {
+                serverUrls.Add(baseUri);
+                baseUriIndex = serverUrls.Count - 1;
+            }
+            urlIndex = Math.Max(0, baseUriIndex);
+            Urls = serverUrls.ToArray();
         }
 
         private void ShowNextUrl(int step)
