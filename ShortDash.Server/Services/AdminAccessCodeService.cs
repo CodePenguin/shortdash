@@ -8,10 +8,10 @@ namespace ShortDash.Server.Services
 {
     public class AdminAccessCodeService
     {
-        private readonly ConfigurationService configurationService;
+        private readonly IConfigurationService configurationService;
         private readonly IDataProtectionService dataProtectionService;
 
-        public AdminAccessCodeService(ConfigurationService configurationService, IDataProtectionService dataProtectionService)
+        public AdminAccessCodeService(IConfigurationService configurationService, IDataProtectionService dataProtectionService)
         {
             this.configurationService = configurationService;
             this.dataProtectionService = dataProtectionService;

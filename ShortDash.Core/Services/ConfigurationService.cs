@@ -1,16 +1,16 @@
-﻿using ShortDash.Core.Interfaces;
-using ShortDash.Server.Data;
+using ShortDash.Core.Data;
+using ShortDash.Core.Interfaces;
 using System.Linq;
 using System.Text.Json;
 
-namespace ShortDash.Server.Services
+namespace ShortDash.Core.Services
 {
-    public class ConfigurationService
+    public class ConfigurationService : IConfigurationService
     {
         private readonly IDataProtectionService dataProtectionService;
-        private readonly ApplicationDbContextFactory dbContextFactory;
+        private readonly IApplicationDbContextFactory dbContextFactory;
 
-        public ConfigurationService(ApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
+        public ConfigurationService(IApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
         {
             this.dbContextFactory = dbContextFactory;
             this.dataProtectionService = dataProtectionService;

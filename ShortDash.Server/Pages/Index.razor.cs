@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -20,7 +21,7 @@ namespace ShortDash.Server.Pages
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Inject]
-        private ConfigurationService ConfigurationService { get; set; }
+        private IConfigurationService ConfigurationService { get; set; }
 
         private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 

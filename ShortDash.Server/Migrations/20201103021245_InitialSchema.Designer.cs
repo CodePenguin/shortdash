@@ -8,7 +8,7 @@ using ShortDash.Server.Data;
 
 namespace ShortDash.Server.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(ServerApplicationDbContext))]
     [Migration("20201103021245_InitialSchema")]
     partial class InitialSchema
     {

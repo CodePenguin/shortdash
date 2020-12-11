@@ -1,4 +1,4 @@
-﻿using ShortDash.Server.Extensions;
+using ShortDash.Server.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,12 +8,6 @@ using System.Text.Json;
 
 namespace ShortDash.Server.Data
 {
-    public class ConfigurationSection
-    {
-        public string ConfigurationSectionId { get; set; }
-        public string Data { get; set; }
-    }
-
     public class Dashboard
     {
         [NotMapped]

@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using ShortDash.Core.Data;
 using ShortDash.Core.Interfaces;
-using ShortDash.Server.Data;
-using ShortDash.Server.Services;
 
 namespace ShortDash.Core.Services
 {
@@ -17,21 +16,21 @@ namespace ShortDash.Core.Services
         public bool HasKey(string purpose)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
             return !string.IsNullOrWhiteSpace(RetrieveKey(purpose));
         }
 
         public void RemoveKey(string purpose)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
             configurationService.RemoveSection(ConfigurationSections.Key(purpose));
         }
 
         public string RetrieveKey(string purpose)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
             var key = configurationService.GetSection(ConfigurationSections.Key(purpose));
             return !string.IsNullOrWhiteSpace(key) ? key : null;
         }
@@ -39,7 +38,7 @@ namespace ShortDash.Core.Services
         public void StoreKey(string purpose, string key)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
             configurationService.SetSection(ConfigurationSections.Key(purpose), key);
         }
     }

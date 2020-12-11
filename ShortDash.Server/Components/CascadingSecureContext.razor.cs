@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
@@ -39,7 +39,7 @@ namespace ShortDash.Server.Components
         private IConfiguration Configuration { get; set; }
 
         [Inject]
-        private ConfigurationService ConfigurationService { get; set; }
+        private IConfigurationService ConfigurationService { get; set; }
 
         [Inject]
         private IDataProtectionService DataProtectionService { get; set; }

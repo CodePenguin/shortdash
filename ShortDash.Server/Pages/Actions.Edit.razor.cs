@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Server.Actions;
 using ShortDash.Server.Components;
@@ -25,7 +26,7 @@ namespace ShortDash.Server.Pages
         private EditContext ActionEditContext { get; set; }
 
         [Inject]
-        private ConfigurationService ConfigurationService { get; set; }
+        private IConfigurationService ConfigurationService { get; set; }
 
         private DashboardAction DashboardAction { get; set; }
 

@@ -1,7 +1,8 @@
-﻿using Blazored.Modal.Services;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
+using ShortDash.Core.Interfaces;
 using ShortDash.Server.Components;
 using ShortDash.Server.Data;
 using ShortDash.Server.Extensions;
@@ -27,7 +28,7 @@ namespace ShortDash.Server.Shared
         public ISecureContext SecureContext { get; set; }
 
         [Inject]
-        private ConfigurationService ConfigurationService { get; set; }
+        private IConfigurationService ConfigurationService { get; set; }
 
         private List<Dashboard> Dashboards { get; set; } = new List<Dashboard>();
 

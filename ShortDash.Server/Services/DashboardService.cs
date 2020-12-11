@@ -11,9 +11,9 @@ namespace ShortDash.Server.Services
     {
         private readonly IDataProtectionService dataProtectionService;
         private readonly DataSignatureManager dataSignatureManager;
-        private readonly ApplicationDbContextFactory dbContextFactory;
+        private readonly ServerApplicationDbContextFactory dbContextFactory;
 
-        public DashboardService(ApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager, IDataProtectionService dataProtectionService)
+        public DashboardService(ServerApplicationDbContextFactory dbContextFactory, DataSignatureManager dataSignatureManager, IDataProtectionService dataProtectionService)
         {
             this.dbContextFactory = dbContextFactory;
             this.dataSignatureManager = dataSignatureManager;

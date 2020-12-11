@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Data;
 using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
@@ -34,7 +35,7 @@ namespace ShortDash.Server
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; set; }
 
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ServerApplicationDbContext dbContext)
         {
             dbContext.Database.Migrate();
 
@@ -84,7 +85,7 @@ namespace ShortDash.Server
             services.AddDataProtection()
                 .SetApplicationName("ShortDash.Server");
 
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<ServerApplicationDbContext>(options =>
             {
                 options.UseSqlite("Data Source=" + Path.Combine(applicationDataPath, "ShortDash.Server.db"));
             });
@@ -117,10 +118,11 @@ namespace ShortDash.Server
             services.AddBlazoredModal();
             services.AddBlazoredToast();
             services.AddHttpContextAccessor();
-            services.AddScoped<ApplicationDbContextFactory>();
+            services.AddScoped<IApplicationDbContextFactory, ServerApplicationDbContextFactory>();
+            services.AddScoped<ServerApplicationDbContextFactory>();
             services.AddScoped<AdminAccessCodeService>();
             services.AddScoped<AuthenticationEvents>();
-            services.AddScoped<ConfigurationService>();
+            services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddScoped<DashboardService>();
             services.AddScoped<DashboardActionService>();
             services.AddScoped<DataSignatureManager>();

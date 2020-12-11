@@ -1,4 +1,5 @@
-﻿using ShortDash.Core.Interfaces;
+using ShortDash.Core.Data;
+using ShortDash.Core.Interfaces;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
@@ -10,10 +11,10 @@ namespace ShortDash.Server.Data
     {
         private const int CurrentSignatureVersion = 1;
         private readonly IDataProtectionService dataProtectionService;
-        private readonly ApplicationDbContextFactory dbContextFactory;
+        private readonly ServerApplicationDbContextFactory dbContextFactory;
         private string _protectedKey = null;
 
-        public DataSignatureManager(ApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
+        public DataSignatureManager(ServerApplicationDbContextFactory dbContextFactory, IDataProtectionService dataProtectionService)
         {
             this.dbContextFactory = dbContextFactory;
             this.dataProtectionService = dataProtectionService;
@@ -116,7 +117,7 @@ namespace ShortDash.Server.Data
         private string InitializeKey()
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            var sectionId = ConfigurationSections.Key("DataSignature");
+            var sectionId = Core.Data.ConfigurationSections.Key("DataSignature");
             var configurationSection = dbContext.ConfigurationSections
                 .Where(s => s.ConfigurationSectionId == sectionId)
                 .FirstOrDefault();

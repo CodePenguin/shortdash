@@ -1,17 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ShortDash.Core.Data;
 using ShortDash.Core.Extensions;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace ShortDash.Server.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ServerApplicationDbContext : ApplicationDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ServerApplicationDbContext(DbContextOptions<ServerApplicationDbContext> options) : base(options)
         {
         }
 
-        public DbSet<ConfigurationSection> ConfigurationSections { get; set; }
         public DbSet<DashboardAction> DashboardActions { get; set; }
         public DbSet<DashboardActionTarget> DashboardActionTargets { get; set; }
         public DbSet<DashboardCell> DashboardCells { get; set; }
