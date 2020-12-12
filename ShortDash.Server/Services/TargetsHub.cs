@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Models;
@@ -87,6 +87,13 @@ namespace ShortDash.Server.Services
             // Update target information
             target.LastSeenDateTime = DateTime.Now;
             await dashboardService.UpdateDashboardActionTargetAsync(target);
+        }
+
+        public async Task Identify()
+        {
+            var targetId = GetTargetId();
+            logger.LogDebug($"Received identify request from Target {targetId}...");
+            await Clients.Caller.Identify(encryptedChannelService.ExportPublicKey());
         }
 
         public async Task LinkTarget(string encryptedParameters)

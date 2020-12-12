@@ -1,4 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Target.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,26 +9,25 @@ namespace ShortDash.Target.Services
 {
     public sealed class TargetHubHostService : BackgroundService
     {
-        private readonly CancellationTokenSource cancellationTokenSource;
         private readonly TargetHubClient targetHubClient;
 
-        public TargetHubHostService(TargetHubClient targetHubClient)
+        public TargetHubHostService(IServiceScopeFactory serviceScopeFactory)
         {
-            this.targetHubClient = targetHubClient;
-            cancellationTokenSource = new CancellationTokenSource();
+            using var scope = serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TargetApplicationDbContext>();
+            dbContext.Database.Migrate();
+            targetHubClient = scope.ServiceProvider.GetRequiredService<TargetHubClient>();
         }
 
         public override void Dispose()
         {
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
             targetHubClient.Dispose();
             base.Dispose();
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return targetHubClient.ConnectAsync(cancellationTokenSource.Token);
+            return targetHubClient.ConnectAsync(stoppingToken);
         }
     }
 }

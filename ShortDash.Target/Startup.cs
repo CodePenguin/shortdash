@@ -2,13 +2,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ShortDash.Core.Data;
 using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
 using ShortDash.Core.Plugins;
 using ShortDash.Core.Services;
+using ShortDash.Target.Data;
 using ShortDash.Target.Services;
 using ShortDash.Target.Shared;
 using System.IO;
@@ -29,6 +32,7 @@ namespace ShortDash.Target
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMigrationsEndPoint();
             }
             else
             {
@@ -48,6 +52,8 @@ namespace ShortDash.Target
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
             var settings = new ApplicationSettings();
             Configuration.GetSection(ApplicationSettings.Key).Bind(settings);
 
@@ -61,11 +67,18 @@ namespace ShortDash.Target
             services.AddDataProtection()
                 .SetApplicationName("ShortDash.Target");
 
+            services.AddDbContext<TargetApplicationDbContext>(options =>
+            {
+                options.UseSqlite("Data Source=" + Path.Combine(applicationDataPath, "ShortDash.Target.db"));
+            });
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddScoped<IApplicationDbContextFactory, TargetApplicationDbContextFactory>();
+            services.AddScoped<TargetApplicationDbContextFactory>();
+            services.AddTransient<IConfigurationService, ConfigurationService>();
             services.AddTransient(typeof(IDataProtectionService), typeof(DataProtectionService));
             services.AddTransient(typeof(IShortDashPluginLogger<>), typeof(ShortDashTargetPluginLogger<>));
-            services.AddTransient(typeof(IKeyStoreService), (serviceProvider) => new FileKeyStoreService(applicationDataPath));
+            services.AddTransient(typeof(IKeyStoreService), typeof(ConfigurationKeyStoreService));
             services.AddSingleton(typeof(IEncryptedChannelService), typeof(TargetEncryptedChannelService));
             services.AddTransient(typeof(ISecureKeyStoreService), typeof(SecureKeyStoreService));
             services.AddSingleton<PluginService>();

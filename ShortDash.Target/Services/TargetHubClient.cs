@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ShortDash.Core.Extensions;
 using ShortDash.Core.Interfaces;
@@ -17,21 +18,23 @@ namespace ShortDash.Target.Services
     public class TargetHubClient : IDisposable
     {
         private readonly ActionService actionService;
-        private readonly ApplicationSettings applicationSettings;
         private readonly IDataProtectionService dataProtectionService;
         private readonly IEncryptedChannelService encryptedChannelService;
         private readonly string keyPurpose = "ServerPublic";
         private readonly ISecureKeyStoreService keyStore;
         private readonly ILogger<TargetHubClient> logger;
         private readonly IRetryPolicy retryPolicy;
+        private readonly IServiceScopeFactory serviceScopeFactory;
         private bool connecting;
         private HubConnection connection;
         private bool disposed;
+        private CancellationTokenSource internalConnectCancellationTokenSource;
         private string pendingServerKey;
         private string serverChannelId;
 
         public TargetHubClient(ILogger<TargetHubClient> logger, IRetryPolicy retryPolicy, IDataProtectionService dataProtectionService,
-            IEncryptedChannelService encryptedChannelService, ISecureKeyStoreService keyStore, ActionService actionService, IConfiguration configuration)
+            IEncryptedChannelService encryptedChannelService, ISecureKeyStoreService keyStore, ActionService actionService,
+            IServiceScopeFactory serviceScopeFactory)
         {
             this.logger = logger;
             this.retryPolicy = retryPolicy;
@@ -39,9 +42,9 @@ namespace ShortDash.Target.Services
             this.encryptedChannelService = encryptedChannelService;
             this.actionService = actionService;
             this.keyStore = keyStore;
-            applicationSettings = new ApplicationSettings();
+            this.serviceScopeFactory = serviceScopeFactory;
 
-            configuration.GetSection(ApplicationSettings.Key).Bind(applicationSettings);
+            ServerUrl = GetServerUrl();
 
             SetupConnection();
         }
@@ -51,19 +54,7 @@ namespace ShortDash.Target.Services
             Dispose(false);
         }
 
-        public event EventHandler OnAuthenticated;
-
-        public event EventHandler OnClosed;
-
-        public event EventHandler OnConnected;
-
-        public event EventHandler OnConnecting;
-
-        public event EventHandler OnReconnected;
-
-        public event EventHandler OnReconnecting;
-
-        public event EventHandler OnUnlinked;
+        public event EventHandler OnStatusChanged;
 
         public bool Authenticated { get; private set; }
         public bool InitializedDataProtection { get; private set; }
@@ -75,18 +66,25 @@ namespace ShortDash.Target.Services
         public string ServerUrl { get; private set; }
         public string TargetId { get; private set; }
 
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        public async Task ConnectAsync(CancellationToken externalCancellationToken)
         {
             if (connecting || connection == null)
             {
                 return;
             }
+            internalConnectCancellationTokenSource = new CancellationTokenSource();
+            using var connectCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(externalCancellationToken, internalConnectCancellationTokenSource.Token);
             try
             {
+                var cancellationToken = connectCancellationTokenSource.Token;
                 connecting = true;
                 var retryContext = new RetryContext();
                 while (true)
                 {
+                    if (!connecting || connection == null)
+                    {
+                        break;
+                    }
                     try
                     {
                         Connecting();
@@ -108,7 +106,7 @@ namespace ShortDash.Target.Services
                         {
                             return;
                         }
-                        await Task.Delay((int)retryDelay.GetValueOrDefault().TotalMilliseconds);
+                        await Task.Delay((int)retryDelay.GetValueOrDefault().TotalMilliseconds, cancellationToken);
                     }
                 }
             }
@@ -116,6 +114,13 @@ namespace ShortDash.Target.Services
             {
                 connecting = false;
             }
+        }
+
+        public async Task ConnectAsync(string serverUrl, CancellationToken cancellationToken)
+        {
+            SetServerUrl(serverUrl);
+            SetupConnection();
+            await ConnectAsync(cancellationToken);
         }
 
         public HubConnectionState ConnectionStatus()
@@ -132,6 +137,11 @@ namespace ShortDash.Target.Services
         public bool IsConnected()
         {
             return connection?.State == HubConnectionState.Connected;
+        }
+
+        public bool IsConnecting()
+        {
+            return connecting || connection?.State == HubConnectionState.Connecting;
         }
 
         public void LogCritical<T>(string message, params object[] args)
@@ -164,14 +174,16 @@ namespace ShortDash.Target.Services
             SendLog(LogLevel.Warning, typeof(T).FullName, message, args);
         }
 
+        public async Task ResetConnection()
+        {
+            UnlinkTarget();
+            await Disconnect();
+            SetServerUrl(string.Empty);
+        }
+
         public async void SetupConnection()
         {
-            if (connection != null)
-            {
-                await connection.StopAsync();
-                await connection.DisposeAsync();
-                connection = null;
-            }
+            await Disconnect();
 
             InitializedDataProtection = dataProtectionService.Initialized();
             if (!InitializedDataProtection)
@@ -181,7 +193,6 @@ namespace ShortDash.Target.Services
             }
 
             TargetId = encryptedChannelService.SenderId();
-            ServerUrl = applicationSettings?.ServerUrl.Trim('/');
             Linked = keyStore.HasKey(keyPurpose);
             ServerId = Linked ? GetServerId(keyStore.RetrieveSecureKey(keyPurpose)) : null;
             Authenticated = false;
@@ -195,7 +206,7 @@ namespace ShortDash.Target.Services
             logger.LogDebug("Server: " + ServerUrl);
             logger.LogDebug("Target ID: " + TargetId);
 
-            var hubUrl = ServerUrl + "/targetshub?targetId=" + HttpUtility.UrlEncode(TargetId);
+            var hubUrl = ServerUrl.Trim('/') + "/targetshub?targetId=" + HttpUtility.UrlEncode(TargetId);
             connection = new HubConnectionBuilder()
                 .WithUrl(hubUrl)
                 .WithAutomaticReconnect(retryPolicy)
@@ -242,9 +253,16 @@ namespace ShortDash.Target.Services
         {
             if (!disposed && disposing)
             {
+                internalConnectCancellationTokenSource?.Cancel();
+                internalConnectCancellationTokenSource?.Dispose();
                 _ = connection?.DisposeAsync();
             }
             disposed = true;
+        }
+
+        private static string GetServerId(string publicKey)
+        {
+            return RSAExtensions.GetPublicKeyFingerprint(publicKey);
         }
 
         private void Authenticate(string challenge)
@@ -252,7 +270,8 @@ namespace ShortDash.Target.Services
             logger.LogDebug("Received authentication request...");
             if (!Linking && !keyStore.HasKey(keyPurpose))
             {
-                logger.LogWarning("The server expected this target to have been registered already.");
+                logger.LogWarning("Requesting server identification after unexpected authentication request.");
+                connection.SendAsync("Identify");
                 return;
             }
             var serverKey = !string.IsNullOrEmpty(pendingServerKey) ? pendingServerKey : keyStore.RetrieveSecureKey(keyPurpose);
@@ -269,7 +288,7 @@ namespace ShortDash.Target.Services
         private Task Closed(Exception error)
         {
             logger.LogDebug("Connection Closed!");
-            OnClosed?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
@@ -277,7 +296,7 @@ namespace ShortDash.Target.Services
         {
             logger.LogDebug($"Connected to server.");
             LastConnectionDateTime = DateTime.Now;
-            OnConnected?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void Connecting()
@@ -289,7 +308,7 @@ namespace ShortDash.Target.Services
             }
             logger.LogDebug("Connecting to server...");
             LastConnectionAttemptDateTime = DateTime.Now;
-            OnConnecting?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private TParameterType DecryptParameters<TParameterType>(string encryptedParameters)
@@ -299,6 +318,25 @@ namespace ShortDash.Target.Services
                 return default;
             }
             return JsonSerializer.Deserialize<TParameterType>(decryptedParameters);
+        }
+
+        private async Task Disconnect()
+        {
+            if (connection == null)
+            {
+                return;
+            }
+            try
+            {
+                internalConnectCancellationTokenSource?.Cancel();
+                internalConnectCancellationTokenSource?.Dispose();
+                await connection.StopAsync();
+            }
+            finally
+            {
+                await connection.DisposeAsync();
+                connection = null;
+            }
         }
 
         private string EncryptParameters(object parameters)
@@ -326,9 +364,11 @@ namespace ShortDash.Target.Services
             connection.SendAsync("ActionExecuted", encryptedParameters);
         }
 
-        private string GetServerId(string publicKey)
+        private string GetServerUrl()
         {
-            return RSAExtensions.GetPublicKeyFingerprint(publicKey);
+            using var scope = serviceScopeFactory.CreateScope();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
+            return configurationService.GetSection(ApplicationSettings.Key);
         }
 
         private void Identify(string serverPublicKey)
@@ -342,13 +382,14 @@ namespace ShortDash.Target.Services
                 UnlinkTarget();
                 return;
             }
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private Task Reconnected(string message)
         {
             logger.LogDebug("Reconnected!");
             LastConnectionDateTime = DateTime.Now;
-            OnReconnected?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
@@ -359,7 +400,7 @@ namespace ShortDash.Target.Services
             Authenticated = false;
             logger.LogDebug("Reconnecting...");
             LastConnectionAttemptDateTime = DateTime.Now;
-            OnReconnecting?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
 
@@ -375,6 +416,14 @@ namespace ShortDash.Target.Services
             connection.SendAsync("Log", encryptedParameters);
         }
 
+        private void SetServerUrl(string value)
+        {
+            using var scope = serviceScopeFactory.CreateScope();
+            var configurationService = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
+            configurationService.SetSection(ApplicationSettings.Key, value);
+            ServerUrl = value;
+        }
+
         private void TargetAuthenticated(string encryptedKey)
         {
             if (!string.IsNullOrEmpty(pendingServerKey))
@@ -388,7 +437,7 @@ namespace ShortDash.Target.Services
             Authenticated = true;
             Linked = true;
             Linking = false;
-            OnAuthenticated?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void UnlinkTarget()
@@ -401,7 +450,7 @@ namespace ShortDash.Target.Services
             Authenticated = false;
             Linked = false;
             Linking = false;
-            OnUnlinked?.Invoke(this, EventArgs.Empty);
+            OnStatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void UnlinkTarget(string encryptedParameters)

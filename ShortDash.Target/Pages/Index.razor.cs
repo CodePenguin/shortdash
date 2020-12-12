@@ -1,24 +1,30 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using ShortDash.Target.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ShortDash.Target.Pages
 {
     public partial class Index : ComponentBase, IDisposable
     {
+        private CancellationTokenSource cancelConnectTokenSource;
+        private bool IsEditingConnection = false;
         private bool wasDisposed;
         private bool InitializedDataProtection => TargetHubClient.InitializedDataProtection;
         private bool IsConnected => TargetHubClient.IsConnected();
+        private bool IsConnecting => TargetHubClient.IsConnecting();
         private DateTime LastConnection => TargetHubClient.LastConnectionDateTime;
         private DateTime LastConnectionAttempt => TargetHubClient.LastConnectionAttemptDateTime;
         private string ServerId => TargetHubClient.ServerId;
         private string ServerUrl => TargetHubClient.ServerUrl;
         private string TargetId => TargetHubClient.TargetId;
+        private TargetConnectModel ConnectModel { get; set; } = new TargetConnectModel();
         private bool IsLinked => TargetHubClient.Linked;
         private bool IsLinking => TargetHubClient.Linking;
-        private TargetLinkModel Model { get; set; } = new TargetLinkModel();
+        private TargetLinkModel LinkModel { get; set; } = new TargetLinkModel();
         private bool ServerConfigured => !string.IsNullOrWhiteSpace(TargetHubClient.ServerUrl);
 
         [Inject]
@@ -34,29 +40,18 @@ namespace ShortDash.Target.Pages
         {
             if (!wasDisposed && disposing)
             {
-                TargetHubClient.OnAuthenticated -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnConnected -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnConnecting -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnClosed -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnReconnected -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnReconnecting -= TargetHubStatusChangeEvent;
-                TargetHubClient.OnUnlinked -= TargetHubStatusChangeEvent;
+                cancelConnectTokenSource?.Dispose();
+                TargetHubClient.OnStatusChanged -= TargetHubStatusChangeEvent;
             }
             wasDisposed = true;
         }
 
         protected override void OnInitialized()
         {
-            TargetHubClient.OnAuthenticated += TargetHubStatusChangeEvent;
-            TargetHubClient.OnConnected += TargetHubStatusChangeEvent;
-            TargetHubClient.OnConnecting += TargetHubStatusChangeEvent;
-            TargetHubClient.OnClosed += TargetHubStatusChangeEvent;
-            TargetHubClient.OnReconnected += TargetHubStatusChangeEvent;
-            TargetHubClient.OnReconnecting += TargetHubStatusChangeEvent;
-            TargetHubClient.OnUnlinked += TargetHubStatusChangeEvent;
+            TargetHubClient.OnStatusChanged += TargetHubStatusChangeEvent;
         }
 
-        private void CancelLinking()
+        private async Task CancelLinking()
         {
             if (IsLinking)
             {
@@ -64,14 +59,28 @@ namespace ShortDash.Target.Pages
             }
             else
             {
-                Model.TargetLinkCode = "";
+                LinkModel.TargetLinkCode = "";
+                await ResetConnection();
                 StateHasChanged();
             }
+        }
+
+        private async Task ConnectToServerUrl()
+        {
+            IsEditingConnection = false;
+            await ResetConnection();
+
+            cancelConnectTokenSource = new CancellationTokenSource();
+            await TargetHubClient.ConnectAsync(ConnectModel.ServerUrl, cancelConnectTokenSource.Token);
         }
 
         private string GetConnectionStatus()
         {
             var connectionStatus = TargetHubClient.ConnectionStatus();
+            if (IsConnecting)
+            {
+                return "Connecting";
+            }
             if (!IsConnected)
             {
                 return connectionStatus.ToString();
@@ -86,11 +95,18 @@ namespace ShortDash.Target.Pages
         private string GetConnectionStatusClass()
         {
             var connectionStatus = TargetHubClient.ConnectionStatus();
-            if (connectionStatus != HubConnectionState.Connected)
+            if (!IsConnecting && connectionStatus != HubConnectionState.Connected)
             {
                 return "danger";
             }
             return TargetHubClient.Authenticated ? "success" : "warning";
+        }
+
+        private async Task ResetConnection()
+        {
+            cancelConnectTokenSource?.Cancel();
+            cancelConnectTokenSource?.Dispose();
+            await TargetHubClient.ResetConnection();
         }
 
         private void StartLinking()
@@ -99,13 +115,31 @@ namespace ShortDash.Target.Pages
             {
                 return;
             }
-            var targetLinkCode = Model.TargetLinkCode.Replace(" ", "").Trim();
+            var targetLinkCode = LinkModel.TargetLinkCode.Replace(" ", "").Trim();
             TargetHubClient.StartLinking(targetLinkCode);
+            LinkModel.TargetLinkCode = string.Empty;
         }
 
         private void TargetHubStatusChangeEvent(object sender, EventArgs args)
         {
             InvokeAsync(() => StateHasChanged());
+        }
+
+        private void ToggleEditConnection()
+        {
+            IsEditingConnection = !IsEditingConnection;
+            if (IsEditingConnection)
+            {
+                ConnectModel.ServerUrl = TargetHubClient.ServerUrl;
+            }
+        }
+
+        private class TargetConnectModel
+        {
+            [Required]
+            [Display(Name = "Server URL")]
+            [Url(ErrorMessage = "The Server URL must be a valid fully-qualified URL.")]
+            public string ServerUrl { get; set; }
         }
 
         private class TargetLinkModel

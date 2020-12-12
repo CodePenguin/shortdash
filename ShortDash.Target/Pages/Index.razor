@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using ShortDash.Core.Extensions
-@using ShortDash.Core.Interfaces
 
 <div class="container col-xl-5 col-lg-8 col-md-10 col-sm-12 mt-3">
     <div class="card">
@@ -16,12 +15,28 @@
                 </p>
             </div>
         }
-        else if (!ServerConfigured)
+        else if (!ServerConfigured || IsEditingConnection)
         {
-            <div class="card-body bg-warning">
-                <p class="card-text">
-                    The connection to the ShortDash server has not been configured.<br />
-                    Update the ServerUrl setting in the appsettings.json file and then restart the application.
+            <div class="card-body">
+                <p class="card-text text-center">
+                    <EditForm Model="ConnectModel" OnValidSubmit="ConnectToServerUrl">
+                        <DataAnnotationsValidator />
+
+                        <h5 class="alert alert-info">Enter the URL for the ShortDash Server.</h5>
+
+                        <div class="form-group">
+                            <InputText type="text" class="form-control form-control-lg" placeholder="Enter ShortDash Server URL" @bind-Value="@ConnectModel.ServerUrl" />
+                            <ValidationMessage For="() => ConnectModel.ServerUrl" />
+                        </div>
+
+                        @if (IsEditingConnection)
+                        {
+                            <button class="btn btn-secondary mr-2" type="button" @onclick="ToggleEditConnection" @onclick:preventDefault>Cancel</button>
+                        }
+                        <button class="btn btn-primary" type="submit">
+                            Connect
+                        </button>
+                    </EditForm>
                 </p>
             </div>
         }
@@ -32,26 +47,26 @@
                     <dt class="col-3">Target ID</dt>
                     <dd class="col-9">@TargetId</dd>
                     <dt class="col-3">Server URL</dt>
-                    <dd class="col-9">@(!string.IsNullOrEmpty(ServerUrl) ? ServerUrl : "Not Configured")</dd>
+                    <dd class="col-9">@ServerUrl</dd>
                     <dt class="col-3">Server ID</dt>
-                    <dd class="col-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "Not Linked")</dd>
+                    <dd class="col-9">@(!string.IsNullOrEmpty(ServerId) ? ServerId : "N/A")</dd>
                     <dt class="col-3">Last Connection</dt>
                     <dd class="col-9">@LastConnection.ToDisplayString()</dd>
                 </dl>
                 @if (!IsLinked && IsConnected)
                 {
                     <div class="text-center">
-                        <EditForm Model="Model" OnValidSubmit="StartLinking">
+                        <EditForm Model="LinkModel" OnValidSubmit="StartLinking">
                             <DataAnnotationsValidator />
 
                             <h5 class="alert alert-info">Verify the Server ID matches and then enter the code from the ShortDash Server below.</h5>
 
                             <div class="form-group">
-                                <InputText type="text" class="form-control form-control-lg" placeholder="Enter Link Code" @bind-Value="@Model.TargetLinkCode" />
-                                <ValidationMessage For="() => Model.TargetLinkCode" />
+                                <InputText type="text" class="form-control form-control-lg" placeholder="Enter Link Code" @bind-Value="@LinkModel.TargetLinkCode" />
+                                <ValidationMessage For="() => LinkModel.TargetLinkCode" />
                             </div>
 
-                            <button class="btn btn-secondary" type="button" @onclick="CancelLinking">Cancel</button>
+                            <button class="btn btn-secondary" type="button" @onclick="CancelLinking" @onclick:preventDefault>Cancel</button>
                             <button class="btn btn-primary" type="submit" disabled="@(IsLinking || !IsConnected)">
                                 @if (IsLinking)
                                 {
@@ -77,4 +92,12 @@
             </div>
         }
     </div>
+    @if (ServerConfigured)
+    {
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-secondary" @onclick="ToggleEditConnection">
+                <span class="fas fa-edit" aria-hidden="true"></span> Change server connection
+            </button>
+        </div>
+    }
 </div>

@@ -1,10 +1,9 @@
-﻿namespace ShortDash.Target.Shared
+namespace ShortDash.Target.Shared
 {
     public class ApplicationSettings
     {
         public const string Key = "Settings";
 
         public string ApplicationDataPath { get; set; }
-        public string ServerUrl { get; set; }
     }
 }
