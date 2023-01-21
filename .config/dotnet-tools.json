@@ -3,13 +3,13 @@
   "isRoot": true,
   "tools": {
     "microsoft.web.librarymanager.cli": {
-      "version": "2.1.76",
+      "version": "2.1.175",
       "commands": [
         "libman"
       ]
     },
     "dotnet-ef": {
-      "version": "5.0.0",
+      "version": "6.0.13",
       "commands": [
         "dotnet-ef"
       ]
