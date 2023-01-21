@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0
+        dotnet-version: 6.0.x
 
     - name: Install build dependencies
       run: sudo apt-get install gcc libgtk-3-dev libappindicator3-dev
@@ -43,7 +43,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0
+        dotnet-version: 6.0.x
 
     - name: Build and Test
       shell: bash
@@ -62,7 +62,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0
+        dotnet-version: 6.0.x
 
     - name: Build and Test
       shell: powershell
